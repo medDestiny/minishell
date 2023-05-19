@@ -1,33 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strdup.c                                        :+:      :+:    :+:   */
+/*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/06 12:50:54 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 17:09:18 by mmisskin         ###   ########.fr       */
+/*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/05/19 18:20:13 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"minishell.h"
+#include "minishell.h"
 
-char	*ft_strdup(const char *s1)
+int	main(int ac, char **av, char **env)
 {
-	size_t	size;
-	int		i;
-	char	*dest;
+	t_env	*envp;
+	char	*line;
+	char	*shell;
 
-	i = 0;
-	size = ft_strlen(s1) + 1;
-	dest = (char *)malloc(size * sizeof(char));
-	if (!dest)
-		return (NULL);
-	while (s1[i])
+	(void)av;
+	if (ac != 1)
+		return (1);
+	envp = env_dup(env);
+	line = NULL;
+	while (1)
 	{
-		dest[i] = s1[i];
-		i++;
+		shell = prompt(envp);
+		line = readline(shell);
+		free(shell);
+		if (!line)
+			break ;
+		free(line);
 	}
-	dest[i] = '\0';
-	return (dest);
 }

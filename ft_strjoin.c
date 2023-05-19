@@ -6,11 +6,11 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 09:57:58 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/01 22:53:40 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/19 18:04:37 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"shell.h"
+#include"minishell.h"
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {

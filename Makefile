@@ -1,12 +1,15 @@
 NAME=msh
-SRC= shell.c \
-     free.c \
-     ft_strlen.c \
-     ft_strdup.c \
-     ft_strjoin.c \
-     ft_strncmp.c 
+SRC= environment.c \
+	 ft_strlen.c \
+	 ft_strdup.c \
+	 ft_strcmp.c \
+	 ft_strncmp.c \
+	 ft_strjoin.c \
+	 minishell.c \
+	 prompt.c \
+
 C_FLAGS= -Wall -Wextra -Werror -g
-header= shell.h
+header= minishell.h
 obj= $(SRC:.c=.o)
 
 all: $(NAME)
