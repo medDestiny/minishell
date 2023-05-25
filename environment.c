@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 17:52:56 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/24 21:00:07 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,9 @@ t_env	*env_dup(char **env)
 	envp = NULL;
 	if (!env)
 		return (NULL);
-	i = 0;
-	while (env[i])
+	i = -1;
+	head = NULL;
+	while (env[++i])
 	{
 		if (!envp)
 		{
@@ -73,7 +74,6 @@ t_env	*env_dup(char **env)
 		}
 		if (!envp)
 			return (NULL);
-		i++;
 	}
 	return (head);
 }

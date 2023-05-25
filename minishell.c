@@ -6,23 +6,64 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 18:20:13 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/25 00:28:33 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+void	leak()
+{
+	system("leaks msh");
+}
+
+void	print_type(t_node_type type)
+{
+	if (type == WORD)
+		printf("WORD\t");
+	else if (type == PIPE)
+		printf("PIPE\t");
+	else if (type == REDIR_IN)
+		printf("REDIR_IN\t");
+	else if (type == REDIR_OUT)
+		printf("REDIR_OUT\t");
+	else if (type == OR)
+		printf("OR\t");
+	else if (type == AND)
+		printf("AND\t");
+	else if (type == HEREDOC)
+		printf("HEREDOC\t");
+	else if (type == APPEND)
+		printf("APPEND\t");
+	else if (type == R_PAREN)
+		printf("R_PAREN\t");
+	else if (type == L_PAREN)
+		printf("L_PAREN\t");
+	else if (type == SPACE)
+		printf("SPACE\t");
+	else if (type == D_QUOTE)
+		printf("D_QUOTE\t");
+	else if (type == S_QUOTE)
+		printf("S_QUOTE\t");
+}
+
 int	main(int ac, char **av, char **env)
 {
 	t_env	*envp;
 	char	*line;
+	char	*cmdline;
 	char	*shell;
+	t_token	*tokens;
+	t_token	*next;
 
 	(void)av;
 	if (ac != 1)
 		return (1);
 	envp = env_dup(env);
+	if (!envp)
+		return (1);
 	line = NULL;
+	//atexit(leak);
 	while (1)
 	{
 		shell = prompt(envp);
@@ -30,6 +71,23 @@ int	main(int ac, char **av, char **env)
 		free(shell);
 		if (!line)
 			break ;
+		cmdline = ft_strtrim(line, " \t");
+		add_history(line);
 		free(line);
+		tokens = lexer(cmdline);
+		if (!tokens)
+			continue ;
+		printf("your command was: \x1B[31m\"\e[0m%s\x1B[31m\"\e[0m\n", cmdline);
+		while (tokens)
+		{
+			next = tokens->next;
+			print_type(tokens->type);
+			printf("\x1B[31m|\e[0m%s\x1B[31m|\e[0m\n", tokens->lexeme);
+			free(tokens->lexeme);
+			free(tokens);
+			tokens = next;
+		}
+		free(cmdline);
 	}
+	clean_env_list(envp);
 }

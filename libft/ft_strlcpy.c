@@ -1,40 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free.c                                             :+:      :+:    :+:   */
+/*   ft_strlcpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/01 22:46:59 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 18:43:57 by mmisskin         ###   ########.fr       */
+/*   Created: 2022/10/06 13:28:35 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/05/23 11:03:35 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
-void	clean_vec(char **vec)
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
-	int	i;
+	size_t	index;
+	size_t	slen;
 
-	i = 0;
-	while (vec[i])
+	slen = ft_strlen(src);
+	index = 0;
+	if (dstsize != 0)
 	{
-		free(vec[i]);
-		i++;
+		while (src[index] && index < dstsize - 1)
+		{
+			dst[index] = src[index];
+			index++;
+		}
+		dst[index] = '\0';
 	}
-	free(vec);
-}
-
-void	clean_env_list(t_env *envp)
-{
-	t_env	*next;
-
-	while (envp)
-	{
-		next = envp->next;
-		free(envp->name);
-		free(envp->value);
-		free(envp);
-		envp = next;
-	}
+	return (slen);
 }

@@ -1,31 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strcmp.c                                        :+:      :+:    :+:   */
+/*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/26 15:40:01 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 17:54:06 by mmisskin         ###   ########.fr       */
+/*   Created: 2022/10/06 12:50:54 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/05/22 12:06:27 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include"../minishell.h"
 
-int	ft_strcmp(char *str1, char *str2)
+char	*ft_strdup(const char *s1)
 {
-	int				i;
-	unsigned char	*s1;
-	unsigned char	*s2;
+	size_t	size;
+	int		i;
+	char	*dest;
 
 	i = 0;
-	s1 = (unsigned char *)str1;
-	s2 = (unsigned char *)str2;
-	while (s1[i] && s2[i])
+	size = ft_strlen(s1) + 1;
+	dest = (char *)malloc(size * sizeof(char));
+	if (!dest)
+		return (NULL);
+	while (s1[i])
 	{
-		if (s1[i] != s2[i])
-			break ;
+		dest[i] = s1[i];
 		i++;
 	}
-	return (s1[i] - s2[i]);
+	dest[i] = '\0';
+	return (dest);
 }

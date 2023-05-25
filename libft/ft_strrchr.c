@@ -1,40 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free.c                                             :+:      :+:    :+:   */
+/*   ft_strrchr.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/05/01 22:46:59 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 18:43:57 by mmisskin         ###   ########.fr       */
+/*   Created: 2022/10/06 17:10:36 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/05/22 12:06:48 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
-void	clean_vec(char **vec)
+char	*ft_strrchr(const char *s, int c)
 {
 	int	i;
 
-	i = 0;
-	while (vec[i])
+	i = ft_strlen(s);
+	s += i;
+	c = (unsigned char)c;
+	if (c == 0)
+		return ((char *)s);
+	while (i >= 0)
 	{
-		free(vec[i]);
-		i++;
+		if (*s == c)
+			return ((char *)s);
+		i--;
+		s--;
 	}
-	free(vec);
-}
-
-void	clean_env_list(t_env *envp)
-{
-	t_env	*next;
-
-	while (envp)
-	{
-		next = envp->next;
-		free(envp->name);
-		free(envp->value);
-		free(envp);
-		envp = next;
-	}
+	return (0);
 }

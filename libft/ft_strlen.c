@@ -6,11 +6,11 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 20:06:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 17:07:36 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/22 12:06:37 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
 size_t	ft_strlen(const char *str)
 {
