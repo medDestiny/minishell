@@ -6,13 +6,13 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/25 01:16:08 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/27 00:56:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-t_token	*new_token_node(t_node_type type,char *content, size_t size)
+t_token	*new_token_node(t_node_type type, char *content, size_t size)
 {
 	t_token	*node;
 
@@ -83,39 +83,29 @@ int	check_word(t_token **tokens, char *cmdline, char *limit);
 int	check_parenthesis(t_token **tokens, char *cmdline)
 {
 	int	i;
-	int	paren;
 
 	i = 0;
-	paren = 0;
-	//if ((cmdline[0] == '(' && cmdline[1] == ')') || (cmdline[i] == ')' && !*tokens))
-	//{
-	//	printf("minishell: syntax error near unexpected token `)'\n");
-	//	return (-1);
-	//}
-	//while (cmdline[i] && cmdline[i] != ')')
-	//	i++;
-	//if (!cmdline[i])
-	//{
-	//	if (i != 1)
-	//		printf("minishell: unexpected EOF while looking for matching: )\n");
-	//	else
-	//		printf("minishell: syntax error near unexpected token: newline\n");
-	//	return (-1);
-	//}
-	if (cmdline[0] == '(')
-		check_parenthesis(tokens, cmdline + 1);
-	if (cmdline[0] == '(' && token_list_add(tokens, R_PAREN, cmdline, 1) != 0)
-		return (-1);
 	if (cmdline[0] == '(')
 	{
-		paren++;
-		i = check_tokens(tokens, cmdline + 1, SEPARATOR);
+		while (cmdline[i] && cmdline[i] != ')')
+			i++;
+		if (!cmdline[i])
+		{
+			if (i != 1)
+				printf("minishell: unexpected EOF while looking for matching: )\n");
+			else
+				printf("minishell: syntax error near unexpected token: newline\n");
+			return (-1);
+		}
+		if (token_list_add(tokens, L_PAREN, cmdline, 1) != 0)
+			return (-1);
 	}
-	if (cmdline[i] == ')' && token_list_add(tokens, L_PAREN, cmdline + i + paren, 1) != 0)
-		return (-1);
-	if (cmdline[i] == ')')
-		paren++;
-	return (i + paren);
+	else if (cmdline[0] == ')')
+	{
+		if (token_list_add(tokens, R_PAREN, cmdline, 1) != 0)
+			return (-1);
+	}
+	return (1);
 }
 
 int	check_or(t_token **tokens, char *cmdline)
@@ -186,9 +176,7 @@ int	check_heredoc(t_token **tokens, char *cmdline)
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
-	last = *tokens;
-	while (last->next)
-		last = last->next;
+	last = lst_last(*tokens);
 	last->type = HEREDOC;
 	return (start + size);
 }
@@ -217,9 +205,7 @@ int	check_append(t_token **tokens, char *cmdline)
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
-	last = *tokens;
-	while (last->next)
-		last = last->next;
+	last = lst_last(*tokens);
 	last->type = APPEND;
 	return (start + size);
 }
@@ -229,7 +215,7 @@ int	check_infile(t_token **tokens, char *cmdline)
 	t_token	*last;
 	int		start;
 	int		size;
-	                                                               
+
 	start = 1;
 	size = 0;
 	while (cmdline[start] && in_set(cmdline[start], BLANK))
@@ -248,9 +234,7 @@ int	check_infile(t_token **tokens, char *cmdline)
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
-	last = *tokens;
-	while (last->next)
-		last = last->next;
+	last = lst_last(*tokens);
 	last->type = REDIR_IN;
 	return (start + size);
 }
@@ -260,7 +244,7 @@ int	check_outfile(t_token **tokens, char *cmdline)
 	t_token	*last;
 	int		start;
 	int		size;
-	                                                               
+
 	start = 1;
 	size = 0;
 	while (cmdline[start] && in_set(cmdline[start], BLANK))
@@ -279,9 +263,7 @@ int	check_outfile(t_token **tokens, char *cmdline)
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
-	last = *tokens;
-	while (last->next)
-		last = last->next;
+	last = lst_last(*tokens);
 	last->type = REDIR_OUT;
 	return (start + size);
 }
@@ -355,15 +337,8 @@ int	check_word(t_token **tokens, char *cmdline, char *limit)
 	size = 0;
 	while (cmdline[size] && !in_set(cmdline[size], limit))
 		size++;
-	//if (!size)
-	//	return (0);
 	if (token_list_add(tokens, WORD, cmdline, size) != 0)
 		return (-1);
-	//if (in_set(cmdline[size], BLANK) || ((cmdline[size] == '\'' || cmdline[size] == '"') && in_set(cmdline[size + 1], BLANK)))
-	//{
-	//	if (token_list_add(tokens, SPACE, " ", 1) != 0)
-	//		return (-1);
-	//}
 	return (size);
 }
 
