@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/25 00:28:33 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/30 18:41:08 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,18 @@ void	print_type(t_node_type type)
 		printf("S_QUOTE\t");
 }
 
+void	print_vec(char **vec)
+{
+	int	i;
+
+	i = 0;
+	while (vec[i])
+	{
+		printf("[%d] - %s\n", i, vec[i]);
+		i++;
+	}
+}
+
 int	main(int ac, char **av, char **env)
 {
 	t_env	*envp;
@@ -55,6 +67,7 @@ int	main(int ac, char **av, char **env)
 	char	*shell;
 	t_token	*tokens;
 	t_token	*next;
+	t_tree	*root;
 
 	(void)av;
 	if (ac != 1)
@@ -77,7 +90,11 @@ int	main(int ac, char **av, char **env)
 		tokens = lexer(cmdline);
 		if (!tokens)
 			continue ;
-		printf("your command was: \x1B[31m\"\e[0m%s\x1B[31m\"\e[0m\n", cmdline);
+		root = parser(&tokens);
+		//if (root)
+		//	print_vec(root->cmd.cmd);
+		//printf("your command was: \x1B[31m\"\e[0m%s\x1B[31m\"\e[0m\n", cmdline);
+		tokens = root->cmd.tokens;
 		while (tokens)
 		{
 			next = tokens->next;

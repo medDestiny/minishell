@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/25 00:24:53 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/31 17:23:54 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,61 @@ typedef struct s_token
 	struct s_token	*prev;
 }	t_token;
 
+ /////////////
+typedef struct s_cmd
+{
+	t_token	*tokens;
+	char	**cmd;
+}	t_cmd;
+
+typedef union u_tree t_tree;
+
+typedef struct s_node
+{
+	t_tree	*lchild;
+	t_tree	*rchild;
+}	t_node;
+
+//typedef struct s_pipe
+//{
+//	t_cmd	*r_child;
+//	t_cmd	*l_child;
+//}	t_pipe;
+//
+//typedef struct s_condition
+//{
+//	t_node_type	type;
+//	t_cmd		*r_child;
+//	t_cmd		*l_child;
+//}	t_condition;
+//
+//typedef struct s_redirect
+//{
+//	t_node_type	type;
+//	char		*file;
+//	t_cmd		*cmd;
+//}	t_redirect;
+
+typedef enum e_type
+{
+	T_AND,
+	T_OR,
+	T_PIPE,
+	T_CMD,
+	T_REDIR
+}	t_type;
+
+typedef union u_tree
+{
+	t_type		type;
+	t_node		node;
+	t_cmd		cmd;
+	//t_pipe		pipe;
+	//t_condition	condition;
+	//t_redirect	redirect;
+}	t_tree;
+ ///////////////
+
 //	Libft
 size_t	ft_strlen(const char *str);
 char	*ft_strdup(const char *s1);
@@ -78,5 +133,8 @@ void	clean_env_list(t_env *envp);
 
 char	*prompt(t_env *env);
 t_token	*lexer(char *cmdline);
+t_tree	*parser(t_token **tokens);
+
+int	token_list_add(t_token **list, t_node_type type, char *content, size_t size);
 
 #endif
