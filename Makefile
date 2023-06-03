@@ -10,6 +10,7 @@ SRC= environment.c \
 	 libft/ft_strrchr.c \
 	 libft/ft_strlcpy.c \
 	 tokenizer/lexer.c \
+	 parser/rdp.c \
 	 free.c \
 	 minishell.c \
 	 prompt.c \

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/31 17:23:54 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/03 15:43:07 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,18 @@ typedef struct s_token
 }	t_token;
 
  /////////////
+typedef struct s_redir
+{
+	t_node_type		type;
+	char			*file;
+	struct s_redir	*next;
+}	t_redir;
+
 typedef struct s_cmd
 {
-	t_token	*tokens;
-	char	**cmd;
+	t_token	*list;
+	t_token	*in;
+	t_token	*out;
 }	t_cmd;
 
 typedef union u_tree t_tree;
@@ -133,7 +141,7 @@ void	clean_env_list(t_env *envp);
 
 char	*prompt(t_env *env);
 t_token	*lexer(char *cmdline);
-t_tree	*parser(t_token **tokens);
+t_tree	*parser(t_token *tokens);
 
 int	token_list_add(t_token **list, t_node_type type, char *content, size_t size);
 

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/30 18:41:08 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/03 21:43:44 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,11 +90,11 @@ int	main(int ac, char **av, char **env)
 		tokens = lexer(cmdline);
 		if (!tokens)
 			continue ;
-		root = parser(&tokens);
+		root = parser(tokens);
 		//if (root)
 		//	print_vec(root->cmd.cmd);
 		//printf("your command was: \x1B[31m\"\e[0m%s\x1B[31m\"\e[0m\n", cmdline);
-		tokens = root->cmd.tokens;
+		//tokens = root->cmd.list;
 		while (tokens)
 		{
 			next = tokens->next;

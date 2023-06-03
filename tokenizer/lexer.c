@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/27 00:56:21 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/05/29 21:09:30 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,12 +125,33 @@ int	check_or(t_token **tokens, char *cmdline)
 
 int	check_and(t_token **tokens, char *cmdline)
 {
-	if (!*tokens || !cmdline[2])
+	int		i;
+
+	i = 0;
+	while (cmdline[i] && cmdline[i] == '&')
+		i++;
+	if (i < 2)
 	{
+		if (token_list_add(tokens, WORD, cmdline, i) != 0)
+			return (-1);
+		return (i);
+	}
+	if (!*tokens || !cmdline[2] || i != 2 || in_set(cmdline[2], "()&|"))
+	{
+		printf("minishell: syntax error near unexpected token ");
 		if (!*tokens)
-			printf("minishell: syntax error near unexpected token `&&'\n");
+			printf("`&&'\n");
+		else if (!cmdline[2])
+			printf("newline\n");
 		else
-			printf("minishell: syntax error near unexpected token: newline\n");
+		{
+			i = 2;
+			while (cmdline[i] && cmdline[i] == ' ')
+				i++;
+			while (cmdline[i] && cmdline[i] != ' ' && i < 4)
+				printf("%c", cmdline[i++]);
+			printf("\n");
+		}
 		return (-1);
 	}
 	if (token_list_add(tokens, AND, cmdline, 2) != 0)
@@ -356,7 +377,7 @@ int	check_tokens(t_token **tokens, char *cmdline, char *limit)
 		else
 			size = check_pipe(tokens, cmdline);
 	}
-	else if (cmdline[0] == '&' && cmdline[1] == '&')
+	else if (cmdline[0] == '&')
 		size = check_and(tokens, cmdline);
 	else if (in_set(cmdline[0], "<>"))
 		size = check_redirection(tokens, cmdline);
@@ -367,6 +388,18 @@ int	check_tokens(t_token **tokens, char *cmdline, char *limit)
 	else
 		size = check_word(tokens, cmdline, limit);
 	return (size);
+}
+
+void	validate_and_clean(t_token **tokens)
+{
+	t_token	*ptr;
+
+	ptr = *tokens;
+	while (ptr)
+	{
+		if (ptr->type)
+		ptr = ptr->next;
+	}
 }
 
 t_token	*lexer(char *cmdline)
@@ -392,5 +425,6 @@ t_token	*lexer(char *cmdline)
 			return (NULL);
 		i += skip;
 	}
+	//validate_and_clean(&tokens);
 	return (tokens);
 }
