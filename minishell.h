@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/04 13:33:42 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/05 10:42:54 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ typedef enum s_node_type
 	SPACE,
 	S_QUOTE,
 	D_QUOTE,
-	WORD
+	WORD,
+	END
 }	t_node_type;
 
 typedef struct s_env
@@ -141,11 +142,10 @@ void	clean_env_list(t_env *envp);
 
 char	*prompt(t_env *env);
 t_token	*lexer(char *cmdline);
-t_tree	*parser(t_token *tokens);
 
 int	token_list_add(t_token **list, t_node_type type, char *content, size_t size);
 
-t_tree	*parser(t_token *tokens);
+t_tree	*parser(t_token **tokens);
 int	parse_group(t_tree **root, t_token **tokens);
 
 #endif

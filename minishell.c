@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/04 11:55:59 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/05 09:02:07 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ int	main(int ac, char **av, char **env)
 		tokens = lexer(cmdline);
 		if (!tokens)
 			continue ;
-		root = parser(tokens);
+		root = parser(&tokens);
 		if (root)
 			print_tree(root, 0);
 		//if (root)

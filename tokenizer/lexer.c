@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/29 21:09:30 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/05 15:41:42 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -390,7 +390,7 @@ int	check_tokens(t_token **tokens, char *cmdline, char *limit)
 	return (size);
 }
 
-void	validate_and_clean(t_token **tokens)
+void	check_syntax(t_token **tokens)
 {
 	t_token	*ptr;
 
@@ -425,6 +425,6 @@ t_token	*lexer(char *cmdline)
 			return (NULL);
 		i += skip;
 	}
-	//validate_and_clean(&tokens);
+	//check_syntax(&tokens);
 	return (tokens);
 }
