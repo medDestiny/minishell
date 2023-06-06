@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/05 15:23:41 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/06 16:28:52 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	build_list(t_token **ptr, t_token **tokens)
 {
-	while (*tokens && (*tokens)->type != PIPE && (*tokens)->type != AND && (*tokens)->type != OR
+	if (*tokens && (*tokens)->type != PIPE && (*tokens)->type != AND && (*tokens)->type != OR
 		&& (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN && (*tokens)->type != SPACE)
 	{
 		if (token_list_add(ptr, (*tokens)->type, (*tokens)->lexeme, ft_strlen((*tokens)->lexeme)) != 0)
@@ -27,6 +27,16 @@ int	build_list(t_token **ptr, t_token **tokens)
 	return (0);
 }
 
+void	init_cmd_node(t_tree *cmd)
+{
+	cmd->type = T_CMD;
+	cmd->cmd.global_out = 0;
+	cmd->cmd.global_in = 0;
+	cmd->cmd.list = NULL;
+	cmd->cmd.in = NULL;
+	cmd->cmd.out = NULL;
+}
+
 int	parse_command(t_tree **root, t_token **tokens)
 {
 	t_tree	*cmd;
@@ -35,10 +45,7 @@ int	parse_command(t_tree **root, t_token **tokens)
 	cmd = (t_tree *)malloc(sizeof(t_tree));
 	if (!cmd)
 		return (-1);
-	cmd->type = T_CMD;
-	cmd->cmd.list = NULL;
-	cmd->cmd.in = NULL;
-	cmd->cmd.out = NULL;
+	init_cmd_node(cmd);
 	err = 0;
 	while (err == 0 && *tokens && (*tokens)->type != PIPE && (*tokens)->type != AND
 		&& (*tokens)->type != OR && (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN)
@@ -164,13 +171,74 @@ int	parse_condition(t_tree **root, t_token **tokens)
 	return (err);
 }
 
+void	update_redirs(t_tree *root, t_token *in, t_token *out)
+{
+	if (root->type == T_CMD)
+	{
+		if (in && !root->cmd.in)
+		{
+			root->cmd.in = in;
+			root->cmd.global_in = 1;
+		}
+		if (out && !root->cmd.out)
+		{
+			root->cmd.out = out;
+			root->cmd.global_out = 1;
+		}
+	}
+	else
+	{
+		update_redirs(root->node.lchild, in, out);
+		update_redirs(root->node.rchild, in, out);
+	}
+}
+
+int	add_group_redir(t_token *right, t_token *left, t_tree *group)
+{
+	t_token	*input;
+	t_token	*output;
+	int		err;
+
+	err = 0;
+	input = NULL;
+	output = NULL;
+	while (right && right->prev && right->type != PIPE && right->type != OR && right->type != AND)
+		right = right->prev;
+	skip(&right, SPACE);
+	while (right && (right->type == REDIR_IN || right->type == HEREDOC))
+		err = build_list(&input, &right);
+	skip(&left, SPACE);
+	while (left && (left->type == REDIR_OUT || left->type == APPEND))
+		err = build_list(&output, &left);
+	update_redirs(group, input, output);
+	return (err);
+}
+
+void	skip_redirs(t_token **tokens)
+{
+	while (*tokens)
+	{
+		if ((*tokens)->type == HEREDOC || (*tokens)->type == APPEND || (*tokens)->type == REDIR_IN || (*tokens)->type == REDIR_OUT)
+		{
+			while (*tokens && (*tokens)->type != SPACE && (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN)
+				*tokens = (*tokens)->next;
+		}
+		if (*tokens && (*tokens)->type == SPACE)
+			*tokens = (*tokens)->next;
+		else
+			break ;
+	}
+}
+
 int	parse_group(t_tree **root, t_token **tokens)
 {
 	t_tree	*group;
+	t_token	*paren;
 	int		err;
 
 	err = 0;
 	group = NULL;
+	paren = *tokens;
 	skip(tokens, L_PAREN);
 	group = parser(tokens);
 	if (!*root)
@@ -184,6 +252,8 @@ int	parse_group(t_tree **root, t_token **tokens)
 	}
 	else
 		skip(tokens, R_PAREN);
+	err = add_group_redir(paren, *tokens, group);
+	skip_redirs(tokens);
 	return (err);
 }
 
@@ -196,9 +266,11 @@ t_tree	*parser(t_token **tokens)
 	root = NULL;
 	while (*tokens)
 	{
-		if ((*tokens)->type == R_PAREN)
+		if (peek(*tokens) == L_PAREN)
+			skip_redirs(tokens);
+		if (*tokens && (*tokens)->type == R_PAREN)
 			break ;
-		else if ((*tokens)->type == L_PAREN)
+		else if (*tokens && (*tokens)->type == L_PAREN)
 			err = parse_group(&root, tokens);
 		else if (peek(*tokens) == OR || peek(*tokens) == AND)
 			err = parse_condition(&root, tokens);

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/05 10:42:54 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/06 20:09:50 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,8 @@ typedef struct s_redir
 
 typedef struct s_cmd
 {
+	int		global_in;
+	int		global_out;
 	t_token	*list;
 	t_token	*in;
 	t_token	*out;
@@ -132,6 +134,7 @@ char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strrchr(const char *s, int c);
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
+void	ft_putstr_fd(char *s, int fd);
 
 //	Environment
 t_env	*env_dup(char **env);
@@ -145,7 +148,11 @@ t_token	*lexer(char *cmdline);
 
 int	token_list_add(t_token **list, t_node_type type, char *content, size_t size);
 
+void	check_syntax(t_token **tokens);
 t_tree	*parser(t_token **tokens);
 int	parse_group(t_tree **root, t_token **tokens);
+t_node_type	peek(t_token *tokens);
+void	skip_redirs(t_token **tokens);
+void	skip(t_token **tokens, t_node_type type);
 
 #endif

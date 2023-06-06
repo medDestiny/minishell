@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/05 15:41:42 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/06 20:11:18 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,21 +82,8 @@ int	check_word(t_token **tokens, char *cmdline, char *limit);
 
 int	check_parenthesis(t_token **tokens, char *cmdline)
 {
-	int	i;
-
-	i = 0;
 	if (cmdline[0] == '(')
 	{
-		while (cmdline[i] && cmdline[i] != ')')
-			i++;
-		if (!cmdline[i])
-		{
-			if (i != 1)
-				printf("minishell: unexpected EOF while looking for matching: )\n");
-			else
-				printf("minishell: syntax error near unexpected token: newline\n");
-			return (-1);
-		}
 		if (token_list_add(tokens, L_PAREN, cmdline, 1) != 0)
 			return (-1);
 	}
@@ -136,24 +123,24 @@ int	check_and(t_token **tokens, char *cmdline)
 			return (-1);
 		return (i);
 	}
-	if (!*tokens || !cmdline[2] || i != 2 || in_set(cmdline[2], "()&|"))
-	{
-		printf("minishell: syntax error near unexpected token ");
-		if (!*tokens)
-			printf("`&&'\n");
-		else if (!cmdline[2])
-			printf("newline\n");
-		else
-		{
-			i = 2;
-			while (cmdline[i] && cmdline[i] == ' ')
-				i++;
-			while (cmdline[i] && cmdline[i] != ' ' && i < 4)
-				printf("%c", cmdline[i++]);
-			printf("\n");
-		}
-		return (-1);
-	}
+	//if (!*tokens || !cmdline[2] || i != 2 || in_set(cmdline[2], "()&|"))
+	//{
+	//	printf("minishell: syntax error near unexpected token ");
+	//	if (!*tokens)
+	//		printf("`&&'\n");
+	//	else if (!cmdline[2])
+	//		printf("newline\n");
+	//	else
+	//	{
+	//		i = 2;
+	//		while (cmdline[i] && cmdline[i] == ' ')
+	//			i++;
+	//		while (cmdline[i] && cmdline[i] != ' ' && i < 4)
+	//			printf("%c", cmdline[i++]);
+	//		printf("\n");
+	//	}
+	//	return (-1);
+	//}
 	if (token_list_add(tokens, AND, cmdline, 2) != 0)
 		return (-1);
 	return (2);
@@ -388,18 +375,6 @@ int	check_tokens(t_token **tokens, char *cmdline, char *limit)
 	else
 		size = check_word(tokens, cmdline, limit);
 	return (size);
-}
-
-void	check_syntax(t_token **tokens)
-{
-	t_token	*ptr;
-
-	ptr = *tokens;
-	while (ptr)
-	{
-		if (ptr->type)
-		ptr = ptr->next;
-	}
 }
 
 t_token	*lexer(char *cmdline)
