@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/06 20:09:50 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 16:09:53 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,14 @@
 # define BLANK " \t"
 # define SEPARATOR " \t|&\"\'<>()"
 # define HDOC_SEP "|&<>()"
+# define UNCLOSED 1
+# define UNEX_PAREN 3
+# define UNEX_PIPE 4
+# define UNEX_OR 5
+# define UNEX_AND 6
+# define UNEX_NL 7
+# define UNEX_RPAR 8
+# define UNEX_TOK 9
 
 # include<stdlib.h>
 # include<stdbool.h>

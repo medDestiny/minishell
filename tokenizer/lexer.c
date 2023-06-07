@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/06 20:11:18 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 12:06:39 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,12 +97,9 @@ int	check_parenthesis(t_token **tokens, char *cmdline)
 
 int	check_or(t_token **tokens, char *cmdline)
 {
-	if (!*tokens || !cmdline[2])
+	if (!*tokens)
 	{
-		if (!*tokens)
-			printf("minishell: syntax error near unexpected token `||'\n");
-		else
-			printf("minishell: syntax error near unexpected token: newline\n");
+		printf("minishell: syntax error near unexpected token: ||\n");
 		return (-1);
 	}
 	if (token_list_add(tokens, OR, cmdline, 2) != 0)
@@ -122,6 +119,11 @@ int	check_and(t_token **tokens, char *cmdline)
 		if (token_list_add(tokens, WORD, cmdline, i) != 0)
 			return (-1);
 		return (i);
+	}
+	if (!*tokens)
+	{
+		printf("minishell: syntax error near unexpected token: &&\n");
+		return (-1);
 	}
 	//if (!*tokens || !cmdline[2] || i != 2 || in_set(cmdline[2], "()&|"))
 	//{
@@ -148,12 +150,9 @@ int	check_and(t_token **tokens, char *cmdline)
 
 int	check_pipe(t_token **tokens, char *cmdline)
 {
-	if (!*tokens || !cmdline[1])
+	if (!*tokens)
 	{
-		if (!*tokens)
-			printf("minishell: syntax error near unexpected token `|'\n");
-		else
-			printf("minishell: syntax error near unexpected token: newline\n");
+		printf("minishell: syntax error near unexpected token: |\n");
 		return (-1);
 	}
 	if (token_list_add(tokens, PIPE, cmdline, 1) != 0)
@@ -400,6 +399,6 @@ t_token	*lexer(char *cmdline)
 			return (NULL);
 		i += skip;
 	}
-	//check_syntax(&tokens);
+	check_syntax(&tokens);
 	return (tokens);
 }

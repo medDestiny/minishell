@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/06 16:28:52 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 13:33:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,7 +220,7 @@ void	skip_redirs(t_token **tokens)
 	{
 		if ((*tokens)->type == HEREDOC || (*tokens)->type == APPEND || (*tokens)->type == REDIR_IN || (*tokens)->type == REDIR_OUT)
 		{
-			while (*tokens && (*tokens)->type != SPACE && (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN)
+			while (*tokens && (*tokens)->type != SPACE && (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN && (*tokens)->type != AND && (*tokens)->type != OR && (*tokens)->type != PIPE)
 				*tokens = (*tokens)->next;
 		}
 		if (*tokens && (*tokens)->type == SPACE)
