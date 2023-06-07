@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 20:07:24 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 16:09:58 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 17:08:32 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ int	check_for_closing_paren(t_token **tok)
 			return (0);
 		*tok = (*tok)->next;
 	}
-	return (1);
+	return (UNCLOSED);
 }
 
 int	is_cmd(t_token *tok)
@@ -173,13 +173,15 @@ int	check_paren(t_token **tok, char **s)
 	skip(tok, SPACE);
 	if (*tok && (*tok)->type == R_PAREN)
 		return (UNEX_RPAR);
+	else if (!*tok)
+		return (UNEX_NL);
 	err = check_mid(tok, s);
 	if (err != 0)
 		return (err);
 	end = *tok;
 	err = check_for_closing_paren(&end);
 	if (err != 0)
-		return (UNCLOSED);
+		return (err);
 	*tok = end->next;
 	err = check_right(*tok, s);
 	if (err != 0)

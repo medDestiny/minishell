@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 16:09:53 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 17:41:39 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ typedef struct s_redir
 
 typedef struct s_cmd
 {
+	int		subshell;
 	int		global_in;
 	int		global_out;
 	t_token	*list;
@@ -92,33 +93,12 @@ typedef struct s_node
 	t_tree	*rchild;
 }	t_node;
 
-//typedef struct s_pipe
-//{
-//	t_cmd	*r_child;
-//	t_cmd	*l_child;
-//}	t_pipe;
-//
-//typedef struct s_condition
-//{
-//	t_node_type	type;
-//	t_cmd		*r_child;
-//	t_cmd		*l_child;
-//}	t_condition;
-//
-//typedef struct s_redirect
-//{
-//	t_node_type	type;
-//	char		*file;
-//	t_cmd		*cmd;
-//}	t_redirect;
-
 typedef enum e_type
 {
 	T_AND,
 	T_OR,
 	T_PIPE,
 	T_CMD,
-	T_REDIR
 }	t_type;
 
 typedef struct u_tree
@@ -126,9 +106,6 @@ typedef struct u_tree
 	t_type		type;
 	t_node		node;
 	t_cmd		cmd;
-	//t_pipe		pipe;
-	//t_condition	condition;
-	//t_redirect	redirect;
 }	t_tree;
  ///////////////
 
@@ -162,5 +139,7 @@ int	parse_group(t_tree **root, t_token **tokens);
 t_node_type	peek(t_token *tokens);
 void	skip_redirs(t_token **tokens);
 void	skip(t_token **tokens, t_node_type type);
+int	is_connector(t_token *tok);
+void	print_syntax_error(int err, char *str);
 
 #endif

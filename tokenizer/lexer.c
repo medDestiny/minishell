@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 12:06:39 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 18:22:52 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,24 +125,6 @@ int	check_and(t_token **tokens, char *cmdline)
 		printf("minishell: syntax error near unexpected token: &&\n");
 		return (-1);
 	}
-	//if (!*tokens || !cmdline[2] || i != 2 || in_set(cmdline[2], "()&|"))
-	//{
-	//	printf("minishell: syntax error near unexpected token ");
-	//	if (!*tokens)
-	//		printf("`&&'\n");
-	//	else if (!cmdline[2])
-	//		printf("newline\n");
-	//	else
-	//	{
-	//		i = 2;
-	//		while (cmdline[i] && cmdline[i] == ' ')
-	//			i++;
-	//		while (cmdline[i] && cmdline[i] != ' ' && i < 4)
-	//			printf("%c", cmdline[i++]);
-	//		printf("\n");
-	//	}
-	//	return (-1);
-	//}
 	if (token_list_add(tokens, AND, cmdline, 2) != 0)
 		return (-1);
 	return (2);
@@ -160,6 +142,33 @@ int	check_pipe(t_token **tokens, char *cmdline)
 	return (1);
 }
 
+int	redir_syntax_error(char *cmdline)
+{
+	if (!cmdline[0])
+		print_syntax_error(UNEX_TOK, "newline");
+	else if (!ft_strncmp(cmdline, "||", 2))
+		print_syntax_error(UNEX_TOK, "||");
+	else if (cmdline[0] == '|')
+		print_syntax_error(UNEX_TOK, "|");
+	else if (!ft_strncmp(cmdline, "&&", 2))
+		print_syntax_error(UNEX_TOK, "&&");
+	else if (cmdline[0] == '&')
+		return (0);
+	else if (cmdline[0] == '(')
+		print_syntax_error(UNEX_PAREN, NULL);
+	else if (cmdline[0] == ')')
+		print_syntax_error(UNEX_RPAR, NULL);
+	else if (!ft_strncmp(cmdline, ">>", 2))
+		print_syntax_error(UNEX_TOK, ">>");
+	else if (cmdline[0] == '>')
+		print_syntax_error(UNEX_TOK, ">");
+	else if (!ft_strncmp(cmdline, "<<", 2))
+		print_syntax_error(UNEX_TOK, "<<");
+	else if (cmdline[0] == '<')
+		print_syntax_error(UNEX_TOK, "<");
+	return (1);
+}
+
 int	check_heredoc(t_token **tokens, char *cmdline)
 {
 	int		start;
@@ -171,12 +180,8 @@ int	check_heredoc(t_token **tokens, char *cmdline)
 		start++;
 	if (!cmdline[start] || in_set(cmdline[start], HDOC_SEP))
 	{
-		printf("minishell: syntax error near unexpected token: ");
-		if (!cmdline[start])
-			printf("newline\n");
-		else
-			printf("%c\n", cmdline[start]);
-		return (-1);
+		if (redir_syntax_error(&cmdline[start]) != 0)
+			return (-1);
 	}
 	while (cmdline[start] && in_set(cmdline[start], BLANK))
 		start++;
@@ -200,12 +205,8 @@ int	check_append(t_token **tokens, char *cmdline)
 		start++;
 	if (!cmdline[start] || in_set(cmdline[start], HDOC_SEP))
 	{
-		printf("minishell: syntax error near unexpected token: ");
-		if (!cmdline[start])
-			printf("newline\n");
-		else
-			printf("%c\n", cmdline[start]);
-		return (-1);
+		if (redir_syntax_error(&cmdline[start]) != 0)
+			return (-1);
 	}
 	while (cmdline[start] && in_set(cmdline[start], BLANK))
 		start++;
@@ -229,12 +230,8 @@ int	check_infile(t_token **tokens, char *cmdline)
 		start++;
 	if (!cmdline[start] || in_set(cmdline[start], HDOC_SEP))
 	{
-		printf("minishell: syntax error near unexpected token: ");
-		if (!cmdline[start])
-			printf("newline\n");
-		else
-			printf("%c\n", cmdline[start]);
-		return (-1);
+		if (redir_syntax_error(&cmdline[start]) != 0)
+			return (-1);
 	}
 	while (cmdline[start] && in_set(cmdline[start], BLANK))
 		start++;
@@ -258,12 +255,8 @@ int	check_outfile(t_token **tokens, char *cmdline)
 		start++;
 	if (!cmdline[start] || in_set(cmdline[start], HDOC_SEP))
 	{
-		printf("minishell: syntax error near unexpected token: ");
-		if (!cmdline[start])
-			printf("newline\n");
-		else
-			printf("%c\n", cmdline[start]);
-		return (-1);
+		if (redir_syntax_error(&cmdline[start]) != 0)
+			return (-1);
 	}
 	while (cmdline[start] && in_set(cmdline[start], BLANK))
 		start++;

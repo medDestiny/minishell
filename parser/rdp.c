@@ -6,23 +6,53 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 13:33:21 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 17:03:16 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	build_list(t_token **ptr, t_token **tokens)
+int	in_list(t_token *tok, t_node_type type)
 {
-	if (*tokens && (*tokens)->type != PIPE && (*tokens)->type != AND && (*tokens)->type != OR
-		&& (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN && (*tokens)->type != SPACE)
+	if (!is_connector(tok) && tok->type != L_PAREN
+		&& tok->type != R_PAREN && tok->type != SPACE)
 	{
-		if (token_list_add(ptr, (*tokens)->type, (*tokens)->lexeme, ft_strlen((*tokens)->lexeme)) != 0)
+		if (type == REDIR_IN)
+		{
+			if (tok->type != REDIR_OUT && tok->type != APPEND)
+				return (1);
+			return (0);
+		}
+		else if (type == REDIR_OUT)
+		{
+			if (tok->type != REDIR_IN && tok->type != HEREDOC)
+				return (1);
+			return (0);
+		}
+		else if (type == WORD)
+		{
+			if (tok->type != REDIR_OUT && tok->type != APPEND
+				&& tok->type != REDIR_IN && tok->type != HEREDOC)
+				return (1);
+			return (0);
+		}
+	}
+	return (0);
+}
+
+int	build_list(t_token **ptr, t_token **tokens, t_node_type type)
+{
+	int	len;
+
+	while (*tokens && in_list(*tokens, type))
+	{
+		len = ft_strlen((*tokens)->lexeme);
+		if (token_list_add(ptr, (*tokens)->type, (*tokens)->lexeme, len) != 0)
 			return (-1);
 		*tokens = (*tokens)->next;
 	}
 	if (*tokens && (*tokens)->type == SPACE)
-		if (token_list_add(ptr, (*tokens)->type, (*tokens)->lexeme, ft_strlen((*tokens)->lexeme)) != 0)
+		if (token_list_add(ptr, SPACE, " ", 1) != 0)
 			return (-1);
 	return (0);
 }
@@ -32,12 +62,13 @@ void	init_cmd_node(t_tree *cmd)
 	cmd->type = T_CMD;
 	cmd->cmd.global_out = 0;
 	cmd->cmd.global_in = 0;
+	cmd->cmd.subshell = 0;
 	cmd->cmd.list = NULL;
 	cmd->cmd.in = NULL;
 	cmd->cmd.out = NULL;
 }
 
-int	parse_command(t_tree **root, t_token **tokens)
+int	parse_command(t_tree **root, t_token **tok)
 {
 	t_tree	*cmd;
 	int		err;
@@ -47,17 +78,18 @@ int	parse_command(t_tree **root, t_token **tokens)
 		return (-1);
 	init_cmd_node(cmd);
 	err = 0;
-	while (err == 0 && *tokens && (*tokens)->type != PIPE && (*tokens)->type != AND
-		&& (*tokens)->type != OR && (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN)
+	while (err == 0 && *tok && (*tok)->type != PIPE && (*tok)->type != AND
+		&& (*tok)->type != OR && (*tok)->type != L_PAREN
+		&& (*tok)->type != R_PAREN)
 	{
-		if ((*tokens)->type == REDIR_IN || (*tokens)->type == HEREDOC)
-			err = build_list(&cmd->cmd.in, tokens);
-		else if ((*tokens)->type == REDIR_OUT || (*tokens)->type == APPEND)
-			err = build_list(&cmd->cmd.out, tokens);
+		if ((*tok)->type == REDIR_IN || (*tok)->type == HEREDOC)
+			err = build_list(&cmd->cmd.in, tok, REDIR_IN);
+		else if ((*tok)->type == REDIR_OUT || (*tok)->type == APPEND)
+			err = build_list(&cmd->cmd.out, tok, REDIR_OUT);
 		else
-			err = build_list(&cmd->cmd.list, tokens);
-		if (*tokens && (*tokens)->type == SPACE)
-			*tokens = (*tokens)->next;
+			err = build_list(&cmd->cmd.list, tok, WORD);
+		if (*tok && (*tok)->type == SPACE)
+			*tok = (*tok)->next;
 	}
 	*root = cmd;
 	return (err);
@@ -65,7 +97,9 @@ int	parse_command(t_tree **root, t_token **tokens)
 
 t_node_type	peek(t_token *tokens)
 {
-	while (tokens && tokens->type != PIPE && tokens->type != AND && tokens->type != OR && tokens->type != L_PAREN && tokens->type != R_PAREN)
+	while (tokens && tokens->type != PIPE && tokens->type != AND
+		&& tokens->type != OR && tokens->type != L_PAREN
+		&& tokens->type != R_PAREN)
 		tokens = tokens->next;
 	if (!tokens)
 		return (END);
@@ -175,6 +209,7 @@ void	update_redirs(t_tree *root, t_token *in, t_token *out)
 {
 	if (root->type == T_CMD)
 	{
+		root->cmd.subshell = 1;
 		if (in && !root->cmd.in)
 		{
 			root->cmd.in = in;
@@ -193,7 +228,7 @@ void	update_redirs(t_tree *root, t_token *in, t_token *out)
 	}
 }
 
-int	add_group_redir(t_token *right, t_token *left, t_tree *group)
+int	add_group_redir(t_token *paren, t_tree *group)
 {
 	t_token	*input;
 	t_token	*output;
@@ -202,29 +237,37 @@ int	add_group_redir(t_token *right, t_token *left, t_tree *group)
 	err = 0;
 	input = NULL;
 	output = NULL;
-	while (right && right->prev && right->type != PIPE && right->type != OR && right->type != AND)
-		right = right->prev;
-	skip(&right, SPACE);
-	while (right && (right->type == REDIR_IN || right->type == HEREDOC))
-		err = build_list(&input, &right);
-	skip(&left, SPACE);
-	while (left && (left->type == REDIR_OUT || left->type == APPEND))
-		err = build_list(&output, &left);
+	skip(&paren, SPACE);
+	while (paren && paren->type != R_PAREN && paren->type != L_PAREN
+		&& !is_connector(paren))
+	{
+		if (paren->type == REDIR_OUT || paren->type == APPEND)
+			err = build_list(&output, &paren, REDIR_OUT);
+		else if (paren->type == REDIR_IN || paren->type == HEREDOC)
+			err = build_list(&input, &paren, REDIR_IN);
+		else if (paren->type == SPACE)
+			paren = paren->next;
+		if (err != 0)
+			return (err);
+	}
 	update_redirs(group, input, output);
 	return (err);
 }
 
-void	skip_redirs(t_token **tokens)
+void	skip_redirs(t_token **tok)
 {
-	while (*tokens)
+	while (*tok)
 	{
-		if ((*tokens)->type == HEREDOC || (*tokens)->type == APPEND || (*tokens)->type == REDIR_IN || (*tokens)->type == REDIR_OUT)
+		if ((*tok)->type == HEREDOC || (*tok)->type == APPEND
+			|| (*tok)->type == REDIR_IN || (*tok)->type == REDIR_OUT)
 		{
-			while (*tokens && (*tokens)->type != SPACE && (*tokens)->type != L_PAREN && (*tokens)->type != R_PAREN && (*tokens)->type != AND && (*tokens)->type != OR && (*tokens)->type != PIPE)
-				*tokens = (*tokens)->next;
+			while (*tok && (*tok)->type != SPACE && (*tok)->type != L_PAREN
+				&& (*tok)->type != R_PAREN && (*tok)->type != AND
+				&& (*tok)->type != OR && (*tok)->type != PIPE)
+				*tok = (*tok)->next;
 		}
-		if (*tokens && (*tokens)->type == SPACE)
-			*tokens = (*tokens)->next;
+		if (*tok && (*tok)->type == SPACE)
+			*tok = (*tok)->next;
 		else
 			break ;
 	}
@@ -245,14 +288,11 @@ int	parse_group(t_tree **root, t_token **tokens)
 		*root = group;
 	else
 		(*root)->node.rchild = group;
-	if (!group || peek(*tokens) != R_PAREN)
-	{
-		printf("minishell: syntax error near unexpected token `)'\n");
+	if (!group)
 		return (-1);
-	}
 	else
 		skip(tokens, R_PAREN);
-	err = add_group_redir(paren, *tokens, group);
+	err = add_group_redir(*tokens, group);
 	skip_redirs(tokens);
 	return (err);
 }
