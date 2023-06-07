@@ -43,7 +43,7 @@ int	check_before_con(t_token *tok)
 			else if (tok->type == AND)
 				return (UNEX_AND);
 		}
-		else if (ptr->type == SPACE)
+		else if (ptr->type == SPC)
 			ptr = ptr->prev;
 		else
 			break ;
@@ -63,7 +63,7 @@ int	check_after_con(t_token *ptr)
 			return (UNEX_AND);
 		else if (ptr->type == R_PAREN)
 			return (UNEX_RPAR);
-		else if (ptr->type == SPACE)
+		else if (ptr->type == SPC)
 			ptr = ptr->next;
 		else
 			break ;
@@ -109,7 +109,7 @@ int	is_cmd(t_token *tok)
 int	check_left(t_token *paren)
 {
 	paren = paren->prev;
-	if (paren && paren->type == SPACE)
+	if (paren && paren->type == SPC)
 		paren = paren->prev;
 	if (paren && paren->type != L_PAREN && !is_connector(paren))
 		return (UNEX_PAREN);
@@ -123,7 +123,7 @@ int	check_right(t_token *paren, char **s)
 		skip_redirs(&paren);
 		if (paren && (paren->type == R_PAREN || is_connector(paren)))
 			break ;
-		else if (paren && paren->type == SPACE)
+		else if (paren && paren->type == SPC)
 			paren = paren->next;
 		else if (paren)
 		{
@@ -170,7 +170,7 @@ int	check_paren(t_token **tok, char **s)
 	if (err != 0)
 		return (err);
 	skip(tok, L_PAREN);
-	skip(tok, SPACE);
+	skip(tok, SPC);
 	if (*tok && (*tok)->type == R_PAREN)
 		return (UNEX_RPAR);
 	else if (!*tok)

@@ -384,7 +384,7 @@ t_token	*lexer(char *cmdline)
 		{
 			while (cmdline[i] && in_set(cmdline[i], BLANK))
 				i++;
-			if (token_list_add(&tokens, SPACE, " ", 1) != 0)
+			if (token_list_add(&tokens, SPC, " ", 1) != 0)
 				return (NULL);
 		}
 		skip = check_tokens(&tokens, cmdline + i, SEPARATOR);

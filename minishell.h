@@ -45,7 +45,7 @@ typedef enum s_node_type
 	OR,
 	R_PAREN,
 	L_PAREN,
-	SPACE,
+	SPC,
 	S_QUOTE,
 	D_QUOTE,
 	WORD,

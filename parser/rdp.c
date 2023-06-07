@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 17:03:16 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/07 23:12:49 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int	in_list(t_token *tok, t_node_type type)
 {
 	if (!is_connector(tok) && tok->type != L_PAREN
-		&& tok->type != R_PAREN && tok->type != SPACE)
+		&& tok->type != R_PAREN && tok->type != SPC)
 	{
 		if (type == REDIR_IN)
 		{
@@ -51,8 +51,8 @@ int	build_list(t_token **ptr, t_token **tokens, t_node_type type)
 			return (-1);
 		*tokens = (*tokens)->next;
 	}
-	if (*tokens && (*tokens)->type == SPACE)
-		if (token_list_add(ptr, SPACE, " ", 1) != 0)
+	if (*tokens && (*tokens)->type == SPC)
+		if (token_list_add(ptr, SPC, " ", 1) != 0)
 			return (-1);
 	return (0);
 }
@@ -88,7 +88,7 @@ int	parse_command(t_tree **root, t_token **tok)
 			err = build_list(&cmd->cmd.out, tok, REDIR_OUT);
 		else
 			err = build_list(&cmd->cmd.list, tok, WORD);
-		if (*tok && (*tok)->type == SPACE)
+		if (*tok && (*tok)->type == SPC)
 			*tok = (*tok)->next;
 	}
 	*root = cmd;
@@ -108,7 +108,7 @@ t_node_type	peek(t_token *tokens)
 
 void	skip(t_token **tokens, t_node_type type)
 {
-	while (*tokens && ((*tokens)->type == type || (*tokens)->type == SPACE))
+	while (*tokens && ((*tokens)->type == type || (*tokens)->type == SPC))
 	{
 		if ((*tokens)->type == type)
 		{
@@ -139,7 +139,7 @@ int	parse_pipeline(t_tree **root, t_token **tokens)
 
 	err = 0;
 	cmd = NULL;
-	skip(tokens, SPACE);
+	skip(tokens, SPC);
 	if (*tokens && (*tokens)->type != R_PAREN && (*tokens)->type != PIPE)
 		err = parse_command(root, tokens);
 	while (1)
@@ -184,7 +184,7 @@ int	parse_condition(t_tree **root, t_token **tokens)
 
 	err = 0;
 	pipeline = NULL;
-	skip(tokens, SPACE);
+	skip(tokens, SPC);
 	if (*tokens && (*tokens)->type != OR && (*tokens)->type != AND)
 		err = parse_pipeline(root, tokens);
 	while (1)
@@ -237,7 +237,7 @@ int	add_group_redir(t_token *paren, t_tree *group)
 	err = 0;
 	input = NULL;
 	output = NULL;
-	skip(&paren, SPACE);
+	skip(&paren, SPC);
 	while (paren && paren->type != R_PAREN && paren->type != L_PAREN
 		&& !is_connector(paren))
 	{
@@ -245,7 +245,7 @@ int	add_group_redir(t_token *paren, t_tree *group)
 			err = build_list(&output, &paren, REDIR_OUT);
 		else if (paren->type == REDIR_IN || paren->type == HEREDOC)
 			err = build_list(&input, &paren, REDIR_IN);
-		else if (paren->type == SPACE)
+		else if (paren->type == SPC)
 			paren = paren->next;
 		if (err != 0)
 			return (err);
@@ -261,12 +261,12 @@ void	skip_redirs(t_token **tok)
 		if ((*tok)->type == HEREDOC || (*tok)->type == APPEND
 			|| (*tok)->type == REDIR_IN || (*tok)->type == REDIR_OUT)
 		{
-			while (*tok && (*tok)->type != SPACE && (*tok)->type != L_PAREN
+			while (*tok && (*tok)->type != SPC && (*tok)->type != L_PAREN
 				&& (*tok)->type != R_PAREN && (*tok)->type != AND
 				&& (*tok)->type != OR && (*tok)->type != PIPE)
 				*tok = (*tok)->next;
 		}
-		if (*tok && (*tok)->type == SPACE)
+		if (*tok && (*tok)->type == SPC)
 			*tok = (*tok)->next;
 		else
 			break ;
@@ -276,12 +276,10 @@ void	skip_redirs(t_token **tok)
 int	parse_group(t_tree **root, t_token **tokens)
 {
 	t_tree	*group;
-	t_token	*paren;
 	int		err;
 
 	err = 0;
 	group = NULL;
-	paren = *tokens;
 	skip(tokens, L_PAREN);
 	group = parser(tokens);
 	if (!*root)

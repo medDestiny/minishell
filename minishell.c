@@ -39,8 +39,8 @@ void	print_type(t_node_type type)
 		printf("R_PAREN\t");
 	else if (type == L_PAREN)
 		printf("L_PAREN\t");
-	else if (type == SPACE)
-		printf("SPACE\t");
+	else if (type == SPC)
+		printf("SPC\t");
 	else if (type == D_QUOTE)
 		printf("D_QUOTE\t");
 	else if (type == S_QUOTE)
