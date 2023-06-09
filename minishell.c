@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/05 09:02:07 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/09 18:41:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,24 +96,16 @@ void	print_tree(t_tree *root, int lvl)
 	}
 }
 
-int	main(int ac, char **av, char **env)
+void	minishell_loop(t_env *envp)
 {
-	t_env	*envp;
-	char	*line;
-	char	*cmdline;
-	char	*shell;
-	t_token	*tokens;
-//	t_token	*next;
-	t_tree	*root;
+	char		*line;
+	char		*cmdline;
+	char		*shell;
+	t_token		*tokens;
+	t_tree		*root;
 
-	(void)av;
-	if (ac != 1)
-		return (1);
-	envp = env_dup(env);
-	if (!envp)
-		return (1);
 	line = NULL;
-	//atexit(leak);
+	g_gc = NULL;
 	while (1)
 	{
 		shell = prompt(envp);
@@ -125,25 +117,25 @@ int	main(int ac, char **av, char **env)
 		add_history(line);
 		free(line);
 		tokens = lexer(cmdline);
-		if (!tokens)
-			continue ;
 		root = parser(&tokens);
 		if (root)
 			print_tree(root, 0);
-		//if (root)
-		//	print_vec(root->cmd.cmd);
-		//printf("your command was: \x1B[31m\"\e[0m%s\x1B[31m\"\e[0m\n", cmdline);
-		//tokens = root->cmd.list;
-		//while (tokens)
-		//{
-		//	next = tokens->next;
-		//	print_type(tokens->type);
-		//	printf("\x1B[31m|\e[0m%s\x1B[31m|\e[0m\n", tokens->lexeme);
-		//	free(tokens->lexeme);
-		//	free(tokens);
-		//	tokens = next;
-		//}
 		free(cmdline);
+		clean_all(&g_gc);
 	}
+}
+
+int	main(int ac, char **av, char **env)
+{
+	t_env		*envp;
+
+	(void)av;
+	if (ac != 1)
+		return (1);
+	envp = env_dup(env);
+	if (!envp)
+		return (1);
+	atexit(leak);
+	minishell_loop(envp);
 	clean_env_list(envp);
 }

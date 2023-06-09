@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 23:12:49 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/09 18:15:08 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int	parse_command(t_tree **root, t_token **tok)
 	t_tree	*cmd;
 	int		err;
 
-	cmd = (t_tree *)malloc(sizeof(t_tree));
+	cmd = (t_tree *)ft_malloc(sizeof(t_tree), &g_gc);
 	if (!cmd)
 		return (-1);
 	init_cmd_node(cmd);
@@ -123,7 +123,7 @@ t_tree	*new_tree_node(t_type type, t_tree *left, t_tree *right)
 {
 	t_tree	*new;
 
-	new = (t_tree *)malloc(sizeof(t_tree));
+	new = (t_tree *)ft_malloc(sizeof(t_tree), &g_gc);
 	if (!new)
 		return (NULL);
 	new->type = type;

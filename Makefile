@@ -10,6 +10,7 @@ SRC= environment.c \
 	 libft/ft_strrchr.c \
 	 libft/ft_strlcpy.c \
 	 libft/ft_putstr_fd.c \
+	 garbage/garbage.c \
 	 tokenizer/lexer.c \
 	 tokenizer/syntax.c \
 	 parser/rdp.c \
@@ -17,7 +18,7 @@ SRC= environment.c \
 	 minishell.c \
 	 prompt.c \
 
-C_FLAGS= -Wall -Wextra -Werror -g -fsanitize=address
+C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h
 obj= $(SRC:.c=.o)
 

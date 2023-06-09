@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 18:22:52 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/09 20:10:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ t_token	*new_token_node(t_node_type type, char *content, size_t size)
 {
 	t_token	*node;
 
-	node = (t_token *)malloc(sizeof(t_token));
+	node = (t_token *)ft_malloc(sizeof(t_token), &g_gc);
 	if (!node)
 		return (NULL);
-	node->lexeme = (char *)malloc((size + 1) * sizeof(char));
+	node->lexeme = (char *)ft_malloc((size + 1) * sizeof(char), &g_gc);
 	if (!node->lexeme)
 		return (NULL);
 	ft_strlcpy(node->lexeme, content, size + 1);
@@ -76,10 +76,6 @@ int	in_set(char c, char *set)
 	return (0);
 }
 
-int	check_tokens(t_token **tokens, char *cmdline, char *limit);
-
-int	check_word(t_token **tokens, char *cmdline, char *limit);
-
 int	check_parenthesis(t_token **tokens, char *cmdline)
 {
 	if (cmdline[0] == '(')
@@ -99,7 +95,8 @@ int	check_or(t_token **tokens, char *cmdline)
 {
 	if (!*tokens)
 	{
-		printf("minishell: syntax error near unexpected token: ||\n");
+		ft_putstr_fd("minishell: syntax error near unexpected token: ||\n",
+			STDERR_FILENO);
 		return (-1);
 	}
 	if (token_list_add(tokens, OR, cmdline, 2) != 0)
@@ -122,7 +119,8 @@ int	check_and(t_token **tokens, char *cmdline)
 	}
 	if (!*tokens)
 	{
-		printf("minishell: syntax error near unexpected token: &&\n");
+		ft_putstr_fd("minishell: syntax error near unexpected token: &&\n",
+			STDERR_FILENO);
 		return (-1);
 	}
 	if (token_list_add(tokens, AND, cmdline, 2) != 0)
@@ -134,7 +132,8 @@ int	check_pipe(t_token **tokens, char *cmdline)
 {
 	if (!*tokens)
 	{
-		printf("minishell: syntax error near unexpected token: |\n");
+		ft_putstr_fd("minishell: syntax error near unexpected token: |\n",
+			STDERR_FILENO);
 		return (-1);
 	}
 	if (token_list_add(tokens, PIPE, cmdline, 1) != 0)
@@ -291,7 +290,7 @@ int	check_single_quotes(t_token **tokens, char *cmdline)
 		i++;
 	if (!cmdline[i])
 	{
-		printf("minishell: unclosed single quotes\n");
+		ft_putstr_fd("minishell: unclosed single quotes\n", STDERR_FILENO);
 		return (-1);
 	}
 	size = check_word(tokens, cmdline, "'");
@@ -316,7 +315,7 @@ int	check_double_quotes(t_token **tokens, char *cmdline)
 		i++;
 	if (!cmdline[i])
 	{
-		printf("minishell: unclosed double quotes\n");
+		ft_putstr_fd("minishell: unclosed double quotes\n", STDERR_FILENO);
 		return (-1);
 	}
 	size = check_word(tokens, cmdline, "\"");

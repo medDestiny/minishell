@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:22:07 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 18:20:05 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/09 20:06:43 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ char	*prompt(t_env *env)
 		return (NULL);
 	home = get_env_value(env, "HOME");
 	if (!home)
-		return (cwd);
+		return (free(cwd), ft_strdup("minishell-1.0$ "));
 	len = ft_strlen(home);
 	if (!ft_strncmp(cwd, home, len))
 	{
