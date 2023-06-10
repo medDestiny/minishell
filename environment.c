@@ -6,11 +6,48 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/24 21:00:07 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/10 17:07:16 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_env	*get_env_node(t_env *env, char *name)
+{
+	while (env)
+	{
+		if (env->name && !ft_strcmp(env->name, name))
+			return (env);
+		env = env->next;
+	}
+	return (NULL);
+}
+
+void	update_env_value(t_env **env, char *name, char *new_val)
+{
+	t_env	*node;
+
+	node = get_env_node(*env, name);
+	if (!node)
+		env_add(env, name, new_val);
+	else
+	{
+		free(node->value);
+		node->value = new_val;
+	}
+}
+
+char	*update_shell_lvl(void)
+{
+	char	*old_lvl;
+	int		new_lvl;
+
+	old_lvl = getenv("SHLVL");
+	if (!old_lvl)
+		return (ft_itoa(1));
+	new_lvl = ft_atoi(old_lvl) + 1;
+	return (ft_itoa(new_lvl));
+}
 
 int	env_init(char *var, char **name, char **value)
 {
@@ -49,17 +86,65 @@ t_env	*env_new_node(char *var)
 	return (env);
 }
 
-t_env	*env_dup(char **env)
+int	env_add(t_env **env, char *name, char *value)
+{
+	t_env	*tmp;
+
+	tmp = *env;
+	if (!tmp)
+	{
+		*env = (t_env *)malloc(sizeof(t_env));
+		if (!*env)
+			return (0);
+		(*env)->name = name;
+		(*env)->value = value;
+		(*env)->next = NULL;
+	}
+	else
+	{
+		while (tmp && tmp->next)
+			tmp = tmp->next;
+		tmp->next = (t_env *)malloc(sizeof(t_env));
+		tmp = tmp->next;
+	}
+	if (!tmp)
+		return (1);
+	tmp->name = name;
+	tmp->value = value;
+	tmp->next = NULL;
+	return (0);
+}
+
+t_env	*build_env(char *program_name)
+{
+	t_env	*env;
+	int		err;
+
+	err = 0;
+	env = NULL;
+	err = env_add(&env, ft_strdup("PATH"),
+			ft_strdup("/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."));
+	err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0));
+	err = env_add(&env, ft_strdup("OLDPWD"), NULL);
+	err = env_add(&env, ft_strdup("SHLVL"), ft_strdup("1"));
+	err = env_add(&env, ft_strdup("_"), ft_strdup(program_name));
+	if (err != 0)
+	{
+		clean_env_list(env);
+		return (NULL);
+	}
+	return (env);
+}
+
+t_env	*build_env_list(char **env)
 {
 	t_env	*envp;
 	t_env	*head;
 	int		i;
 
-	envp = NULL;
-	if (!env)
-		return (NULL);
 	i = -1;
 	head = NULL;
+	envp = NULL;
 	while (env[++i])
 	{
 		if (!envp)
@@ -73,9 +158,21 @@ t_env	*env_dup(char **env)
 			envp = envp->next;
 		}
 		if (!envp)
-			return (NULL);
+			return (clean_env_list(envp), NULL);
 	}
 	return (head);
+}
+
+t_env	*env_dup(char *prog_name, char **env)
+{
+	t_env	*envp;
+
+	if (!env || !*env)
+		return (build_env(prog_name));
+	envp = build_env_list(env);
+	update_env_value(&envp, "SHLVL", update_shell_lvl());
+	update_env_value(&envp, "PWD", getcwd(NULL, 0));
+	return (envp);
 }
 
 char	*get_env_value(t_env *env, char *name)

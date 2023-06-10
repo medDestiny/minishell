@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/09 20:01:42 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/10 18:45:04 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,9 +126,12 @@ char		*ft_strchr(const char *s, int c);
 char		*ft_strrchr(const char *s, int c);
 size_t		ft_strlcpy(char *dst, const char *src, size_t dstsize);
 void		ft_putstr_fd(char *s, int fd);
+int			ft_atoi(const char *str);
+char		*ft_itoa(int n);
 
 //	Environment
-t_env		*env_dup(char **env);
+t_env		*env_dup(char *prog_name, char **env);
+int			env_add(t_env **env, char *name, char *value);
 char		*get_env_value(t_env *env, char *name);
 
 //	Memory management
@@ -160,6 +163,7 @@ int			check_double_quotes(t_token **tokens, char *cmdline);
 
 //	Syntax errors
 void		check_syntax(t_token **tokens);
+void		print_error(char *s1, char *s2);
 void		print_syntax_error(int err, char *str);
 
 //	Recursive Descent Parser functions
@@ -180,5 +184,10 @@ void		skip(t_token **tokens, t_node_type type);
 
 //	Check if the token is a connector
 int			is_connector(t_token *tok);
+
+//	Builtin functions
+void		env(t_env *env, int fd);
+void		pwd(char **cmd, int fd);
+void		cd(char **cmd, t_env *env);
 
 #endif
