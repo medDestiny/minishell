@@ -12,6 +12,8 @@ SRC= environment.c \
 	 libft/ft_putstr_fd.c \
 	 libft/ft_itoa.c \
 	 libft/ft_atoi.c \
+	 libft/ft_split.c \
+	 libft/ft_substr.c \
 	 garbage/garbage.c \
 	 tokenizer/lexer.c \
 	 tokenizer/syntax.c \

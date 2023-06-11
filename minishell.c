@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/10 19:03:25 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/11 18:54:48 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,9 +101,10 @@ void	minishell_loop(t_env *envp)
 	char		*line;
 	char		*cmdline;
 	char		*shell;
-	t_token		*tokens;
-	t_tree		*root;
-	char		*v[] = {"cd", "..", NULL};
+//	t_token		*tokens;
+//	t_tree		*root;
+//	char		*v[] = {"cd", "..", NULL};
+	char		**v;
 
 	line = NULL;
 	g_gc = NULL;
@@ -117,14 +118,15 @@ void	minishell_loop(t_env *envp)
 		cmdline = ft_strtrim(line, " \t");
 		add_history(line);
 		free(line);
-		tokens = lexer(cmdline);
-		root = parser(&tokens);
+		//tokens = lexer(cmdline);
+		//root = parser(&tokens);
 		//if (root)
 		//	print_tree(root, 0);
 		//env(envp, 1);
 		//pwd(NULL, 1);
-		printf("OLDPWD=%s\n", get_env_value(envp, "OLDPWD"));
+		v = ft_split(cmdline, ' ');
 		cd(v, envp);
+		clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);
 	}

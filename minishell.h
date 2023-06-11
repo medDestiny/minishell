@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/10 18:45:04 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/11 18:55:02 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,14 +128,18 @@ size_t		ft_strlcpy(char *dst, const char *src, size_t dstsize);
 void		ft_putstr_fd(char *s, int fd);
 int			ft_atoi(const char *str);
 char		*ft_itoa(int n);
+char		**ft_split(char const *s, char c);
+char		*ft_substr(char const *s, unsigned int start, size_t len);
 
 //	Environment
 t_env		*env_dup(char *prog_name, char **env);
 int			env_add(t_env **env, char *name, char *value);
 char		*get_env_value(t_env *env, char *name);
+void		update_env_value(t_env **env, char *name, char *new_val);
 
 //	Memory management
 void		clean_env_list(t_env *envp);
+void		clean_vec(char **vec);
 
 //	Garbage Collector
 void		*ft_malloc(size_t size, t_garb **gc);
