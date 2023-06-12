@@ -6,13 +6,13 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 17:02:35 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/10 18:29:57 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/12 14:01:10 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	pwd(char **cmd, int fd)
+void	_pwd(char **cmd, int fd)
 {
 	char	*cwd;
 	int		i;
@@ -30,6 +30,8 @@ void	pwd(char **cmd, int fd)
 		i++;
 	}
 	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return ;
 	ft_putstr_fd(cwd, fd);
 	write(fd, "\n", 1);
 	free(cwd);

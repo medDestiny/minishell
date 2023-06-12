@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/11 18:47:28 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/12 20:53:16 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,32 @@ t_env	*get_env_node(t_env *env, char *name)
 	return (NULL);
 }
 
-void	update_env_value(t_env **env, char *name, char *new_val)
+void	update_env_value(t_env **env, char *name, char *new_val, int append)
 {
 	t_env	*node;
+	char	*old_val;
 
 	node = get_env_node(*env, name);
 	if (!node)
 		env_add(env, name, new_val);
 	else
 	{
-		free(node->value);
-		node->value = new_val;
+		if (append == 0)
+		{
+			old_val = node->value;
+			node->value = new_val;
+		}
+		else
+		{
+			old_val = node->value;
+			if (node->value)
+				node->value = ft_strjoin(node->value, new_val);
+			else
+				node->value = ft_strdup(new_val);
+			free(new_val);
+		}
+		free(old_val);
+		free(name);
 	}
 }
 
@@ -170,9 +185,9 @@ t_env	*env_dup(char *prog_name, char **env)
 	if (!env || !*env)
 		return (build_env(prog_name));
 	envp = build_env_list(env);
-	update_env_value(&envp, "SHLVL", update_shell_lvl());
-	update_env_value(&envp, "PWD", getcwd(NULL, 0));
-	update_env_value(&envp, "OLDPWD", NULL);
+	update_env_value(&envp, ft_strdup("SHLVL"), update_shell_lvl(), 0);
+	update_env_value(&envp, ft_strdup("PWD"), getcwd(NULL, 0), 0);
+	update_env_value(&envp, ft_strdup("OLDPWD"), NULL, 0);
 	return (envp);
 }
 

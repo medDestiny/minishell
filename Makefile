@@ -14,6 +14,9 @@ SRC= environment.c \
 	 libft/ft_atoi.c \
 	 libft/ft_split.c \
 	 libft/ft_substr.c \
+	 libft/ft_isalpha.c \
+	 libft/ft_isalnum.c \
+	 libft/ft_isdigit.c \
 	 garbage/garbage.c \
 	 tokenizer/lexer.c \
 	 tokenizer/syntax.c \
@@ -21,6 +24,7 @@ SRC= environment.c \
 	 builtins/env_builtin.c \
 	 builtins/pwd_builtin.c \
 	 builtins/cd_builtin.c \
+	 builtins/export_builtin.c \
 	 free.c \
 	 minishell.c \
 	 prompt.c \

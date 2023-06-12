@@ -6,13 +6,13 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 15:45:14 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/10 17:51:36 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/12 14:01:04 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	env(t_env *env, int fd)
+void	_env(t_env *env, int fd)
 {
 	while (env)
 	{

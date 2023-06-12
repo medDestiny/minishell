@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/11 18:54:48 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/12 14:01:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,8 @@ void	minishell_loop(t_env *envp)
 		//env(envp, 1);
 		//pwd(NULL, 1);
 		v = ft_split(cmdline, ' ');
-		cd(v, envp);
+		_export(v, &envp, 1);
+		//cd(v, envp, 1);
 		clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);

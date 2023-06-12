@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_isalnum.c                                       :+:      :+:    :+:   */
+/*   ft_isdigit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/05 19:58:18 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/12 15:48:22 by mmisskin         ###   ########.fr       */
+/*   Created: 2022/10/05 19:45:55 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/06/12 15:49:33 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"../minishell.h"
+#include "../minishell.h"
 
-int	ft_isalnum(int c)
+int	ft_isdigit(int c)
 {
-	if (ft_isalpha(c) || ft_isdigit(c))
+	if (c >= 48 && c <= 57)
 		return (1);
 	return (0);
 }
