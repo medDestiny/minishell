@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/01 22:46:59 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/19 18:43:57 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 20:58:33 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,16 @@ void	clean_vec(char **vec)
 	free(vec);
 }
 
-void	clean_env_list(t_env *envp)
+void	clean_env_list(t_env **envp)
 {
 	t_env	*next;
 
-	while (envp)
+	while (*envp)
 	{
-		next = envp->next;
-		free(envp->name);
-		free(envp->value);
-		free(envp);
-		envp = next;
+		next = (*envp)->next;
+		free((*envp)->name);
+		free((*envp)->value);
+		free(*envp);
+		*envp = next;
 	}
 }

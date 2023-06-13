@@ -27,11 +27,12 @@ SRC= environment.c \
 	 builtins/export_builtin.c \
 	 builtins/unset_builtin.c \
 	 builtins/echo_builtin.c \
+	 builtins/exit_builtin.c \
 	 free.c \
 	 minishell.c \
 	 prompt.c \
 
-C_FLAGS= -Wall -Wextra -Werror -g -fsanitize=address
+C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h
 obj= $(SRC:.c=.o)
 

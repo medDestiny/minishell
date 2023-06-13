@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 17:26:13 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 21:14:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ char		*ft_strchr(const char *s, int c);
 char		*ft_strrchr(const char *s, int c);
 size_t		ft_strlcpy(char *dst, const char *src, size_t dstsize);
 void		ft_putstr_fd(char *s, int fd);
-int			ft_atoi(const char *str);
+size_t		ft_atoi(const char *str);
 char		*ft_itoa(int n);
 char		**ft_split(char const *s, char c);
 char		*ft_substr(char const *s, unsigned int start, size_t len);
@@ -143,7 +143,7 @@ void		update_env_value(t_env **env, char *name, char *new_val,
 				int append);
 
 //	Memory management
-void		clean_env_list(t_env *envp);
+void		clean_env_list(t_env **envp);
 void		clean_vec(char **vec);
 
 //	Garbage Collector
@@ -201,5 +201,6 @@ void		_cd(char **cmd, t_env *env, int fd);
 void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
 void		_echo(char **cmd, int fd);
+void		_exit_(t_env **env, char **cmd);
 
 #endif

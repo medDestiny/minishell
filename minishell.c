@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 17:26:39 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 20:59:44 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,8 @@ void	minishell_loop(t_env *envp)
 			_unset(&envp, v);
 		else if (!ft_strcmp(v[0], "echo"))
 			_echo(v, 1);
+		else if (!ft_strcmp(v[0], "exit"))
+			_exit_(&envp, v);
 		clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);
@@ -152,5 +154,5 @@ int	main(int ac, char **av, char **env)
 		return (1);
 	atexit(leak);
 	minishell_loop(envp);
-	clean_env_list(envp);
+	clean_env_list(&envp);
 }

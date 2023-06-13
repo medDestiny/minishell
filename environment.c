@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 15:25:49 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 21:00:43 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,7 @@ t_env	*build_env(char *program_name)
 	err = env_add(&env, ft_strdup("_"), ft_strdup(program_name));
 	if (err != 0)
 	{
-		clean_env_list(env);
+		clean_env_list(&env);
 		return (NULL);
 	}
 	return (env);
@@ -173,7 +173,7 @@ t_env	*build_env_list(char **env)
 			envp = envp->next;
 		}
 		if (!envp)
-			return (clean_env_list(envp), NULL);
+			return (clean_env_list(&envp), NULL);
 	}
 	return (head);
 }

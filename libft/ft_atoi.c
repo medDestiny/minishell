@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 20:10:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/10 16:28:30 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 21:13:41 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static	int	check(size_t res, size_t old)
 	return (0);
 }
 
-static	int	fill(const char *str, int sign)
+static	size_t	fill(const char *str, int sign)
 {
 	size_t	res;
 	size_t	o_res;
@@ -41,7 +41,7 @@ static	int	fill(const char *str, int sign)
 	return (res * sign);
 }
 
-int	ft_atoi(const char *str)
+size_t	ft_atoi(const char *str)
 {
 	int					index;
 	int					sign;
