@@ -6,14 +6,19 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 15:45:14 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/12 14:01:04 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 13:57:02 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	_env(t_env *env, int fd)
+void	_env(t_env *env, char **arg, int fd)
 {
+	if (arg[1])
+	{
+		ft_putstr_fd("minishell: env: too many arguments\n", STDERR_FILENO);
+		return ;
+	}
 	while (env)
 	{
 		if (env->name && env->value)

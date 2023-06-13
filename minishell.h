@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/12 20:10:14 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 17:26:13 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,8 @@ t_env		*env_dup(char *prog_name, char **env);
 t_env		*get_env_node(t_env *env, char *name);
 int			env_add(t_env **env, char *name, char *value);
 char		*get_env_value(t_env *env, char *name);
-void		update_env_value(t_env **env, char *name, char *new_val, int append);
+void		update_env_value(t_env **env, char *name, char *new_val,
+				int append);
 
 //	Memory management
 void		clean_env_list(t_env *envp);
@@ -194,9 +195,11 @@ void		skip(t_token **tokens, t_node_type type);
 int			is_connector(t_token *tok);
 
 //	Builtin functions
-void		_env(t_env *env, int fd);
+void		_env(t_env *env, char **arg, int fd);
 void		_pwd(char **cmd, int fd);
 void		_cd(char **cmd, t_env *env, int fd);
 void		_export(char **cmd, t_env **env, int fd);
+void		_unset(t_env **env, char **cmd);
+void		_echo(char **cmd, int fd);
 
 #endif

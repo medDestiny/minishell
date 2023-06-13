@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/12 20:53:16 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/13 15:25:49 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,12 +181,15 @@ t_env	*build_env_list(char **env)
 t_env	*env_dup(char *prog_name, char **env)
 {
 	t_env	*envp;
+	char	*cwd;
 
 	if (!env || !*env)
 		return (build_env(prog_name));
 	envp = build_env_list(env);
+	cwd = getcwd(NULL, 0);
+	if (cwd)
+		update_env_value(&envp, ft_strdup("PWD"), cwd, 0);
 	update_env_value(&envp, ft_strdup("SHLVL"), update_shell_lvl(), 0);
-	update_env_value(&envp, ft_strdup("PWD"), getcwd(NULL, 0), 0);
 	update_env_value(&envp, ft_strdup("OLDPWD"), NULL, 0);
 	return (envp);
 }
