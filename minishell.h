@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 21:14:21 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/14 18:20:02 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,13 @@
 typedef enum s_node_type
 {
 	PIPE,
-	REDIR_IN,
-	REDIR_OUT,
-	HEREDOC,
+	RD_IN_EXP,
+	RD_IN,
+	RD_OUT_EXP,
+	RD_OUT,
+	HDOC_EXP,
+	HDOC,
+	APPEND_EXP,
 	APPEND,
 	AND,
 	OR,
@@ -73,13 +77,6 @@ typedef struct s_garb
 	struct s_garb	*next;
 }	t_garb;
 
-typedef struct s_redir
-{
-	t_node_type		type;
-	char			*file;
-	struct s_redir	*next;
-}	t_redir;
-
 typedef struct s_cmd
 {
 	int		subshell;
@@ -90,7 +87,7 @@ typedef struct s_cmd
 	t_token	*out;
 }	t_cmd;
 
-typedef struct u_tree	t_tree;
+typedef struct s_tree	t_tree;
 
 typedef struct s_node
 {
@@ -106,7 +103,7 @@ typedef enum e_type
 	T_CMD,
 }	t_type;
 
-typedef struct u_tree
+typedef struct s_tree
 {
 	t_type		type;
 	t_node		node;
@@ -126,7 +123,7 @@ char		*ft_strchr(const char *s, int c);
 char		*ft_strrchr(const char *s, int c);
 size_t		ft_strlcpy(char *dst, const char *src, size_t dstsize);
 void		ft_putstr_fd(char *s, int fd);
-size_t		ft_atoi(const char *str);
+int			ft_atoi(const char *str);
 char		*ft_itoa(int n);
 char		**ft_split(char const *s, char c);
 char		*ft_substr(char const *s, unsigned int start, size_t len);
@@ -172,6 +169,7 @@ int			check_double_quotes(t_token **tokens, char *cmdline);
 
 //	Syntax errors
 void		check_syntax(t_token **tokens);
+int			check_paren(t_token **tok, char **s);
 void		print_error(char *s1, char *s2);
 void		print_syntax_error(int err, char *str);
 
@@ -185,6 +183,12 @@ int			parse_command(t_tree **root, t_token **tok);
 //	Give the type of the next token that is a connector or parens 
 t_node_type	peek(t_token *tokens);
 
+//	Check whether the token is an input redirection
+int			is_redir_in(t_node_type type);
+
+//	Check whether the token is an output redirection
+int			is_redir_out(t_node_type type);
+
 //	Skip the redirections in a pipeline
 void		skip_redirs(t_token **tokens);
 
@@ -193,6 +197,9 @@ void		skip(t_token **tokens, t_node_type type);
 
 //	Check if the token is a connector
 int			is_connector(t_token *tok);
+
+//	Ascii to unsigned long long
+size_t	ft_atoull(const char *str);
 
 //	Builtin functions
 void		_env(t_env *env, char **arg, int fd);

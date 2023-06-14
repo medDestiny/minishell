@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/09 20:10:21 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/14 17:08:28 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,13 +182,14 @@ int	check_heredoc(t_token **tokens, char *cmdline)
 		if (redir_syntax_error(&cmdline[start]) != 0)
 			return (-1);
 	}
-	while (cmdline[start] && in_set(cmdline[start], BLANK))
-		start++;
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
 	last = lst_last(*tokens);
-	last->type = HEREDOC;
+	if (last->type != WORD)
+		last->type = HDOC;
+	else
+		last->type = HDOC_EXP;
 	return (start + size);
 }
 
@@ -207,13 +208,14 @@ int	check_append(t_token **tokens, char *cmdline)
 		if (redir_syntax_error(&cmdline[start]) != 0)
 			return (-1);
 	}
-	while (cmdline[start] && in_set(cmdline[start], BLANK))
-		start++;
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
 	last = lst_last(*tokens);
-	last->type = APPEND;
+	if (last->type == S_QUOTE)
+		last->type = APPEND;
+	else
+		last->type = APPEND_EXP;
 	return (start + size);
 }
 
@@ -232,13 +234,14 @@ int	check_infile(t_token **tokens, char *cmdline)
 		if (redir_syntax_error(&cmdline[start]) != 0)
 			return (-1);
 	}
-	while (cmdline[start] && in_set(cmdline[start], BLANK))
-		start++;
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
 	last = lst_last(*tokens);
-	last->type = REDIR_IN;
+	if (last->type == S_QUOTE)
+		last->type = RD_IN;
+	else
+		last->type = RD_IN_EXP;
 	return (start + size);
 }
 
@@ -257,13 +260,14 @@ int	check_outfile(t_token **tokens, char *cmdline)
 		if (redir_syntax_error(&cmdline[start]) != 0)
 			return (-1);
 	}
-	while (cmdline[start] && in_set(cmdline[start], BLANK))
-		start++;
 	size = check_tokens(tokens, cmdline + start, SEPARATOR);
 	if (size < 0)
 		return (-1);
 	last = lst_last(*tokens);
-	last->type = REDIR_OUT;
+	if (last->type == S_QUOTE)
+		last->type = RD_OUT;
+	else
+		last->type = RD_OUT_EXP;
 	return (start + size);
 }
 

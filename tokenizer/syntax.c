@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 20:07:24 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/07 17:08:32 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/14 18:20:09 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,8 +99,7 @@ int	check_for_closing_paren(t_token **tok)
 
 int	is_cmd(t_token *tok)
 {
-	if (tok->type != REDIR_IN && tok->type != REDIR_OUT
-		&& tok->type != HEREDOC && tok->type != APPEND
+	if (!is_redir_in(tok->type) && !is_redir_out(tok->type)
 		&& !is_connector(tok))
 		return (1);
 	return (0);
@@ -133,8 +132,6 @@ int	check_right(t_token *paren, char **s)
 	}
 	return (0);
 }
-
-int	check_paren(t_token **tok, char **s);
 
 int	check_mid(t_token **tok, char **s)
 {

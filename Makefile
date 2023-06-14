@@ -28,6 +28,7 @@ SRC= environment.c \
 	 builtins/unset_builtin.c \
 	 builtins/echo_builtin.c \
 	 builtins/exit_builtin.c \
+	 builtins/ft_atoull.c \
 	 free.c \
 	 minishell.c \
 	 prompt.c \

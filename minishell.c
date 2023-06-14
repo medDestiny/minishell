@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 20:59:44 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/14 18:16:02 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,15 @@ void	print_type(t_node_type type)
 		printf("WORD\t");
 	else if (type == PIPE)
 		printf("PIPE\t");
-	else if (type == REDIR_IN)
+	else if (type == RD_IN)
 		printf("REDIR_IN\t");
-	else if (type == REDIR_OUT)
+	else if (type == RD_OUT)
 		printf("REDIR_OUT\t");
 	else if (type == OR)
 		printf("OR\t");
 	else if (type == AND)
 		printf("AND\t");
-	else if (type == HEREDOC)
+	else if (type == HDOC)
 		printf("HEREDOC\t");
 	else if (type == APPEND)
 		printf("APPEND\t");
@@ -101,8 +101,8 @@ void	minishell_loop(t_env *envp)
 	char		*line;
 	char		*cmdline;
 	char		*shell;
-//	t_token		*tokens;
-//	t_tree		*root;
+	t_token		*tokens;
+	t_tree		*root;
 //	char		*v[] = {"cd", "..", NULL};
 	char		**v;
 
@@ -118,25 +118,25 @@ void	minishell_loop(t_env *envp)
 		cmdline = ft_strtrim(line, " \t");
 		add_history(line);
 		free(line);
-		//tokens = lexer(cmdline);
-		//root = parser(&tokens);
-		//if (root)
-		//	print_tree(root, 0);
+		tokens = lexer(cmdline);
+		root = parser(&tokens);
+		if (root)
+			print_tree(root, 0);
 		v = ft_split(cmdline, ' ');
-		if (!ft_strcmp(v[0], "export"))
-			_export(v, &envp, 1);
-		else if (!ft_strcmp(v[0], "pwd"))
-			_pwd(v, 1);
-		else if (!ft_strcmp(v[0], "cd"))
-			_cd(v, envp, 1);
-		else if (!ft_strcmp(v[0], "env"))
-			_env(envp, v, 1);
-		else if (!ft_strcmp(v[0], "unset"))
-			_unset(&envp, v);
-		else if (!ft_strcmp(v[0], "echo"))
-			_echo(v, 1);
-		else if (!ft_strcmp(v[0], "exit"))
-			_exit_(&envp, v);
+		//if (!ft_strcmp(v[0], "export"))
+		//	_export(v, &envp, 1);
+		//else if (!ft_strcmp(v[0], "pwd"))
+		//	_pwd(v, 1);
+		//else if (!ft_strcmp(v[0], "cd"))
+		//	_cd(v, envp, 1);
+		//else if (!ft_strcmp(v[0], "env"))
+		//	_env(envp, v, 1);
+		//else if (!ft_strcmp(v[0], "unset"))
+		//	_unset(&envp, v);
+		//else if (!ft_strcmp(v[0], "echo"))
+		//	_echo(v, 1);
+		//else if (!ft_strcmp(v[0], "exit"))
+		//	_exit_(&envp, v);
 		clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 20:36:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 21:22:48 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/14 17:24:12 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,10 @@ int	is_number(char *s)
 			return (0);
 		i++;
 	}
-	if (ft_strlen(s) > 19 || (sign == -1 && ft_atoi(s) > 9223372036854775808ULL)
-		|| (sign == 1 && ft_atoi(s) > 9223372036854775807ULL))
-		return (0);
+	if (ft_strlen(s) > 19
+		|| (sign == -1 && ft_atoull(s) > 9223372036854775808ULL)
+		|| (sign == 1 && ft_atoull(s) > 9223372036854775807ULL))
+		return (-1);
 	return (1);
 }
 
@@ -58,9 +59,11 @@ void	_exit_(t_env **env, char **cmd)
 	int	status;
 
 	j = 1;
+	status = 0;
+	ft_putstr_fd("exit\n", STDERR_FILENO);
 	while (cmd[j])
 	{
-		if (j == 1 && !is_number(cmd[j]))
+		if (j == 1 && is_number(cmd[j]) <= 0)
 		{
 			print_exit_error(env, cmd[j], ": numeric argument required");
 			exit(255);

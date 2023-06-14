@@ -6,33 +6,47 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/09 18:15:08 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/14 17:25:14 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+int	is_redir_in(t_node_type type)
+{
+	if (type == RD_IN || type == RD_IN_EXP || type == HDOC || type == HDOC_EXP)
+		return (1);
+	return (0);
+}
+
+int	is_redir_out(t_node_type type)
+{
+	if (type == RD_OUT || type == RD_OUT_EXP || type == APPEND
+		|| type == APPEND_EXP)
+		return (1);
+	return (0);
+}
 
 int	in_list(t_token *tok, t_node_type type)
 {
 	if (!is_connector(tok) && tok->type != L_PAREN
 		&& tok->type != R_PAREN && tok->type != SPC)
 	{
-		if (type == REDIR_IN)
+		if (type == RD_IN)
 		{
-			if (tok->type != REDIR_OUT && tok->type != APPEND)
+			if (!is_redir_out(tok->type))
 				return (1);
 			return (0);
 		}
-		else if (type == REDIR_OUT)
+		else if (type == RD_OUT)
 		{
-			if (tok->type != REDIR_IN && tok->type != HEREDOC)
+			if (!is_redir_in(tok->type))
 				return (1);
 			return (0);
 		}
 		else if (type == WORD)
 		{
-			if (tok->type != REDIR_OUT && tok->type != APPEND
-				&& tok->type != REDIR_IN && tok->type != HEREDOC)
+			if (!is_redir_in(tok->type) && !is_redir_out(tok->type))
 				return (1);
 			return (0);
 		}
@@ -82,10 +96,10 @@ int	parse_command(t_tree **root, t_token **tok)
 		&& (*tok)->type != OR && (*tok)->type != L_PAREN
 		&& (*tok)->type != R_PAREN)
 	{
-		if ((*tok)->type == REDIR_IN || (*tok)->type == HEREDOC)
-			err = build_list(&cmd->cmd.in, tok, REDIR_IN);
-		else if ((*tok)->type == REDIR_OUT || (*tok)->type == APPEND)
-			err = build_list(&cmd->cmd.out, tok, REDIR_OUT);
+		if (is_redir_in((*tok)->type))
+			err = build_list(&cmd->cmd.in, tok, RD_IN);
+		else if (is_redir_out((*tok)->type))
+			err = build_list(&cmd->cmd.out, tok, RD_OUT);
 		else
 			err = build_list(&cmd->cmd.list, tok, WORD);
 		if (*tok && (*tok)->type == SPC)
@@ -241,10 +255,10 @@ int	add_group_redir(t_token *paren, t_tree *group)
 	while (paren && paren->type != R_PAREN && paren->type != L_PAREN
 		&& !is_connector(paren))
 	{
-		if (paren->type == REDIR_OUT || paren->type == APPEND)
-			err = build_list(&output, &paren, REDIR_OUT);
-		else if (paren->type == REDIR_IN || paren->type == HEREDOC)
-			err = build_list(&input, &paren, REDIR_IN);
+		if (is_redir_out(paren->type))
+			err = build_list(&output, &paren, RD_OUT);
+		else if (is_redir_in(paren->type))
+			err = build_list(&input, &paren, RD_IN);
 		else if (paren->type == SPC)
 			paren = paren->next;
 		if (err != 0)
@@ -258,8 +272,7 @@ void	skip_redirs(t_token **tok)
 {
 	while (*tok)
 	{
-		if ((*tok)->type == HEREDOC || (*tok)->type == APPEND
-			|| (*tok)->type == REDIR_IN || (*tok)->type == REDIR_OUT)
+		if (is_redir_in((*tok)->type) || is_redir_out((*tok)->type))
 		{
 			while (*tok && (*tok)->type != SPC && (*tok)->type != L_PAREN
 				&& (*tok)->type != R_PAREN && (*tok)->type != AND

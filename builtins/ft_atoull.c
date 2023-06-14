@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   ft_atoull.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/05 20:10:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/14 09:41:36 by mmisskin         ###   ########.fr       */
+/*   Created: 2023/06/14 09:42:09 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/06/14 09:42:28 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static	int	check(size_t res, size_t old)
 	return (0);
 }
 
-static	int	fill(const char *str, int sign)
+static	size_t	fill(const char *str, int sign)
 {
 	size_t	res;
 	size_t	o_res;
@@ -41,7 +41,7 @@ static	int	fill(const char *str, int sign)
 	return (res * sign);
 }
 
-int	ft_atoi(const char *str)
+size_t	ft_atoull(const char *str)
 {
 	int					index;
 	int					sign;
