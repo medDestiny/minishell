@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 15:48:36 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 16:49:59 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/15 15:46:06 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,6 @@
 
 int	check_argument(char *cmd)
 {
-	int	i;
-
-	i = 0;
 	if (cmd && cmd[0] == '-')
 	{
 		ft_putstr_fd("minishell: unset: ", STDERR_FILENO);

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 13:54:02 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 16:20:42 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/15 15:46:23 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,9 @@ int	check_name(char *arg, int *append)
 
 static char	*check_identifier(char *arg, int *append)
 {
-	int		i;
 	int		size;
 	char	*name;
 
-	i = 1;
 	size = 1;
 	if (!ft_isalpha(arg[0]) && arg[0] != '_')
 		size = -1;
