@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/14 17:25:14 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/07/13 07:20:01 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -295,16 +295,18 @@ int	parse_group(t_tree **root, t_token **tokens)
 	group = NULL;
 	skip(tokens, L_PAREN);
 	group = parser(tokens);
-	if (!*root)
-		*root = group;
-	else
-		(*root)->node.rchild = group;
 	if (!group)
 		return (-1);
 	else
 		skip(tokens, R_PAREN);
 	err = add_group_redir(*tokens, group);
 	skip_redirs(tokens);
+	if (peek(*tokens) == PIPE)
+		err = parse_pipeline(&group, tokens);
+	if (!*root)
+		*root = group;
+	else
+		(*root)->node.rchild = group;
 	return (err);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/15 18:14:57 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/17 15:32:44 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@
 # include<readline/readline.h>
 # include<readline/history.h>
 # include<term.h>
+# include<string.h>
+# include<sys/errno.h>
 
 typedef enum s_node_type
 {

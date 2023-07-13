@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/15 13:16:41 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/06/18 13:37:51 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,8 @@ void	minishell_loop(t_env *envp)
 	char		*line;
 	char		*cmdline;
 	char		*shell;
-//	t_token		*tokens;
-//	t_tree		*root;
+	t_token		*tokens;
+	t_tree		*root;
 //	char		*v[] = {"cd", "..", NULL};
 	char		**v;
 
@@ -118,12 +118,12 @@ void	minishell_loop(t_env *envp)
 		cmdline = ft_strtrim(line, " \t");
 		add_history(line);
 		free(line);
-		//tokens = lexer(cmdline);
-		//root = parser(&tokens);
-		//if (root)
-		//	print_tree(root, 0);
+		tokens = lexer(cmdline);
+		root = parser(&tokens);
+		if (root)
+			print_tree(root, 0);
 		v = ft_split(cmdline, ' ');
-		if (!v)
+		if (!v || !*v)
 			continue ;
 		if (!ft_strcmp(v[0], "export"))
 			_export(v, &envp, 1);
