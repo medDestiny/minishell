@@ -3,19 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/18 13:37:51 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/07/13 19:58:07 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	leak()
-{
-	system("leaks msh");
-}
 
 void	print_type(t_node_type type)
 {
@@ -103,7 +98,6 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-//	char		*v[] = {"cd", "..", NULL};
 	char		**v;
 
 	line = NULL;
@@ -120,8 +114,8 @@ void	minishell_loop(t_env *envp)
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
-		if (root)
-			print_tree(root, 0);
+		// if (root)
+		// 	print_tree(root, 0);
 		v = ft_split(cmdline, ' ');
 		if (!v || !*v)
 			continue ;
@@ -139,6 +133,8 @@ void	minishell_loop(t_env *envp)
 			_echo(v, 1);
 		else if (!ft_strcmp(v[0], "exit"))
 			_exit_(&envp, v);
+		else
+			exec_cmd(root, envp);
 		clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);
@@ -154,7 +150,6 @@ int	main(int ac, char **av, char **env)
 	envp = env_dup(av[0], env);
 	if (!envp)
 		return (1);
-	atexit(leak);
 	minishell_loop(envp);
 	clean_env_list(&envp);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/17 15:32:44 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/07/13 17:50:49 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 # include<term.h>
 # include<string.h>
 # include<sys/errno.h>
+# include<sys/wait.h>
 
 typedef enum s_node_type
 {
@@ -113,6 +114,8 @@ typedef struct s_tree
 }	t_tree;
 
 t_garb					*g_gc;
+
+/***************** Parsing ********************/
 
 //	Libft
 size_t		ft_strlen(const char *str);
@@ -201,7 +204,7 @@ void		skip(t_token **tokens, t_node_type type);
 int			is_connector(t_token *tok);
 
 //	Ascii to unsigned long long
-size_t	ft_atoull(const char *str);
+size_t		ft_atoull(const char *str);
 
 //	Builtin functions
 void		_env(t_env *env, char **arg, int fd);
@@ -211,5 +214,9 @@ void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
 void		_echo(char **cmd, int fd);
 void		_exit_(t_env **env, char **cmd);
+
+/***************** Execution ********************/
+
+int			exec_cmd(t_tree *node, t_env *envp);
 
 #endif
