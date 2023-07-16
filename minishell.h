@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/13 17:50:49 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/16 19:54:48 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 # include<string.h>
 # include<sys/errno.h>
 # include<sys/wait.h>
+# include<signal.h>
+# include<stddef.h>
 
 typedef enum s_node_type
 {

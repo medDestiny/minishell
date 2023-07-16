@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/13 20:08:24 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/14 13:08:47 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ int	exec_cmd(t_tree *node, t_env *envp)
 	pid_t	pid;
 
 	pid = fork();
+	if (pid == -1)
+		return (1);
 	if (pid == 0)
 	{
 		if (node && node->type == T_CMD)
@@ -96,8 +98,11 @@ int	exec_cmd(t_tree *node, t_env *envp)
 			}
 		}
 		else
+		{
 			printf("U should handle more cases u fucking loser ;)\n");
+			exit(EXIT_FAILURE);
+		}
 	}
-	wait(NULL);
+	waitpid(-1, NULL, 0);
 	return (1);
 }

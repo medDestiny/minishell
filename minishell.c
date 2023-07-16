@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/13 19:58:07 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/16 18:25:05 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,31 +15,39 @@
 void	print_type(t_node_type type)
 {
 	if (type == WORD)
-		printf("WORD\t");
+		printf("WORD  ");
 	else if (type == PIPE)
-		printf("PIPE\t");
+		printf("PIPE  ");
 	else if (type == RD_IN)
-		printf("REDIR_IN\t");
+		printf("REDIR_IN  ");
+	else if (type == RD_IN_EXP)
+		printf("REDIR_IN_EXP  ");
 	else if (type == RD_OUT)
-		printf("REDIR_OUT\t");
+		printf("REDIR_OUT  ");
+	else if (type == RD_OUT_EXP)
+		printf("REDIR_OUT_EXP  ");
 	else if (type == OR)
-		printf("OR\t");
+		printf("OR  ");
 	else if (type == AND)
-		printf("AND\t");
+		printf("AND  ");
 	else if (type == HDOC)
-		printf("HEREDOC\t");
+		printf("HEREDOC  ");
+	else if (type == HDOC_EXP)
+		printf("HEREDOC_EXP  ");
 	else if (type == APPEND)
-		printf("APPEND\t");
+		printf("APPEND  ");
+	else if (type == APPEND_EXP)
+		printf("APPEND_EXP  ");
 	else if (type == R_PAREN)
-		printf("R_PAREN\t");
+		printf("R_PAREN  ");
 	else if (type == L_PAREN)
-		printf("L_PAREN\t");
+		printf("L_PAREN  ");
 	else if (type == SPC)
-		printf("SPC\t");
+		printf("SPC  ");
 	else if (type == D_QUOTE)
-		printf("D_QUOTE\t");
+		printf("D_QUOTE  ");
 	else if (type == S_QUOTE)
-		printf("S_QUOTE\t");
+		printf("S_QUOTE  ");
 }
 
 void	print_vec(char **vec)
@@ -91,6 +99,24 @@ void	print_tree(t_tree *root, int lvl)
 	}
 }
 
+void	print_tokens(t_tree *root)
+{
+	t_token	*p;
+
+	if (root)
+	{
+		p = root->cmd.list;
+		while (p)
+		{
+			print_type(p->type);
+			printf("|%s| ", p->lexeme);
+			p = p->next;
+		}
+		printf("\n");
+	}
+	return ;
+}
+
 void	minishell_loop(t_env *envp)
 {
 	char		*line;
@@ -98,7 +124,7 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-	char		**v;
+	// char		**v;
 
 	line = NULL;
 	g_gc = NULL;
@@ -114,28 +140,29 @@ void	minishell_loop(t_env *envp)
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
+		print_tokens(root);
 		// if (root)
 		// 	print_tree(root, 0);
-		v = ft_split(cmdline, ' ');
-		if (!v || !*v)
-			continue ;
-		if (!ft_strcmp(v[0], "export"))
-			_export(v, &envp, 1);
-		else if (!ft_strcmp(v[0], "pwd"))
-			_pwd(v, 1);
-		else if (!ft_strcmp(v[0], "cd"))
-			_cd(v, envp, 1);
-		else if (!ft_strcmp(v[0], "env"))
-			_env(envp, v, 1);
-		else if (!ft_strcmp(v[0], "unset"))
-			_unset(&envp, v);
-		else if (!ft_strcmp(v[0], "echo"))
-			_echo(v, 1);
-		else if (!ft_strcmp(v[0], "exit"))
-			_exit_(&envp, v);
-		else
-			exec_cmd(root, envp);
-		clean_vec(v);
+		// v = ft_split(cmdline, ' ');
+		// if (!v || !*v)
+		// 	continue ;
+		// if (!ft_strcmp(v[0], "export"))
+		// 	_export(v, &envp, 1);
+		// else if (!ft_strcmp(v[0], "pwd"))
+		// 	_pwd(v, 1);
+		// else if (!ft_strcmp(v[0], "cd"))
+		// 	_cd(v, envp, 1);
+		// else if (!ft_strcmp(v[0], "env"))
+		// 	_env(envp, v, 1);
+		// else if (!ft_strcmp(v[0], "unset"))
+		// 	_unset(&envp, v);
+		// else if (!ft_strcmp(v[0], "echo"))
+		// 	_echo(v, 1);
+		// else if (!ft_strcmp(v[0], "exit"))
+		// 	_exit_(&envp, v);
+		// else
+		// 	exec_cmd(root, envp);
+		// clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);
 	}
