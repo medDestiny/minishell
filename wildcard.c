@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 13:44:32 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/16 22:04:48 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/07/17 14:41:33 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ int	check_pattern(char *str, char *pattern, t_data *data)
 {
 	while (str[data->i])
 	{
-		if (pattern[data->j] && (pattern[data->j] == str[data->i] || pattern[data->j] == '?'))
+		if (pattern[data->j]
+			&& (pattern[data->j] == str[data->i] || pattern[data->j] == '?'))
 		{
 			data->i++;
 			data->j++;
@@ -51,8 +52,8 @@ int	wildcard_match(char *str, char *pattern)
 
 	data.j = 0;
 	data.i = 0;
-	data.str_i = 0;
-	data.pat_i = 0;
+	data.str_i = -1;
+	data.pat_i = -1;
 	if (!str || !str[0])
 		return (0);
 	if (!check_pattern(str, pattern, &data))
@@ -66,12 +67,12 @@ int	wildcard_match(char *str, char *pattern)
 	return (0);
 }
 
-#include<stdio.h>
-
-int	main(int ac, char **av)
-{
-	if (wildcard_match(av[1], av[2]))
-		printf("YES\n");
-	else
-		printf("NO\n");
-}
+//#include<stdio.h>
+//
+//int	main(int ac, char **av)
+//{
+//	if (wildcard_match(av[1], av[2]))
+//		printf("YES\n");
+//	else
+//		printf("NO\n");
+//}
