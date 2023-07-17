@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/17 14:52:17 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/07/17 15:47:50 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,10 +83,7 @@ t_entry	*dir_pattern_check(char *dir, char *pattern)
 	dirp = opendir(dir);
 	entries = NULL;
 	if (!dirp)
-	{
-		perror(dir);
 		return (NULL);
-	}
 	while (1)
 	{
 		info = readdir(dirp);
