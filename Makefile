@@ -32,7 +32,8 @@ SRC= environment.c \
 	 free.c \
 	 minishell.c \
 	 prompt.c \
-	 execution/executor.c
+	 execution/executor.c \
+	 execution/split_token.c
 
 C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h

@@ -6,13 +6,12 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/16 21:45:20 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/18 11:08:42 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../minishell.h"
-# define NULL (void*)0
 
 void	tkn_join(t_token *token, t_token **new_tknlst)
 {
@@ -22,18 +21,13 @@ void	tkn_join(t_token *token, t_token **new_tknlst)
 	// from the same family until you hit a space node in a new list and continue.
 }
 
-char	*scan_metachar(char *lexeme)
-{
-	//TODO
-}
-
 t_token	*tknlst_update(t_token *token)
 {
 	char	*id;
 	char	*new_lexeme;
 	char	**sub_tkns;
 
-	sub_tkns = ft_split(token->lexeme, '$'); // a verifier!!
+	sub_tkns = tkn_split(token->lexeme);
 }
 
 t_token	*list_expand(t_token *tokens)
