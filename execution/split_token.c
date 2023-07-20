@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:51:00 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/19 20:29:10 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/20 08:21:32 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ int	get_idsize(char *lexeme, int i)
 			}
 			break ;
 		}
-	} 
+	}
 	return (id_len);
 }
 
@@ -81,13 +81,12 @@ t_token	*tkn_split(char *lexeme)
 	while (lexeme[i])
 	{
 		if (lexeme[i] == '$')
-			i += get_subtkn(&subtkn_lst, lexeme,\
+			i += get_subtkn(&subtkn_lst, lexeme, \
 					get_idsize(lexeme, i), i);
 		else
-			i += get_subtkn(&subtkn_lst, lexeme,\
+			i += get_subtkn(&subtkn_lst, lexeme, \
 					get_wordsize(lexeme, i), i);
 		i++;
 	}
 	return (subtkn_lst);
 }
-

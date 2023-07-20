@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/17 15:04:51 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/20 07:57:39 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@
 # include<sys/errno.h>
 # include<sys/wait.h>
 # include<signal.h>
-// # include<stddef.h>
 
 typedef enum s_node_type
 {
@@ -220,5 +219,5 @@ void		_exit_(t_env **env, char **cmd);
 /***************** Execution ********************/
 
 int			exec_cmd(t_tree *node, t_env *envp);
-
+t_token		*tkn_split(char *lexeme);
 #endif

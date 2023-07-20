@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/18 20:50:23 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/19 20:55:17 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 
 void	tkn_join(t_token *token, t_token **new_tknlst)
 {
-	// TODO :
-	
 	// Create a function that checks the list and joins the tokens
 	// from the same family until you hit a space node in a new list and continue.
 }

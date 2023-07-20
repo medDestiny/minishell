@@ -6,12 +6,11 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/18 20:34:19 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/20 07:57:58 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-t_token	*tkn_split(char *lexeme);
 
 void	print_type(t_node_type type)
 {
