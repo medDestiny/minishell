@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/20 07:57:58 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/26 18:31:40 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,14 +99,15 @@ void	print_tree(t_tree *root, int lvl)
 	}
 }
 
-void	print_tokens(t_tree *root)
+void	print_tokens(t_tree *root, t_env *env)
 {
 	t_token	*p;
 
 	if (root)
 	{
 		//p = root->cmd.list;
-		p = tkn_split(root->cmd.list->lexeme);
+		//p = tkn_split(root->cmd.list->lexeme);
+		p = list_expand(root->cmd.list, env);
 		while (p)
 		{
 			print_type(p->type);
@@ -125,7 +126,7 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-	// char		**v;
+	//char		**v;
 
 	line = NULL;
 	g_gc = NULL;
@@ -141,29 +142,29 @@ void	minishell_loop(t_env *envp)
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
-		print_tokens(root);
+		print_tokens(root, envp);
 		// if (root)
-		// 	print_tree(root, 0);
-		// v = ft_split(cmdline, ' ');
-		// if (!v || !*v)
-		// 	continue ;
-		// if (!ft_strcmp(v[0], "export"))
-		// 	_export(v, &envp, 1);
-		// else if (!ft_strcmp(v[0], "pwd"))
-		// 	_pwd(v, 1);
-		// else if (!ft_strcmp(v[0], "cd"))
-		// 	_cd(v, envp, 1);
-		// else if (!ft_strcmp(v[0], "env"))
-		// 	_env(envp, v, 1);
-		// else if (!ft_strcmp(v[0], "unset"))
-		// 	_unset(&envp, v);
-		// else if (!ft_strcmp(v[0], "echo"))
-		// 	_echo(v, 1);
-		// else if (!ft_strcmp(v[0], "exit"))
-		// 	_exit_(&envp, v);
-		// else
-		// 	exec_cmd(root, envp);
-		// clean_vec(v);
+		//		print_tree(root, 0);
+		//	v = ft_split(cmdline, ' ');
+		//	if (!v || !*v)
+		//		continue ;
+		//	if (!ft_strcmp(v[0], "export"))
+		//		_export(v, &envp, 1);
+		//	else if (!ft_strcmp(v[0], "pwd"))
+		//		_pwd(v, 1);
+		//	else if (!ft_strcmp(v[0], "cd"))
+		//		_cd(v, envp, 1);
+		//	else if (!ft_strcmp(v[0], "env"))
+		//		_env(envp, v, 1);
+		//	else if (!ft_strcmp(v[0], "unset"))
+		//		_unset(&envp, v);
+		//	else if (!ft_strcmp(v[0], "echo"))
+		//		_echo(v, 1);
+		//	else if (!ft_strcmp(v[0], "exit"))
+		//		_exit_(&envp, v);
+		//else
+		//	exec_cmd(root, envp);
+		//clean_vec(v);
 		free(cmdline);
 		clean_all(&g_gc);
 	}

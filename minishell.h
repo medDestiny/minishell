@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/20 07:57:39 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/26 18:14:20 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,7 @@ int			check_outfile(t_token **tokens, char *cmdline);
 int			check_redirection(t_token **tokens, char *cmdline);
 int			check_single_quotes(t_token **tokens, char *cmdline);
 int			check_double_quotes(t_token **tokens, char *cmdline);
+int			in_set(char c, char *set);
 
 //	Syntax errors
 void		check_syntax(t_token **tokens);
@@ -220,4 +221,6 @@ void		_exit_(t_env **env, char **cmd);
 
 int			exec_cmd(t_tree *node, t_env *envp);
 t_token		*tkn_split(char *lexeme);
+t_token		*list_expand(t_token *tokens, t_env *env);
+
 #endif

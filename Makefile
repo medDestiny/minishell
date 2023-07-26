@@ -33,6 +33,7 @@ SRC= environment.c \
 	 minishell.c \
 	 prompt.c \
 	 execution/executor.c \
+	 execution/expander.c \
 	 execution/split_token.c
 
 C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address

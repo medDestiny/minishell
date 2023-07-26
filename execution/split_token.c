@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:51:00 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/20 08:21:32 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/26 18:06:13 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,7 @@ int	get_idsize(char *lexeme, int i)
 	id_len = 1;
 	while (lexeme[++i])
 	{
-		if (lexeme[i] == '$' || lexeme[i] == '?'\
-			|| ft_isdigit(lexeme[i]) == 1)
+		if (in_set(lexeme[i], "$!?@#*-") || ft_isdigit(lexeme[i]) == 1)
 		{
 			id_len++;
 			break ;
@@ -68,14 +67,12 @@ int	get_subtkn(t_token **lst, char *lexeme, int size, int i)
 t_token	*tkn_split(char *lexeme)
 {
 	t_token	*subtkn_lst;
-	char	*sub;
 	int		i;
 	int		j;
 
 	i = 0;
 	j = 0;
 	subtkn_lst = NULL;
-	sub = NULL;
 	if (!lexeme)
 		return (NULL);
 	while (lexeme[i])
