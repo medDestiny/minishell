@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:51:00 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/26 18:06:13 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/27 12:00:38 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,19 +52,19 @@ int	get_idsize(char *lexeme, int i)
 	return (id_len);
 }
 
-int	get_subtkn(t_token **lst, char *lexeme, int size, int i)
+int	get_subtkn(t_token **lst, t_token *tkn, int size, int i)
 {
 	char	*sub;
 
-	sub = ft_substr(lexeme, i, size);
-	token_list_add(lst, WORD, sub, size);
+	sub = ft_substr(tkn->lexeme, i, size);
+	token_list_add(lst, tkn->type, sub, size);
 	free (sub);
 	return (size - 1);
 }
 
 //Subtokens of : |hii$hi?hello$$$123_cv-ls$PATH$hh$$hello!$?|
 // |hii|->|$hi|->|?hello|->|$$|->|$1|->|23_cv-ls|->|$PATH|->|$hh|->|$$|->|hello!|->|$?|
-t_token	*tkn_split(char *lexeme)
+t_token	*tkn_split(t_token *tkn)
 {
 	t_token	*subtkn_lst;
 	int		i;
@@ -73,16 +73,16 @@ t_token	*tkn_split(char *lexeme)
 	i = 0;
 	j = 0;
 	subtkn_lst = NULL;
-	if (!lexeme)
+	if (!tkn->lexeme)
 		return (NULL);
-	while (lexeme[i])
+	while (tkn->lexeme[i])
 	{
-		if (lexeme[i] == '$')
-			i += get_subtkn(&subtkn_lst, lexeme, \
-					get_idsize(lexeme, i), i);
+		if (tkn->lexeme[i] == '$')
+			i += get_subtkn(&subtkn_lst, tkn, \
+					get_idsize(tkn->lexeme, i), i);
 		else
-			i += get_subtkn(&subtkn_lst, lexeme, \
-					get_wordsize(lexeme, i), i);
+			i += get_subtkn(&subtkn_lst, tkn, \
+					get_wordsize(tkn->lexeme, i), i);
 		i++;
 	}
 	return (subtkn_lst);

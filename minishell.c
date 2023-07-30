@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/26 18:31:40 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/30 13:44:08 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,7 @@ void	print_tokens(t_tree *root, t_env *env)
 {
 	t_token	*p;
 
+	//(void)env;
 	if (root)
 	{
 		//p = root->cmd.list;

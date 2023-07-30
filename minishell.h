@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/26 18:14:20 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/07/27 13:26:35 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,17 +26,15 @@
 # define UNEX_TOK 9
 
 # include<stdlib.h>
-# include<stdbool.h>
 # include<unistd.h>
 # include<fcntl.h>
-# include<stdio.h>
+# include<stddef.h>
 # include<readline/readline.h>
 # include<readline/history.h>
-# include<term.h>
-# include<string.h>
 # include<sys/errno.h>
 # include<sys/wait.h>
 # include<signal.h>
+# include<dirent.h>
 
 typedef enum s_node_type
 {
@@ -220,7 +218,7 @@ void		_exit_(t_env **env, char **cmd);
 /***************** Execution ********************/
 
 int			exec_cmd(t_tree *node, t_env *envp);
-t_token		*tkn_split(char *lexeme);
+t_token		*tkn_split(t_token *tkn);
 t_token		*list_expand(t_token *tokens, t_env *env);
 
 #endif
