@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/27 13:26:35 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/01 21:00:28 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,5 +220,6 @@ void		_exit_(t_env **env, char **cmd);
 int			exec_cmd(t_tree *node, t_env *envp);
 t_token		*tkn_split(t_token *tkn);
 t_token		*list_expand(t_token *tokens, t_env *env);
+int			*create_wildflags(t_token *tknlst);
 
 #endif

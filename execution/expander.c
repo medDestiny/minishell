@@ -6,10 +6,9 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/30 18:35:23 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/01 21:24:40 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../minishell.h"
 
@@ -52,11 +51,14 @@ void	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 	sub = tkn_split(lst);
 	if (!sub)
 		return ;
-	while (sub)
+	while (sub && sub->lexeme)
 	{
 		var = sub->lexeme;
-		if (var && *var == '$' && *(var + 1))
-			var = get_env_value(env, (var + 1));
+		if (*var == '$' && *(var + 1))
+		var = get_env_value(env, (var + 1));
+		else if (*var == '$' && lst->next \
+		&& (lst->next->type == D_QUOTE || lst->next->type == S_QUOTE))
+			var = NULL;
 		if (var)
 			token_list_add(newlst, sub->type, var, ft_strlen(var));
 		sub = sub->next;
@@ -64,29 +66,80 @@ void	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 	return ;
 }
 
+void	fill_wildtab(int *flags, t_token *tknlst)
+{
+	int	i;
+	int	j;
+
+	j = 0;
+	while (tknlst)
+	{
+		i = 0;
+		while (tknlst->lexeme[i])
+		{
+			if (in_set(tknlst->lexeme[i], "*?"))
+			{
+				if (tknlst->type == D_QUOTE || tknlst->type == S_QUOTE)
+					flags[j++] = 0;
+				else
+					flags[j++] = 1;
+			}
+			i++;
+		}
+		tknlst = tknlst->next;
+	}
+	return ;
+}
+
+int	*create_wildflags(t_token *tknlst)
+{
+	t_token	*token;
+	int		*flags;
+	int		index;
+	int		wildchars;
+
+	flags = NULL;
+	wildchars = 0;
+	token = tknlst;
+	while (token)
+	{
+		index = -1;
+		while (token->lexeme[++index])
+			if (in_set(token->lexeme[index], "*?"))
+				wildchars++;
+		token = token->next;
+	}
+	if (wildchars)
+	{
+		flags = (int *)malloc(wildchars * sizeof(int));
+		if (!flags)
+			return (NULL);
+		fill_wildtab(flags, tknlst);
+	}
+	return (flags);
+}
+
 t_token	*list_expand(t_token *tokens, t_env *env)
 {
 	t_token	*token;
 	t_token	*newtknlst;
+	int		*flags_tab;
 
 	token = tokens;
 	newtknlst = NULL;
 	while (token)
 	{
-		if (token->type == WORD || token->type == D_QUOTE)
+		if (token->type == WORD || (token->type == D_QUOTE && *token->lexeme))
 			tkn_update(&newtknlst, token, env);
 		else
 			token_list_add(&newtknlst, token->type, token->lexeme, \
 					ft_strlen(token->lexeme));
 		token = token->next;
 	}
+	flags_tab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
 	return (newtknlst);
 }
-
-//t_token	*rdir_expand(t_token *tokens_io)
-//{
-//}
 
 void	node_expand(t_cmd *cmd_node, t_env *env)
 {

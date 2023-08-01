@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/30 13:44:08 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/01 21:00:59 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	print_tokens(t_tree *root, t_env *env)
 	if (root)
 	{
 		//p = root->cmd.list;
-		//p = tkn_split(root->cmd.list->lexeme);
+		//p = tkn_split(root->cmd.list);
 		p = list_expand(root->cmd.list, env);
 		while (p)
 		{
