@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/02 19:51:21 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/02 20:58:13 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,10 +138,13 @@ void	extract_dir_pattern(char **dir, char **pattern, t_token *tkn)
 	return ;
 }
 
-void	wild_expand(t_token **tkn, int *flags)
+t_token	*wildlex_match(t_token *tkn, t_entry *matchlst)
+{
+}
+
+void	wild_expand(t_token *tknlst, int *flags)
 {
 	t_entry	*matches;
-	t_token	*token;
 	char	*pattern;
 	char	*dir;
 
@@ -149,14 +152,13 @@ void	wild_expand(t_token **tkn, int *flags)
 		return ;
 	dir = NULL;
 	pattern = NULL;
-	token = *tkn;
-	while (token)
-	{	
-		extract_dir_pattern(&dir, &pattern, *tkn);
-		if (!dir)
-			dir = ft_strdup(".");
-	   matches = dir_pattern_check(dir, pattern, flags);
-	   token = token->next;
+	while (tknlst)
+	{
+		extract_dir_pattern(&dir, &pattern, tknlst);
+		matches = dir_pattern_check(dir, pattern, flags);
+		if (matches)
+			wildlex_match(tknlst, matches);
+		tknlst = tknlst->next;
 	}
 }
 
@@ -179,7 +181,7 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	}
 	flags_tab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
-	wild_expand(&newtknlst, flags_tab);
+	wild_expand(newtknlst, flags_tab);
 	return (newtknlst);
 }
 
