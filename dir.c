@@ -6,14 +6,11 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/17 15:47:50 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/07/27 13:23:39 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include<dirent.h>
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
+#include "minishell.h"
 
 int	wildcard_match(char *str, char *pattern);
 

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/14 17:08:28 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/01 12:54:50 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,7 +300,7 @@ int	check_single_quotes(t_token **tokens, char *cmdline)
 	size = check_word(tokens, cmdline, "'");
 	if (size < 0)
 		return (-1);
-	if (size)
+	else
 	{
 		last = lst_last(*tokens);
 		last->type = S_QUOTE;
@@ -325,7 +325,7 @@ int	check_double_quotes(t_token **tokens, char *cmdline)
 	size = check_word(tokens, cmdline, "\"");
 	if (size < 0)
 		return (-1);
-	if (size)
+	else
 	{
 		last = lst_last(*tokens);
 		last->type = D_QUOTE;
