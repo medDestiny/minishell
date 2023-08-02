@@ -6,11 +6,22 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/02 15:00:36 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/02 19:58:34 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include<dirent.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+
+int	wildcard_match(char *str, char *pattern, int *flags);
+
+typedef struct s_entry
+{
+	char			*name;
+	struct s_entry	*next;
+}	t_entry;
 
 void	clean_list(t_entry **list)
 {
@@ -58,7 +69,7 @@ int	entry_list_add(t_entry **list, char *name, int size)
 		clean_list(list);
 		return (1);
 	}
-	ft_strlcpy(ptr->name, name, size + 1);
+	strlcpy(ptr->name, name, size + 1);
 	ptr->next = NULL;
 	return (0);
 }
@@ -69,7 +80,10 @@ t_entry	*dir_pattern_check(char *dir, char *pattern, int *flags)
 	DIR				*dirp;
 	struct dirent	*info;
 	                                               
-	dirp = opendir(dir);
+	if (!dir)
+		dirp = opendir(".");
+	else
+		dirp = opendir(dir);
 	entries = NULL;
 	if (!dirp)
 		return (NULL);
@@ -86,15 +100,15 @@ t_entry	*dir_pattern_check(char *dir, char *pattern, int *flags)
 	return (entries);
 }
 
-//int	main(int ac, char **av)
-//{
-//	t_entry	*entries;
-//	int		f[] = {1};
-//
-//	entries = dir_pattern_check(av[1], av[2], f);
-//	while (entries)
-//	{
-//		printf("%s\n", entries->name);
-//		entries = entries->next;
-//	}
-//}
+int	main(int ac, char **av)
+{
+	t_entry	*entries;
+	int		f[] = {1};
+
+	entries = dir_pattern_check(av[1], av[2], f);
+	while (entries)
+	{
+		printf("%s\n", entries->name);
+		entries = entries->next;
+	}
+}
