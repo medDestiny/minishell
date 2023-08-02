@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/01 21:24:40 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/02 13:37:01 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 	{
 		var = sub->lexeme;
 		if (*var == '$' && *(var + 1))
-		var = get_env_value(env, (var + 1));
+			var = get_env_value(env, (var + 1));
 		else if (*var == '$' && lst->next \
 		&& (lst->next->type == D_QUOTE || lst->next->type == S_QUOTE))
 			var = NULL;
@@ -116,6 +116,8 @@ int	*create_wildflags(t_token *tknlst)
 			return (NULL);
 		fill_wildtab(flags, tknlst);
 	}
+//	for (int i = 0; i < wildchars; i++)
+//		printf("%d\n", flags[i]);
 	return (flags);
 }
 
