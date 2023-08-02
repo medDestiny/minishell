@@ -6,13 +6,13 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/27 13:23:39 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/02 14:11:13 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	wildcard_match(char *str, char *pattern);
+int	wildcard_match(char *str, char *pattern, int *flags);
 
 typedef struct s_entry
 {
@@ -71,7 +71,7 @@ int	entry_list_add(t_entry **list, char *name, int size)
 	return (0);
 }
 
-t_entry	*dir_pattern_check(char *dir, char *pattern)
+t_entry	*dir_pattern_check(char *dir, char *pattern, int *flags)
 {
 	t_entry			*entries;
 	DIR				*dirp;
@@ -86,7 +86,7 @@ t_entry	*dir_pattern_check(char *dir, char *pattern)
 		info = readdir(dirp);
 		if (info == NULL)
 			break ;
-		if (wildcard_match(info->d_name, pattern))
+		if (wildcard_match(info->d_name, pattern, flags))
 			if (entry_list_add(&entries, info->d_name, info->d_namlen) != 0)
 				return (NULL);
 	}
@@ -97,8 +97,9 @@ t_entry	*dir_pattern_check(char *dir, char *pattern)
 int	main(int ac, char **av)
 {
 	t_entry	*entries;
+	int		f[] = {1};
 
-	entries = dir_pattern_check(av[1], av[2]);
+	entries = dir_pattern_check(av[1], av[2], f);
 	while (entries)
 	{
 		printf("%s\n", entries->name);
