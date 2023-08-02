@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/01 21:00:28 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/02 14:46:14 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,12 @@ typedef struct s_tree
 
 t_garb					*g_gc;
 
+typedef struct s_entry
+{
+	char			*name;
+	struct s_entry	*next;
+}	t_entry;
+
 /***************** Parsing ********************/
 
 //	Libft
@@ -214,6 +220,11 @@ void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
 void		_echo(char **cmd, int fd);
 void		_exit_(t_env **env, char **cmd);
+
+/***************** Wildcards ********************/
+
+int			wildcard_match(char *str, char *pattern, int *flags);
+t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
 
 /***************** Execution ********************/
 

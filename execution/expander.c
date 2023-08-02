@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/02 13:37:01 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/02 19:51:21 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,9 +116,48 @@ int	*create_wildflags(t_token *tknlst)
 			return (NULL);
 		fill_wildtab(flags, tknlst);
 	}
-//	for (int i = 0; i < wildchars; i++)
-//		printf("%d\n", flags[i]);
+	for (int i = 0; i < wildchars; i++)
+		printf("%d\n", flags[i]);
 	return (flags);
+}
+
+void	extract_dir_pattern(char **dir, char **pattern, t_token *tkn)
+{
+	char	*separator;
+	int		dir_len;
+
+	separator = ft_strrchr(tkn->lexeme, '/');
+	if (!separator)
+		*pattern = tkn->lexeme;
+	else
+	{
+		dir_len = ft_strlen(tkn->lexeme) - ft_strlen(separator + 1);
+		*pattern = ft_substr(separator + 1, 0, ft_strlen(separator + 1));
+		*dir = ft_substr(tkn->lexeme, 0, dir_len);
+	}
+	return ;
+}
+
+void	wild_expand(t_token **tkn, int *flags)
+{
+	t_entry	*matches;
+	t_token	*token;
+	char	*pattern;
+	char	*dir;
+
+	if (!flags)
+		return ;
+	dir = NULL;
+	pattern = NULL;
+	token = *tkn;
+	while (token)
+	{	
+		extract_dir_pattern(&dir, &pattern, *tkn);
+		if (!dir)
+			dir = ft_strdup(".");
+	   matches = dir_pattern_check(dir, pattern, flags);
+	   token = token->next;
+	}
 }
 
 t_token	*list_expand(t_token *tokens, t_env *env)
@@ -140,6 +179,7 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	}
 	flags_tab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
+	wild_expand(&newtknlst, flags_tab);
 	return (newtknlst);
 }
 
