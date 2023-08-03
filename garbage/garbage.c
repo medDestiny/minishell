@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/07 18:51:24 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/24 10:30:58 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/03 16:32:08 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,7 @@ int	garbage_list_add(t_garb **gc, void *ptr)
 		tmp = tmp->next;
 	}
 	if (!tmp)
-	{
-		clean_all(gc);
 		return (1);
-	}
 	tmp->ptr = ptr;
 	tmp->next = NULL;
 	return (0);
@@ -62,9 +59,8 @@ void	*ft_malloc(size_t size, t_garb **gc)
 	{
 		clean_all(gc);
 		ft_putstr_fd("unexpected malloc fail occured\n", STDERR_FILENO);
-		exit(EXIT_FAILURE);
 	}
-	if (garbage_list_add(gc, new) != 0)
+	else if (new && garbage_list_add(gc, new) != 0)
 	{
 		clean_all(gc);
 		ft_putstr_fd("unexpected malloc fail occured\n", STDERR_FILENO);

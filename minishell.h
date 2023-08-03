@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/03 02:36:16 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/03 16:17:25 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,7 @@ void		update_env_value(t_env **env, char *name, char *new_val,
 //	Memory management
 void		clean_env_list(t_env **envp);
 void		clean_vec(char **vec);
+void		clean_list(t_entry **list);
 
 //	Garbage Collector
 void		*ft_malloc(size_t size, t_garb **gc);

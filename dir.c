@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/03 02:36:56 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/03 14:50:05 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,10 @@ t_entry	*dir_pattern_check(char *dir, char *pattern, int *flags)
 			break ;
 		if (wildcard_match(info->d_name, pattern, flags))
 			if (entry_list_add(&entries, info->d_name, info->d_namlen) != 0)
+			{
+				closedir(dirp);
 				return (NULL);
+			}
 	}
 	closedir(dirp);
 	return (entries);

@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/03 02:30:37 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/03 14:45:26 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ void	extract_dir_pattern(char **dir, char **pattern, t_token *tkn)
 
 	separator = ft_strrchr(tkn->lexeme, '/');
 	if (!separator)
-		*pattern = tkn->lexeme;
+		*pattern = ft_strdup(tkn->lexeme);
 	else
 	{
 		dir_len = ft_strlen(tkn->lexeme) - ft_strlen(separator + 1);
@@ -138,20 +138,20 @@ void	extract_dir_pattern(char **dir, char **pattern, t_token *tkn)
 	return ;
 }
 
-void	wildlex_match(t_token **wildlst, t_entry *matchlst, char *prefix)
+void	wildlex_match(t_token **lst, t_entry *matches, char *dir)
 {
 	char	*wildlex;
 
-	while (matchlst)
+	while (matches)
 	{
-		if (prefix)
-			wildlex = ft_strjoin(prefix, matchlst->name);
+		if (dir)
+			wildlex = ft_strjoin(dir, matches->name);
 		else
-			wildlex = matchlst->name;
-		token_list_add(wildlst, WORD, wildlex, ft_strlen(wildlex));
-		if (prefix)
+			wildlex = matches->name;
+		token_list_add(lst, WORD, wildlex, ft_strlen(wildlex));
+		if (dir)
 			free(wildlex);
-		matchlst = matchlst->next;
+		matches = matches->next;
 	}
 	return ;
 }
@@ -163,11 +163,11 @@ t_token	*wild_expand(t_token *tknlst, int *flags)
 	char	*pattern;
 	char	*dir;
 
-	dir = NULL;
-	pattern = NULL;
 	wildtknlst = NULL;
 	while (tknlst)
 	{
+		dir = NULL;
+		pattern = NULL;
 		if (tknlst->type == WORD)
 		{
 			extract_dir_pattern(&dir, &pattern, tknlst);
@@ -177,9 +177,10 @@ t_token	*wild_expand(t_token *tknlst, int *flags)
 			else
 				token_list_add(&wildtknlst, WORD, tknlst->lexeme, \
 						ft_strlen(tknlst->lexeme));
+			free(pattern);
+			free(dir);
+			clean_list(&matches);
 		}
-		else
-			token_list_add(&wildtknlst, tknlst->type, tknlst->lexeme, 1);
 		tknlst = tknlst->next;
 	}
 	return (wildtknlst);
@@ -206,6 +207,7 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	newtknlst = tkn_join(newtknlst);
 	if (flags_tab)
 		newtknlst = wild_expand(newtknlst, flags_tab);
+	free(flags_tab);
 	return (newtknlst);
 }
 
