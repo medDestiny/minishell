@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/02 20:25:18 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/03 02:36:56 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	clean_list(t_entry **list)
 	}
 }
 
-t_entry	*lst_last(t_entry *list)
+t_entry	*_lst_last(t_entry *list)
 {
 	while (list && list->next)
 		list = list->next;
@@ -43,7 +43,7 @@ int	entry_list_add(t_entry **list, char *name, int size)
 	}
 	else
 	{
-		ptr = lst_last(*list);
+		ptr = _lst_last(*list);
 		ptr->next = (t_entry *)malloc(sizeof(t_entry));
 		ptr = ptr->next;
 	}
