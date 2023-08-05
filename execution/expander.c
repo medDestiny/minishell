@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/03 14:45:26 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/05 11:28:24 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ t_token	*tkn_join(t_token *lst)
 		if (lst)
 		{
 			token_list_add(&joined, lst->type, lst->lexeme, 1);
-			lst = lst->next;
+
 		}
 		free(newlex);
 	}
@@ -186,6 +186,10 @@ t_token	*wild_expand(t_token *tknlst, int *flags)
 	return (wildtknlst);
 }
 
+void	expand_tilde(t_token *tknlst)
+{
+}
+
 t_token	*list_expand(t_token *tokens, t_env *env)
 {
 	t_token	*token;
@@ -205,6 +209,7 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	}
 	flags_tab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
+	expand_tilde(newtknlst);
 	if (flags_tab)
 		newtknlst = wild_expand(newtknlst, flags_tab);
 	free(flags_tab);
