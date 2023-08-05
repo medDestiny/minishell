@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/07/13 07:20:01 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/05 16:28:16 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,24 +27,18 @@ int	is_redir_out(t_node_type type)
 	return (0);
 }
 
-int	in_list(t_token *tok, t_node_type type)
+int	in_list(t_token *tok, int type)
 {
 	if (!is_connector(tok) && tok->type != L_PAREN
 		&& tok->type != R_PAREN && tok->type != SPC)
 	{
-		if (type == RD_IN)
+		if (type == REDIR)
 		{
-			if (!is_redir_out(tok->type))
+			if (is_redir_out(tok->type) || is_redir_in(tok->type))
 				return (1);
 			return (0);
 		}
-		else if (type == RD_OUT)
-		{
-			if (!is_redir_in(tok->type))
-				return (1);
-			return (0);
-		}
-		else if (type == WORD)
+		else if (type == CMD)
 		{
 			if (!is_redir_in(tok->type) && !is_redir_out(tok->type))
 				return (1);
@@ -54,7 +48,7 @@ int	in_list(t_token *tok, t_node_type type)
 	return (0);
 }
 
-int	build_list(t_token **ptr, t_token **tokens, t_node_type type)
+int	build_list(t_token **ptr, t_token **tokens, int type)
 {
 	int	len;
 
@@ -74,12 +68,10 @@ int	build_list(t_token **ptr, t_token **tokens, t_node_type type)
 void	init_cmd_node(t_tree *cmd)
 {
 	cmd->type = T_CMD;
-	cmd->cmd.global_out = 0;
-	cmd->cmd.global_in = 0;
 	cmd->cmd.subshell = 0;
 	cmd->cmd.list = NULL;
-	cmd->cmd.in = NULL;
-	cmd->cmd.out = NULL;
+	cmd->cmd.redir = NULL;
+	cmd->cmd.sub_redir = NULL;
 }
 
 int	parse_command(t_tree **root, t_token **tok)
@@ -96,12 +88,10 @@ int	parse_command(t_tree **root, t_token **tok)
 		&& (*tok)->type != OR && (*tok)->type != L_PAREN
 		&& (*tok)->type != R_PAREN)
 	{
-		if (is_redir_in((*tok)->type))
-			err = build_list(&cmd->cmd.in, tok, RD_IN);
-		else if (is_redir_out((*tok)->type))
-			err = build_list(&cmd->cmd.out, tok, RD_OUT);
+		if (is_redir_in((*tok)->type) || is_redir_out((*tok)->type))
+			err = build_list(&cmd->cmd.redir, tok, REDIR);
 		else
-			err = build_list(&cmd->cmd.list, tok, WORD);
+			err = build_list(&cmd->cmd.list, tok, CMD);
 		if (*tok && (*tok)->type == SPC)
 			*tok = (*tok)->next;
 	}
@@ -219,52 +209,39 @@ int	parse_condition(t_tree **root, t_token **tokens)
 	return (err);
 }
 
-void	update_redirs(t_tree *root, t_token *in, t_token *out)
+void	update_redirs(t_tree *root, t_token *sub_redir)
 {
 	if (root->type == T_CMD)
 	{
 		root->cmd.subshell = 1;
-		if (in && !root->cmd.in)
-		{
-			root->cmd.in = in;
-			root->cmd.global_in = 1;
-		}
-		if (out && !root->cmd.out)
-		{
-			root->cmd.out = out;
-			root->cmd.global_out = 1;
-		}
+		root->cmd.sub_redir = sub_redir;
 	}
 	else
 	{
-		update_redirs(root->node.lchild, in, out);
-		update_redirs(root->node.rchild, in, out);
+		update_redirs(root->node.lchild, sub_redir);
+		update_redirs(root->node.rchild, sub_redir);
 	}
 }
 
 int	add_group_redir(t_token *paren, t_tree *group)
 {
-	t_token	*input;
-	t_token	*output;
+	t_token	*sub_redir;
 	int		err;
 
 	err = 0;
-	input = NULL;
-	output = NULL;
+	sub_redir = NULL;
 	skip(&paren, SPC);
 	while (paren && paren->type != R_PAREN && paren->type != L_PAREN
 		&& !is_connector(paren))
 	{
-		if (is_redir_out(paren->type))
-			err = build_list(&output, &paren, RD_OUT);
-		else if (is_redir_in(paren->type))
-			err = build_list(&input, &paren, RD_IN);
+		if (is_redir_out(paren->type) || is_redir_in(paren->type))
+			err = build_list(&sub_redir, &paren, REDIR);
 		else if (paren->type == SPC)
 			paren = paren->next;
 		if (err != 0)
 			return (err);
 	}
-	update_redirs(group, input, output);
+	update_redirs(group, sub_redir);
 	return (err);
 }
 
