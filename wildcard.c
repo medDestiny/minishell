@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 13:44:32 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/01 19:55:16 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/05 11:48:19 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,11 @@ int	check_pattern(char *str, char *pattern, t_data *data)
 			data->str_i = data->i;
 			data->j++;
 		}
-		else if (data->pat_i != -1 && pattern[data->j] != '*' && pattern[data->j] != '?')
+		else if (data->pat_i != -1)
 		{
-			data->i = data->str_i + 1;
+			data->i = ++data->str_i;
 			data->j = data->pat_i + 1;
-			data->str_i++;
+			data->flags_i--;
 		}
 		else
 			return (0);
@@ -73,12 +73,3 @@ int	wildcard_match(char *str, char *pattern, int *flags)
 		return (1);
 	return (0);
 }
-
-//int	main(int ac, char **av)
-//{
-//	int	f[] = {0, 1};
-//	if (wildcard_match(av[1], av[2], f))
-//		printf("YES\n");
-//	else
-//		printf("NO\n");
-//}
