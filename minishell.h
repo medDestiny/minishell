@@ -6,7 +6,11 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2023/08/05 16:35:07 by hlaadiou         ###   ########.fr       */
+=======
+/*   Updated: 2023/08/05 16:28:08 by mmisskin         ###   ########.fr       */
+>>>>>>> parsing
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +28,9 @@
 # define UNEX_NL 7
 # define UNEX_RPAR 8
 # define UNEX_TOK 9
+
+# define REDIR 10
+# define CMD 11
 
 # include<stdlib.h>
 # include<unistd.h>
@@ -82,11 +89,9 @@ typedef struct s_garb
 typedef struct s_cmd
 {
 	int		subshell;
-	int		global_in;
-	int		global_out;
 	t_token	*list;
-	t_token	*in;
-	t_token	*out;
+	t_token	*redir;
+	t_token	*sub_redir;
 }	t_cmd;
 
 typedef struct s_tree	t_tree;

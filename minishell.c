@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 12:56:13 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/05 16:31:53 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,22 @@ void	print_tree(t_tree *root, int lvl)
 		ptr = root->cmd.list;
 		indent(lvl);
 		printf("CMD\n");
+		indent(lvl);
+		while (ptr)
+		{
+			printf("|%s| ", ptr->lexeme);
+			ptr = ptr->next;
+		}
+		printf("\n");
+		ptr = root->cmd.redir;
+		indent(lvl);
+		while (ptr)
+		{
+			printf("|%s| ", ptr->lexeme);
+			ptr = ptr->next;
+		}
+		printf("\n");
+		ptr = root->cmd.sub_redir;
 		indent(lvl);
 		while (ptr)
 		{

@@ -1,4 +1,4 @@
-NAME=msh
+NAME= msh
 SRC= environment.c \
 	 libft/ft_strlen.c \
 	 libft/ft_strdup.c \
