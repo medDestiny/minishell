@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/06 09:06:23 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/06 18:31:49 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,84 @@ void	fill_wildtab(int *flags, t_token *tknlst)
 	return ;
 }
 
+void	fill_flagtab(int *tab, int *flags, int len, int *ind)
+{
+	int	i;
+
+	i = 0;
+	while (i < len)
+	{
+		tab[i] = flags[*ind];
+		i++;
+		(*ind)++;
+	}
+}
+
+void	create_flagtabs(int **vec, int *flags, t_token *lst)
+{
+	int	len;
+	int	ind;
+	int	i;
+	int	j;
+
+	j = -1;
+	ind = 0;
+	while (lst)
+	{
+		i = -1;
+		len = 0;
+		while (lst->lexeme[++i])
+			if (in_set(lst->lexeme[i], "*?"))
+				len++;
+		if (len)
+		{
+			vec[++j] = (int *)malloc(sizeof(int) * len);
+			if (!vec[j])
+				return ;
+			fill_flagtab(vec[j], flags, len, &ind);
+		}
+		lst = lst->next;
+	}
+}
+
+typedef struct	s_flags
+{
+	t_token	*tkn;
+	int		**flagvec;
+	int		arrs;
+}	t_flags;
+
+int	**create_wildvec(int *flags, t_token *lst)
+{
+	t_flags	vars;
+	int		i;
+
+	vars.tkn = lst;
+	vars.flagvec = NULL;
+	vars.arrs = 0;
+	while (vars.tkn)
+	{
+		i = -1;
+		while (vars.tkn->lexeme[++i])
+		{
+			if (in_set(vars.tkn->lexeme[i], "*?"))
+			{
+				vars.arrs++;
+				break ;
+			}
+		}
+		vars.tkn = vars.tkn->next;
+	}
+	if (vars.arrs)
+	{
+		vars.flagvec = (int **)malloc(sizeof(int *) * (vars.arrs + 1));
+		if (!vars.flagvec)
+			return (NULL);
+		create_flagtabs(vars.flagvec, flags, lst);
+	}
+	return (vars.flagvec[vars.arrs] = NULL, vars.flagvec);
+}
+
 int	*create_wildflags(t_token *tknlst)
 {
 	t_token	*token;
@@ -156,22 +234,28 @@ void	wildlex_match(t_token **lst, t_entry *matches, char *dir)
 	return ;
 }
 
-t_token	*wild_expand(t_token *tknlst, int *flags)
+t_token	*wild_expand(t_token *tknlst, int **flags)
 {
 	t_token	*wildtknlst;
 	t_entry	*matches;
 	char	*pattern;
 	char	*dir;
+	int		pos;
 
+	pos = 0;
 	wildtknlst = NULL;
 	while (tknlst)
 	{
 		dir = NULL;
 		pattern = NULL;
+		matches = NULL;
 		if (tknlst->type == WORD)
 		{
-			extract_dir_pattern(&dir, &pattern, tknlst);
-			matches = dir_pattern_check(dir, pattern, flags);
+			if (ft_strchr(tknlst->lexeme, '*') || ft_strchr(tknlst->lexeme, '?'))
+			{
+				extract_dir_pattern(&dir, &pattern, tknlst);
+				matches = dir_pattern_check(dir, pattern, flags[pos++]);
+			}
 			if (matches)
 				wildlex_match(&wildtknlst, matches, dir);
 			else
@@ -198,6 +282,23 @@ char	*get_home(t_env *env)
 	return (NULL);
 }
 
+int	expandable_tilde(t_token *lst)
+{
+	if (!lst)
+		return (0);
+	if (lst->type == WORD && *lst->lexeme == '~' \
+		&& (!*(lst->lexeme + 1)) \
+		&& (!lst->next || (lst->next && lst->next->type == SPC)) \
+		&& (!lst->prev || (lst->prev && lst->prev->type == SPC)))
+		return (1);
+	else if (lst->type == WORD && *lst->lexeme == '~' \
+			&& *(lst->lexeme + 1) && *(lst->lexeme + 1) == '/' \
+			&& (!lst->prev || (lst->prev && lst->prev->type == SPC)))
+		return (1);
+	else
+		return (0);
+}
+
 void	expand_tilde(t_token *lst, t_env *env)
 {
 	char	*home;
@@ -211,10 +312,9 @@ void	expand_tilde(t_token *lst, t_env *env)
 	while (lst)
 	{
 		newlex = NULL;
-		if (lst->type == WORD && *lst->lexeme == '~')
+		if (expandable_tilde(lst))
 		{
-			if (!*(lst->lexeme + 1) && \
-				(!lst->next || (lst->next && lst->next->type == SPC)))
+			if (!*(lst->lexeme + 1))
 				newlex = ft_strdup(home);
 			else if (*(lst->lexeme + 1) && *(lst->lexeme + 1) == '/')
 				newlex = ft_strjoin(home, lst->lexeme + 1);
@@ -233,7 +333,8 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 {
 	t_token	*token;
 	t_token	*newtknlst;
-	int		*flags_tab;
+	int		*flagtab;
+	int		**flagvec;
 
 	token = tokens;
 	newtknlst = NULL;
@@ -247,11 +348,14 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 		token = token->next;
 	}
 	expand_tilde(newtknlst, env);
-	flags_tab = create_wildflags(newtknlst);
+	flagtab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
-	if (flags_tab)
-		newtknlst = wild_expand(newtknlst, flags_tab);
-	free(flags_tab);
+	if (flagtab)
+	{
+		flagvec = create_wildvec(flagtab, newtknlst);
+		newtknlst = wild_expand(newtknlst, flagvec);
+	}
+	//don t forget to free the flags
 	return (newtknlst);
 }
 
