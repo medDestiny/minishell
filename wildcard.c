@@ -6,21 +6,11 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 13:44:32 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 11:48:19 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/05 13:02:21 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-typedef struct s_data
-{
-	int	i;
-	int	j;
-	int	str_i;
-	int	pat_i;
-	int	*flags;
-	int	flags_i;
-}	t_data;
-
-#include<stdio.h>
+#include "minishell.h"
 
 int	check_pattern(char *str, char *pattern, t_data *data)
 {

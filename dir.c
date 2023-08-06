@@ -6,19 +6,11 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 12:03:06 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/05 13:04:56 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include<dirent.h>
-
-int	wildcard_match(char *str, char *pattern, int *flags);
-
-typedef struct s_entry
-{
-	char			*name;
-	struct s_entry	*next;
-}	t_entry;
+#include "minishell.h"
 
 void	clean_list(t_entry **list)
 {
@@ -40,7 +32,7 @@ t_entry	*_lst_last(t_entry *list)
 	return (list);
 }
 
-int	fill_entry_node(t_entry **list, t_entry **ptr, char *name, int size)
+int	fill_entry_node(t_entry **ptr, char *name, int size)
 {
 	(*ptr)->name = (char *)malloc((size + 1) * sizeof(char));
 	if (!(*ptr)->name)
@@ -65,7 +57,7 @@ int	entry_list_add(t_entry **list, char *name, int size)
 		ptr->next = (t_entry *)malloc(sizeof(t_entry));
 		ptr = ptr->next;
 	}
-	if (!ptr || fill_entry_node(list, &ptr, name, size) != 0)
+	if (!ptr || fill_entry_node(&ptr, name, size) != 0)
 	{
 		clean_list(list);
 		return (1);

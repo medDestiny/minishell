@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/05 11:28:24 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/06 02:44:54 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ t_token	*tkn_join(t_token *lst)
 		if (lst)
 		{
 			token_list_add(&joined, lst->type, lst->lexeme, 1);
-
+			lst = lst->next;
 		}
 		free(newlex);
 	}
@@ -186,8 +186,47 @@ t_token	*wild_expand(t_token *tknlst, int *flags)
 	return (wildtknlst);
 }
 
-void	expand_tilde(t_token *tknlst)
+char	*get_home(t_env *env)
 {
+	char	*home;
+
+	home = get_env_value(env, "HOME");
+	if (!home)
+		home = getenv("HOME");
+	if (home)
+		return (ft_strdup(home));
+	return (NULL);
+}
+
+void	expand_tilde(t_token *lst, t_env *env)
+{
+	char	*home;
+	char	*newlex;
+
+	if (!lst)
+		return ;
+	home = get_home(env);
+	if (!home)
+		return ;
+	while (lst)
+	{
+		newlex = NULL;
+		if (lst->type == WORD && *lst->lexeme == '~')
+		{
+			if (!*(lst->lexeme + 1) && \
+				(!lst->next || (lst->next && lst->next->type == SPC)))
+				newlex = ft_strdup(home);
+			else if (*(lst->lexeme + 1) && *(lst->lexeme + 1) == '/')
+				newlex = ft_strjoin(home, lst->lexeme + 1);
+			if (newlex)
+			{
+				lst->lexeme = newlex;
+				garbage_list_add(&g_gc, newlex);
+			}
+		}
+		lst = lst->next;
+	}
+	free(home);
 }
 
 t_token	*list_expand(t_token *tokens, t_env *env)
@@ -207,9 +246,9 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 					ft_strlen(token->lexeme));
 		token = token->next;
 	}
+	expand_tilde(newtknlst, env);
 	flags_tab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
-	expand_tilde(newtknlst);
 	if (flags_tab)
 		newtknlst = wild_expand(newtknlst, flags_tab);
 	free(flags_tab);

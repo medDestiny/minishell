@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/03 16:17:25 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/05 16:35:07 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,16 @@ typedef struct s_tree
 
 t_garb					*g_gc;
 
+typedef struct s_data
+{
+	int	i;
+	int	j;
+	int	str_i;
+	int	pat_i;
+	int	*flags;
+	int	flags_i;
+}	t_data;
+
 typedef struct s_entry
 {
 	char			*name;
@@ -157,7 +167,7 @@ void		clean_list(t_entry **list);
 //	Garbage Collector
 void		*ft_malloc(size_t size, t_garb **gc);
 void		clean_all(t_garb **gc);
-
+int			garbage_list_add(t_garb **gc, void *ptr);
 char		*prompt(t_env *env);
 
 //	Tokenizer functions
