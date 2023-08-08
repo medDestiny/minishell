@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/08 03:36:14 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 13:50:23 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,11 +140,8 @@ int	**create_wildvec(int *flags, t_token *lst)
 	{
 		i = -1;
 		while (vars.tkn->lexeme[++i])
-			if (in_set(vars.tkn->lexeme[i], "*?"))
-			{
-				vars.arrs++;
+			if (in_set(vars.tkn->lexeme[i], "*?") && ++vars.arrs)
 				break ;
-			}
 		vars.tkn = vars.tkn->next;
 	}
 	if (vars.arrs)
@@ -354,13 +351,37 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	return (newtknlst);
 }
 
+t_token	*rdir_var_expand(t_token *redir, t_env *env)
+{
+	t_token	*rdirexp;
+
+	rdirexp = NULL;
+	while (redir)
+	{
+		if (redir->type == (RD_IN_EXP | RD_OUT_EXP | APPEND_EXP))
+		{
+			printf("I am working!!\n");
+		}
+	}
+	return (rdirexp);
+}
+
+t_token	*redir_expand(t_token *redir, t_env *env)
+{
+	t_token	*newredir;
+
+	newredir = NULL;
+	newredir = rdir_var_expand(redir, env);
+	return (newredir);
+}
+
 void	node_expand(t_cmd *cmd_node, t_env *env)
 {
 	if (cmd_node)
 	{
 		cmd_node->list = list_expand(cmd_node->list, env);
-		//cmd_node->redir = rdir_expand(cmd_node->in);
-		//cmd_node->sub_redir = subrdir_expand(cmd_node->out);
+		//cmd_node->redir = redir_expand(cmd_node->redir, env);
+		//cmd_node->sub_redir = subshrdir_expand(cmd_node->out);
 	}
 	return ;
 }

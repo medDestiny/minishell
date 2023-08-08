@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 16:31:53 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/08 13:49:52 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,12 +119,12 @@ void	print_tokens(t_tree *root, t_env *env)
 {
 	t_token	*p;
 
-	//(void)env;
+	(void)env;
 	if (root)
 	{
-		//p = root->cmd.list;
+		p = root->cmd.redir;
 		//p = tkn_split(root->cmd.list);
-		p = list_expand(root->cmd.list, env);
+		//p = list_expand(root->cmd.list, env);
 		while (p)
 		{
 			print_type(p->type);

@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 03:16:56 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 11:55:59 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef enum s_node_type
 
 typedef struct s_env
 {
+	int				hide;
 	char			*name;
 	char			*value;
 	struct s_env	*next;
@@ -162,7 +163,7 @@ int			ft_isdigit(int c);
 //	Environment
 t_env		*env_dup(char *prog_name, char **env);
 t_env		*get_env_node(t_env *env, char *name);
-int			env_add(t_env **env, char *name, char *value);
+int			env_add(t_env **env, char *name, char *value, int hide);
 char		*get_env_value(t_env *env, char *name);
 void		update_env_value(t_env **env, char *name, char *new_val,
 				int append);
@@ -234,7 +235,7 @@ size_t		ft_atoull(const char *str);
 
 //	Builtin functions
 void		_env(t_env *env, char **arg, int fd);
-void		_pwd(char **cmd, int fd);
+void		_pwd(t_env *env, char **cmd, int fd);
 void		_cd(char **cmd, t_env *env, int fd);
 void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
