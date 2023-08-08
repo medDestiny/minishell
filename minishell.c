@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 13:49:52 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 16:26:24 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,18 @@ void	print_type(t_node_type type)
 		printf("WORD  ");
 	else if (type == PIPE)
 		printf("PIPE  ");
-	else if (type == RD_IN)
-		printf("REDIR_IN  ");
-	else if (type == RD_IN_EXP)
-		printf("REDIR_IN_EXP  ");
-	else if (type == RD_OUT)
-		printf("REDIR_OUT  ");
-	else if (type == RD_OUT_EXP)
-		printf("REDIR_OUT_EXP  ");
+	else if (type == RD_IN_SQ)
+		printf("REDIR_IN_SQ  ");
+	else if (type == RD_IN_DQ)
+		printf("REDIR_IN_DQ  ");
+	else if (type == RD_IN_WD)
+		printf("REDIR_IN_WD  ");
+	else if (type == RD_OUT_SQ)
+		printf("REDIR_OUT_SQ  ");
+	else if (type == RD_OUT_DQ)
+		printf("REDIR_OUT_DQ  ");
+	else if (type == RD_OUT_WD)
+		printf("REDIR_OUT_WD  ");
 	else if (type == OR)
 		printf("OR  ");
 	else if (type == AND)
@@ -34,10 +38,12 @@ void	print_type(t_node_type type)
 		printf("HEREDOC  ");
 	else if (type == HDOC_EXP)
 		printf("HEREDOC_EXP  ");
-	else if (type == APPEND)
-		printf("APPEND  ");
-	else if (type == APPEND_EXP)
-		printf("APPEND_EXP  ");
+	else if (type == APPEND_SQ)
+		printf("APPEND_SQ  ");
+	else if (type == APPEND_DQ)
+		printf("APPEND_EXP_DQ  ");
+	else if (type == APPEND_WD)
+		printf("APPEND_EXP_WD  ");
 	else if (type == R_PAREN)
 		printf("R_PAREN  ");
 	else if (type == L_PAREN)
@@ -122,9 +128,12 @@ void	print_tokens(t_tree *root, t_env *env)
 	(void)env;
 	if (root)
 	{
-		p = root->cmd.redir;
-		//p = tkn_split(root->cmd.list);
-		//p = list_expand(root->cmd.list, env);
+		p = NULL;
+		//p = root->cmd.sub_redir;
+		//p = root->cmd.redir;
+		//if (root->cmd.redir)
+		//	p = tkn_split(root->cmd.redir);
+		p = redir_expand(root->cmd.redir, env);
 		while (p)
 		{
 			print_type(p->type);

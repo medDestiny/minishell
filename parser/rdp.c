@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 13:45:11 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/08 16:31:06 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,16 @@
 
 int	is_redir_in(t_node_type type)
 {
-	if (type == RD_IN || type == RD_IN_EXP || type == HDOC || type == HDOC_EXP)
+	if (type == RD_IN_WD || type == RD_IN_DQ || type == RD_IN_SQ
+		|| type == HDOC || type == HDOC_EXP)
 		return (1);
 	return (0);
 }
 
 int	is_redir_out(t_node_type type)
 {
-	if (type == RD_OUT || type == RD_OUT_EXP || type == APPEND
-		|| type == APPEND_EXP)
+	if (type == RD_OUT_WD || type == RD_OUT_SQ || type == RD_OUT_DQ
+		|| type == APPEND_WD || type == APPEND_SQ || type == APPEND_DQ)
 		return (1);
 	return (0);
 }

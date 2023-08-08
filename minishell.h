@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 13:45:20 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/08 16:20:47 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,17 @@
 typedef enum s_node_type
 {
 	PIPE,
-	RD_IN_EXP,
-	RD_IN,
-	RD_OUT_EXP,
-	RD_OUT,
+	RD_IN_WD,
+	RD_IN_SQ,
+	RD_IN_DQ,
+	RD_OUT_WD,
+	RD_OUT_SQ,
+	RD_OUT_DQ,
+	APPEND_WD,
+	APPEND_SQ,
+	APPEND_DQ,
 	HDOC_EXP,
 	HDOC,
-	APPEND_EXP,
-	APPEND,
 	AND,
 	OR,
 	R_PAREN,
@@ -249,6 +252,7 @@ t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
 int			exec_cmd(t_tree *node, t_env *envp);
 t_token		*tkn_split(t_token *tkn);
 t_token		*list_expand(t_token *tokens, t_env *env);
+t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/03 16:25:45 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 16:24:28 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,9 +213,11 @@ int	check_append(t_token **tokens, char *cmdline)
 		return (-1);
 	last = lst_last(*tokens);
 	if (last->type == S_QUOTE)
-		last->type = APPEND;
+		last->type = APPEND_SQ;
+	else if (last->type == D_QUOTE)
+		last->type = APPEND_DQ;
 	else
-		last->type = APPEND_EXP;
+		last->type = APPEND_WD;
 	return (start + size);
 }
 
@@ -239,9 +241,11 @@ int	check_infile(t_token **tokens, char *cmdline)
 		return (-1);
 	last = lst_last(*tokens);
 	if (last->type == S_QUOTE)
-		last->type = RD_IN;
+		last->type = RD_IN_SQ;
+	else if (last->type == D_QUOTE)
+		last->type = RD_IN_DQ;
 	else
-		last->type = RD_IN_EXP;
+		last->type = RD_IN_WD;
 	return (start + size);
 }
 
@@ -265,9 +269,11 @@ int	check_outfile(t_token **tokens, char *cmdline)
 		return (-1);
 	last = lst_last(*tokens);
 	if (last->type == S_QUOTE)
-		last->type = RD_OUT;
+		last->type = RD_OUT_SQ;
+	else if (last->type == D_QUOTE)
+		last->type = RD_OUT_DQ;
 	else
-		last->type = RD_OUT_EXP;
+		last->type  = RD_OUT_WD;
 	return (start + size);
 }
 
