@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 11:55:59 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 13:45:20 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,6 @@
 # define UNEX_NL 7
 # define UNEX_RPAR 8
 # define UNEX_TOK 9
-
-# define REDIR 10
-# define CMD 11
 
 # include<stdlib.h>
 # include<unistd.h>

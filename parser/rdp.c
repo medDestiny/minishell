@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 16:28:16 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/08 13:45:11 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,32 +27,24 @@ int	is_redir_out(t_node_type type)
 	return (0);
 }
 
-int	in_list(t_token *tok, int type)
+int	in_list(t_token *tok)
 {
-	if (!is_connector(tok) && tok->type != L_PAREN
+	if (!is_redir_in((tok)->type) && !is_redir_out((tok)->type)
+		&& !is_connector(tok) && tok->type != L_PAREN
 		&& tok->type != R_PAREN && tok->type != SPC)
-	{
-		if (type == REDIR)
-		{
-			if (is_redir_out(tok->type) || is_redir_in(tok->type))
-				return (1);
-			return (0);
-		}
-		else if (type == CMD)
-		{
-			if (!is_redir_in(tok->type) && !is_redir_out(tok->type))
-				return (1);
-			return (0);
-		}
-	}
+		return (1);
 	return (0);
 }
 
-int	build_list(t_token **ptr, t_token **tokens, int type)
+int	build_list(t_token **ptr, t_token **tokens)
 {
 	int	len;
 
-	while (*tokens && in_list(*tokens, type))
+	len = ft_strlen((*tokens)->lexeme);
+	if (token_list_add(ptr, (*tokens)->type, (*tokens)->lexeme, len) != 0)
+		return (-1);
+	*tokens = (*tokens)->next;
+	while (*tokens && in_list(*tokens)) 
 	{
 		len = ft_strlen((*tokens)->lexeme);
 		if (token_list_add(ptr, (*tokens)->type, (*tokens)->lexeme, len) != 0)
@@ -89,9 +81,9 @@ int	parse_command(t_tree **root, t_token **tok)
 		&& (*tok)->type != R_PAREN)
 	{
 		if (is_redir_in((*tok)->type) || is_redir_out((*tok)->type))
-			err = build_list(&cmd->cmd.redir, tok, REDIR);
+			err = build_list(&cmd->cmd.redir, tok);
 		else
-			err = build_list(&cmd->cmd.list, tok, CMD);
+			err = build_list(&cmd->cmd.list, tok);
 		if (*tok && (*tok)->type == SPC)
 			*tok = (*tok)->next;
 	}
@@ -235,7 +227,7 @@ int	add_group_redir(t_token *paren, t_tree *group)
 		&& !is_connector(paren))
 	{
 		if (is_redir_out(paren->type) || is_redir_in(paren->type))
-			err = build_list(&sub_redir, &paren, REDIR);
+			err = build_list(&sub_redir, &paren);
 		else if (paren->type == SPC)
 			paren = paren->next;
 		if (err != 0)
