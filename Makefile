@@ -37,7 +37,7 @@ SRC= environment.c \
 	 execution/split_token.c \
 	 dir.c wildcard.c
 
-C_FLAGS= -Wall -Wextra -Werror -g -fsanitize=address
+C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h
 obj= $(SRC:.c=.o)
 

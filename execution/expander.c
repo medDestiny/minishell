@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/06 18:31:49 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 03:36:14 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,7 @@ t_token	*tkn_join(t_token *lst)
 		if (newlex)
 			token_list_add(&joined, WORD, newlex, ft_strlen(newlex));
 		if (lst)
-		{
-			token_list_add(&joined, lst->type, lst->lexeme, 1);
 			lst = lst->next;
-		}
 		free(newlex);
 	}
 	return (joined);
@@ -131,13 +128,6 @@ void	create_flagtabs(int **vec, int *flags, t_token *lst)
 	}
 }
 
-typedef struct	s_flags
-{
-	t_token	*tkn;
-	int		**flagvec;
-	int		arrs;
-}	t_flags;
-
 int	**create_wildvec(int *flags, t_token *lst)
 {
 	t_flags	vars;
@@ -150,13 +140,11 @@ int	**create_wildvec(int *flags, t_token *lst)
 	{
 		i = -1;
 		while (vars.tkn->lexeme[++i])
-		{
 			if (in_set(vars.tkn->lexeme[i], "*?"))
 			{
 				vars.arrs++;
 				break ;
 			}
-		}
 		vars.tkn = vars.tkn->next;
 	}
 	if (vars.arrs)
@@ -194,8 +182,6 @@ int	*create_wildflags(t_token *tknlst)
 			return (NULL);
 		fill_wildtab(flags, tknlst);
 	}
-	//for (int i = 0; i < wildchars; i++)
-	//	printf("%d\n", flags[i]);
 	return (flags);
 }
 
@@ -234,37 +220,43 @@ void	wildlex_match(t_token **lst, t_entry *matches, char *dir)
 	return ;
 }
 
-t_token	*wild_expand(t_token *tknlst, int **flags)
+void	wildtkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
 {
-	t_token	*wildtknlst;
 	t_entry	*matches;
 	char	*pattern;
 	char	*dir;
+
+	dir = NULL;
+	pattern = NULL;
+	matches = NULL;
+	if (tkn->type == WORD)
+	{
+		if (ft_strchr(tkn->lexeme, '*') || ft_strchr(tkn->lexeme, '?'))
+		{
+			extract_dir_pattern(&dir, &pattern, tkn);
+			matches = dir_pattern_check(dir, pattern, flags[(*pos)++]);
+		}
+		if (matches)
+			wildlex_match(newlst, matches, dir);
+		else
+			token_list_add(newlst, WORD, tkn->lexeme, \
+					ft_strlen(tkn->lexeme));
+		free(pattern);
+		free(dir);
+		clean_list(&matches);
+	}
+}
+
+t_token	*wildlst_expand(t_token *tknlst, int **flags)
+{
+	t_token	*wildtknlst;
 	int		pos;
 
 	pos = 0;
 	wildtknlst = NULL;
 	while (tknlst)
 	{
-		dir = NULL;
-		pattern = NULL;
-		matches = NULL;
-		if (tknlst->type == WORD)
-		{
-			if (ft_strchr(tknlst->lexeme, '*') || ft_strchr(tknlst->lexeme, '?'))
-			{
-				extract_dir_pattern(&dir, &pattern, tknlst);
-				matches = dir_pattern_check(dir, pattern, flags[pos++]);
-			}
-			if (matches)
-				wildlex_match(&wildtknlst, matches, dir);
-			else
-				token_list_add(&wildtknlst, WORD, tknlst->lexeme, \
-						ft_strlen(tknlst->lexeme));
-			free(pattern);
-			free(dir);
-			clean_list(&matches);
-		}
+		wildtkn_expand(&wildtknlst, tknlst, flags, &pos);
 		tknlst = tknlst->next;
 	}
 	return (wildtknlst);
@@ -304,8 +296,6 @@ void	expand_tilde(t_token *lst, t_env *env)
 	char	*home;
 	char	*newlex;
 
-	if (!lst)
-		return ;
 	home = get_home(env);
 	if (!home)
 		return ;
@@ -329,33 +319,38 @@ void	expand_tilde(t_token *lst, t_env *env)
 	free(home);
 }
 
+void	expand_env_vars(t_token **newlst, t_token *lst, t_env *env)
+{
+	while (lst)
+	{
+		if (lst->type == WORD || (lst->type == D_QUOTE && *lst->lexeme))
+			tkn_update(newlst, lst, env);
+		else
+			token_list_add(newlst, lst->type, lst->lexeme, \
+					ft_strlen(lst->lexeme));
+		lst = lst->next;
+	}
+}
+
 t_token	*list_expand(t_token *tokens, t_env *env)
 {
-	t_token	*token;
 	t_token	*newtknlst;
 	int		*flagtab;
 	int		**flagvec;
 
-	token = tokens;
 	newtknlst = NULL;
-	while (token)
-	{
-		if (token->type == WORD || (token->type == D_QUOTE && *token->lexeme))
-			tkn_update(&newtknlst, token, env);
-		else
-			token_list_add(&newtknlst, token->type, token->lexeme, \
-					ft_strlen(token->lexeme));
-		token = token->next;
-	}
+	flagvec = NULL;
+	expand_env_vars(&newtknlst, tokens, env);
 	expand_tilde(newtknlst, env);
 	flagtab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
 	if (flagtab)
 	{
 		flagvec = create_wildvec(flagtab, newtknlst);
-		newtknlst = wild_expand(newtknlst, flagvec);
+		free(flagtab);
+		newtknlst = wildlst_expand(newtknlst, flagvec);
+		clean_intvec(flagvec);
 	}
-	//don t forget to free the flags
 	return (newtknlst);
 }
 
@@ -364,8 +359,8 @@ void	node_expand(t_cmd *cmd_node, t_env *env)
 	if (cmd_node)
 	{
 		cmd_node->list = list_expand(cmd_node->list, env);
-		//cmd_node->in = rdir_expand(cmd_node->in);
-		//cmd_node->out = rdir_expand(cmd_node->out);
+		//cmd_node->redir = rdir_expand(cmd_node->in);
+		//cmd_node->sub_redir = subrdir_expand(cmd_node->out);
 	}
 	return ;
 }

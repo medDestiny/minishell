@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/06 11:32:35 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 03:16:56 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,13 @@ typedef struct s_entry
 	struct s_entry	*next;
 }	t_entry;
 
+typedef struct	s_flags
+{
+	t_token	*tkn;
+	int		**flagvec;
+	int		arrs;
+}	t_flags;
+
 /***************** Parsing ********************/
 
 //	Libft
@@ -163,6 +170,7 @@ void		update_env_value(t_env **env, char *name, char *new_val,
 //	Memory management
 void		clean_env_list(t_env **envp);
 void		clean_vec(char **vec);
+void		clean_intvec(int **intvec);
 void		clean_list(t_entry **list);
 
 //	Garbage Collector
