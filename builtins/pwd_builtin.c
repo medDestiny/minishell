@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 17:02:35 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 16:34:03 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/08 00:17:25 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,23 +31,13 @@ int	check_arguments(char **cmd)
 	return (0);
 }
 
-void	_pwd(char **cmd, int fd)
+void	_pwd(t_env *env, char **cmd, int fd)
 {
-	char	*cwd;
+	t_env	*cwd;
 
 	if (check_arguments(cmd) != 0)
 		return ;
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-	{
-		ft_putstr_fd("cd: error retrieving current directory: getcwd: \
-cannot access parent directories: ", STDERR_FILENO);
-		perror(NULL);
-	}
-	else
-	{
-		ft_putstr_fd(cwd, fd);
-		write(fd, "\n", 1);
-	}
-	free(cwd);
+	cwd = get_env_node(env, "2PWD");
+	ft_putstr_fd(cwd->value, fd);
+	ft_putstr_fd("\n", fd);
 }

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 18:28:51 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/17 15:40:35 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/08 01:49:18 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,15 @@ int	cd_old_pwd(t_env *env, char **old_pwd)
 	return (0);
 }
 
+void	update_pwd(t_env **env, char *new_pwd)
+{
+	if (!get_env_value(*env, "PWD"))
+		env_add(env, ft_strdup("PWD"), new_pwd, 1);
+	else
+		update_env_value(env, ft_strdup("PWD"), new_pwd, 0);
+	update_env_value(env, ft_strdup("2PWD"), ft_strdup(new_pwd), 0);
+}
+
 int	change_dir(t_env **env, char *dir, char **cmd, int fd)
 {
 	char	*cwd;
@@ -47,18 +56,20 @@ int	change_dir(t_env **env, char *dir, char **cmd, int fd)
 		return (1);
 	}
 	cwd = getcwd(NULL, 0);
-	if (!cwd && !ft_strcmp(cmd[1], ".."))
+	if (!cwd && (!ft_strcmp(cmd[1], "..") || !ft_strcmp(cmd[1], ".")))
 	{
-		update_env_value(env, ft_strdup("PWD"),
-			ft_strjoin(get_env_value(*env, "PWD"), "/.."), 0);
+		if (!ft_strcmp(cmd[1], ".."))
+			update_pwd(env, ft_strjoin(get_env_value(*env, "2PWD"), "/.."));
+		else
+			update_pwd(env, ft_strjoin(get_env_value(*env, "2PWD"), "/."));
 		ft_putstr_fd("cd: error retrieving current directory: getcwd: \
 cannot access parent directories: ", STDERR_FILENO);
 		perror(NULL);
 	}
 	else if (cmd[1] && !ft_strcmp(cmd[1], "-"))
-		_pwd(NULL, fd);
+		_pwd(*env, NULL, fd);
 	if (cwd)
-		update_env_value(env, ft_strdup("PWD"), cwd, 0);
+		update_pwd(env, cwd);
 	return (0);
 }
 

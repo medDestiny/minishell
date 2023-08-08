@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 13:54:02 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/15 15:46:23 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/07 17:52:29 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,18 @@ void	print_env(t_env *env, int fd)
 {
 	while (env)
 	{
-		ft_putstr_fd("declare -x ", fd);
-		ft_putstr_fd(env->name, fd);
-		if (env->value)
+		if (!env->hide)
 		{
-			ft_putstr_fd("=\"", fd);
-			ft_putstr_fd(env->value, fd);
-			ft_putstr_fd("\"", fd);
+			ft_putstr_fd("declare -x ", fd);
+			ft_putstr_fd(env->name, fd);
+			if (env->value)
+			{
+				ft_putstr_fd("=\"", fd);
+				ft_putstr_fd(env->value, fd);
+				ft_putstr_fd("\"", fd);
+			}
+			ft_putstr_fd("\n", fd);
 		}
-		ft_putstr_fd("\n", fd);
 		env = env->next;
 	}
 }
@@ -47,8 +50,11 @@ char	*get_value(t_env *env, char *id, char *name)
 	while (id[size] && id[size] != '=')
 		size++;
 	old = get_env_node(env, name);
-	if (!id[size] && old && old->value)
+	if (!id[size] && old && old->value && old->hide <= 1)
+	{
+		old->hide = 0;
 		return (ft_strdup(old->value));
+	}
 	if (!id[size])
 		return (NULL);
 	return (ft_strdup(id + size + 1));

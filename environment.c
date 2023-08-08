@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 18:14:43 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/08 00:50:45 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	update_env_value(t_env **env, char *name, char *new_val, int append)
 
 	node = get_env_node(*env, name);
 	if (!node)
-		env_add(env, name, new_val);
+		env_add(env, name, new_val, 0);
 	else
 	{
 		if (append == 0)
@@ -97,11 +97,12 @@ t_env	*env_new_node(char *var)
 		return (NULL);
 	if (env_init(var, &env->name, &env->value) != 0)
 		return (NULL);
+	env->hide = 0;
 	env->next = NULL;
 	return (env);
 }
 
-int	env_add(t_env **env, char *name, char *value)
+int	env_add(t_env **env, char *name, char *value, int hide)
 {
 	t_env	*tmp;
 
@@ -109,11 +110,7 @@ int	env_add(t_env **env, char *name, char *value)
 	if (!tmp)
 	{
 		*env = (t_env *)malloc(sizeof(t_env));
-		if (!*env)
-			return (0);
-		(*env)->name = name;
-		(*env)->value = value;
-		(*env)->next = NULL;
+		tmp = *env;
 	}
 	else
 	{
@@ -123,9 +120,13 @@ int	env_add(t_env **env, char *name, char *value)
 		tmp = tmp->next;
 	}
 	if (!tmp)
+	{
+		clean_env_list(env);
 		return (1);
+	}
 	tmp->name = name;
 	tmp->value = value;
+	tmp->hide = hide;
 	tmp->next = NULL;
 	return (0);
 }
@@ -138,11 +139,11 @@ t_env	*build_env(char *program_name)
 	err = 0;
 	env = NULL;
 	err = env_add(&env, ft_strdup("PATH"),
-			ft_strdup("/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."));
-	err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0));
-	err = env_add(&env, ft_strdup("OLDPWD"), NULL);
-	err = env_add(&env, ft_strdup("SHLVL"), ft_strdup("1"));
-	err = env_add(&env, ft_strdup("_"), ft_strdup(program_name));
+			ft_strdup("/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."), 1);
+	err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0), 0);
+	err = env_add(&env, ft_strdup("OLDPWD"), NULL, 0);
+	err = env_add(&env, ft_strdup("SHLVL"), ft_strdup("1"), 0);
+	err = env_add(&env, ft_strdup("_"), ft_strdup(program_name), 0);
 	if (err != 0)
 	{
 		clean_env_list(&env);
@@ -188,7 +189,10 @@ t_env	*env_dup(char *prog_name, char **env)
 	envp = build_env_list(env);
 	cwd = getcwd(NULL, 0);
 	if (cwd)
+	{
 		update_env_value(&envp, ft_strdup("PWD"), cwd, 0);
+		env_add(&envp, ft_strdup("2PWD"), ft_strdup(cwd), 1);
+	}
 	update_env_value(&envp, ft_strdup("SHLVL"), update_shell_lvl(), 0);
 	update_env_value(&envp, ft_strdup("OLDPWD"), NULL, 0);
 	return (envp);
