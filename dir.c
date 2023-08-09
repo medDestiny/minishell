@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 13:04:56 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 23:41:20 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ t_entry	*dir_pattern_check(char *dir, char *pattern, int *flags)
 	DIR				*dirp;
 	struct dirent	*info;
 
+	if (!pattern)
+		return (NULL);
 	if (!dir)
 		dirp = opendir(".");
 	else

@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 17:23:01 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 19:17:06 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # define UNEX_NL 7
 # define UNEX_RPAR 8
 # define UNEX_TOK 9
+
 # define ALLOCERR 1337
 
 # include <stdlib.h>

@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:51:00 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/09 02:07:35 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 21:42:44 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,13 @@ int	get_subtkn(t_token **lst, t_token *tkn, int size, int i)
 	char		*sub;
 	t_node_type	type;
 
-
 	type = tkn->type;
 	sub = ft_substr(tkn->lexeme, i, size);
+	if (!sub)
+	{
+		g_exit.status = ALLOCERR;
+		return (-1);
+	}
 	if (i != 0 && (is_redir_in(type) || is_redir_out(type)))
 	{
 		if (type == RD_IN_DQ || type == RD_OUT_DQ || type == APPEND_DQ)
@@ -67,16 +71,22 @@ int	get_subtkn(t_token **lst, t_token *tkn, int size, int i)
 		else if (type == RD_IN_WD || type == RD_OUT_WD || type == APPEND_WD)
 			type = WORD;
 	}
-	token_list_add(lst, type, sub, size);
-	free (sub);
+	if (token_list_add(lst, type, sub, size) != 0)
+	{
+		free(sub);
+		return (-1);
+	}
+	free(sub);
 	return (size - 1);
 }
 
 //Subtokens of : |hii$hi?hello$$$123_cv-ls$PATH$hh$$hello!$?|
-// |hii|->|$hi|->|?hello|->|$$|->|$1|->|23_cv-ls|->|$PATH|->|$hh|->|$$|->|hello!|->|$?|
+//|hii|->|$hi|->|?hello|->|$$|->|$1|->|23_cv-ls|->
+//|$PATH|->|$hh|->|$$|->|hello!|->|$?|
 t_token	*tkn_split(t_token *tkn)
 {
 	t_token	*subtkn_lst;
+	int		size;
 	int		i;
 	int		j;
 
@@ -88,11 +98,14 @@ t_token	*tkn_split(t_token *tkn)
 	while (tkn->lexeme[i])
 	{
 		if (tkn->lexeme[i] == '$')
-			i += get_subtkn(&subtkn_lst, tkn, \
+			size = get_subtkn(&subtkn_lst, tkn, \
 					get_idsize(tkn->lexeme, i), i);
 		else
-			i += get_subtkn(&subtkn_lst, tkn, \
+			size = get_subtkn(&subtkn_lst, tkn, \
 					get_wordsize(tkn->lexeme, i), i);
+		if (size == -1)
+			return (NULL);
+		i += size;
 		i++;
 	}
 	return (subtkn_lst);

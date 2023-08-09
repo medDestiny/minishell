@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/09 15:35:00 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 23:50:06 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ t_token	*tkn_join(t_token *lst)
 			lst = lst->next;
 		}
 		if (newlex)
-			token_list_add(&joined, WORD, newlex, ft_strlen(newlex));
+			if (token_list_add(&joined, WORD, newlex, ft_strlen(newlex)) != 0)
+				return (free(newlex), NULL);
 		if (lst)
 			lst = lst->next;
 		free(newlex);
@@ -88,7 +89,14 @@ t_token	*redir_join(t_token *redir)
 		inherited = pick_type(redir);
 		join_filename(&redir, &newfile);
 		if (newfile)
-			token_list_add(&joined, inherited, newfile, ft_strlen(newfile));
+		{
+			if (token_list_add(&joined, inherited, newfile, \
+			ft_strlen(newfile)) != 0)
+			{
+				free(newfile);
+				return (NULL);
+			}
+		}
 		if (redir && redir->type == SPC)
 			redir = redir->next;
 		free(newfile);
@@ -98,14 +106,18 @@ t_token	*redir_join(t_token *redir)
 
 // Update the token if it is of type WORD or D_QUOTE
 // into a new expanded token added to the 'newtknlst'.
-void	tkn_update(t_token **newlst, t_token *lst, t_env *env)
+int	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 {
 	char	*var;
 	t_token	*sub;
 
 	sub = tkn_split(lst);
 	if (!sub)
-		return ;
+	{
+		if (g_exit.status == ALLOCERR)
+			return (1);
+		return (0);
+	}
 	while (sub && sub->lexeme)
 	{
 		var = sub->lexeme;
@@ -115,10 +127,11 @@ void	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 		&& (lst->next->type == D_QUOTE || lst->next->type == S_QUOTE))
 			var = NULL;
 		if (var)
-			token_list_add(newlst, sub->type, var, ft_strlen(var));
+			if (token_list_add(newlst, sub->type, var, ft_strlen(var)) != 0)
+				return (1);
 		sub = sub->next;
 	}
-	return ;
+	return (0);
 }
 
 int	expandable_dq(t_token *lst)
@@ -260,8 +273,6 @@ int	*create_wildflags(t_token *tknlst)
 			return (NULL);
 		fill_wildtab(flags, tknlst);
 	}
-	for (int i = 0; i < wildchars; i++)
-		printf("%d\n", flags[i]);
 	return (flags);
 }
 
@@ -282,7 +293,7 @@ void	extract_dir_pattern(char **dir, char **pattern, t_token *tkn)
 	return ;
 }
 
-void	wildlex_match(t_token **lst, t_entry *matches, char *dir, \
+int	wildlex_match(t_token **lst, t_entry *matches, char *dir, \
 		t_node_type type)
 {
 	char	*wildlex;
@@ -293,15 +304,17 @@ void	wildlex_match(t_token **lst, t_entry *matches, char *dir, \
 			wildlex = ft_strjoin(dir, matches->name);
 		else
 			wildlex = matches->name;
-		token_list_add(lst, type, wildlex, ft_strlen(wildlex));
+		if (!wildlex || \
+		token_list_add(lst, type, wildlex, ft_strlen(wildlex)) != 0)
+			return (1);
 		if (dir)
 			free(wildlex);
 		matches = matches->next;
 	}
-	return ;
+	return (0);
 }
 
-void	wildtkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
+int	wildtkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
 {
 	t_entry	*matches;
 	char	*pattern;
@@ -316,13 +329,18 @@ void	wildtkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
 		matches = dir_pattern_check(dir, pattern, flags[(*pos)++]);
 	}
 	if (matches)
-		wildlex_match(newlst, matches, dir, tkn->type);
+	{
+		if (wildlex_match(newlst, matches, dir, tkn->type) == 1)
+			return (free(dir), free(pattern), clean_list(&matches), 1);
+	}
 	else
-		token_list_add(newlst, tkn->type, tkn->lexeme, \
-				ft_strlen(tkn->lexeme));
+		if (token_list_add(newlst, tkn->type, tkn->lexeme, \
+				ft_strlen(tkn->lexeme)) != 0)
+			return (free(dir), free(pattern), 1);
 	free(pattern);
 	free(dir);
 	clean_list(&matches);
+	return (0);
 }
 
 t_token	*wildlst_expand(t_token *tknlst, int **flags)
@@ -332,9 +350,12 @@ t_token	*wildlst_expand(t_token *tknlst, int **flags)
 
 	pos = 0;
 	wildtknlst = NULL;
+	if (!flags)
+		return (NULL);
 	while (tknlst)
 	{
-		wildtkn_expand(&wildtknlst, tknlst, flags, &pos);
+		if (wildtkn_expand(&wildtknlst, tknlst, flags, &pos) == 1)
+			return (NULL);
 		tknlst = tknlst->next;
 	}
 	return (wildtknlst);
@@ -402,36 +423,46 @@ void	expand_tilde(t_token *lst, t_env *env)
 	free(home);
 }
 
-void	expand_env_vars(t_token **newlst, t_token *lst, t_env *env)
+int	expand_env_vars(t_token **newlst, t_token *lst, t_env *env)
 {
 	while (lst)
 	{
 		if (lst->type == WORD || (lst->type == D_QUOTE && *lst->lexeme) \
-			|| lst->type == RD_IN_DQ || lst->type == RD_IN_WD \
-			|| lst->type == RD_OUT_DQ || lst->type == RD_OUT_WD \
-			|| lst->type == APPEND_DQ || lst->type == APPEND_WD)
-			tkn_update(newlst, lst, env);
+		|| lst->type == RD_IN_DQ || lst->type == RD_IN_WD \
+		|| lst->type == RD_OUT_DQ || lst->type == RD_OUT_WD \
+		|| lst->type == APPEND_DQ || lst->type == APPEND_WD)
+		{
+			if (tkn_update(newlst, lst, env) == 1)
+				return (1);
+		}
 		else
-			token_list_add(newlst, lst->type, lst->lexeme, \
-					ft_strlen(lst->lexeme));
+			if (token_list_add(newlst, lst->type, lst->lexeme, \
+					ft_strlen(lst->lexeme)) != 0)
+				return (1);
 		lst = lst->next;
 	}
+	return (0);
 }
 
-void	expand_redir_vars(t_token **newredir, t_token *lst, t_env *env)
+int	expand_redir_vars(t_token **newredir, t_token *lst, t_env *env)
 {
 	while (lst)
 	{
 		if (lst->type == WORD || (lst->type == D_QUOTE && expandable_dq(lst)) \
-			|| lst->type == RD_IN_DQ || lst->type == RD_IN_WD \
-			|| lst->type == RD_OUT_DQ || lst->type == RD_OUT_WD \
-			|| lst->type == APPEND_DQ || lst->type == APPEND_WD)
-			tkn_update(newredir, lst, env);
+		|| lst->type == RD_IN_DQ || lst->type == RD_IN_WD \
+		|| lst->type == RD_OUT_DQ || lst->type == RD_OUT_WD \
+		|| lst->type == APPEND_DQ || lst->type == APPEND_WD)
+		{
+			if (tkn_update(newredir, lst, env) == 1)
+				return (1);
+		}
 		else
-			token_list_add(newredir, lst->type, lst->lexeme, \
-					ft_strlen(lst->lexeme));
+			if (token_list_add(newredir, lst->type, lst->lexeme, \
+					ft_strlen(lst->lexeme)) != 0)
+				return (1);
 		lst = lst->next;
 	}
+	return (0);
 }
 
 t_token	*list_expand(t_token *tokens, t_env *env)
@@ -442,8 +473,12 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 
 	newtknlst = NULL;
 	flagvec = NULL;
-	expand_env_vars(&newtknlst, tokens, env);
-	expand_tilde(newtknlst, env);
+	if (env)
+	{
+		if (expand_env_vars(&newtknlst, tokens, env) == 1)
+			return (NULL);
+		expand_tilde(newtknlst, env);
+	}
 	flagtab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
 	if (flagtab)
@@ -464,8 +499,12 @@ t_token	*redir_expand(t_token *redir, t_env *env)
 
 	newredir = NULL;
 	flagvec = NULL;
-	expand_redir_vars(&newredir, redir, env);
-	expand_tilde(newredir, env);
+	if (env)
+	{
+		if (expand_redir_vars(&newredir, redir, env) == 1)
+			return (NULL);
+		expand_tilde(newredir, env);
+	}
 	flagtab = create_wildflags(newredir);
 	newredir = redir_join(newredir);
 	if (flagtab)
@@ -478,13 +517,29 @@ t_token	*redir_expand(t_token *redir, t_env *env)
 	return (newredir);
 }
 
-void	node_expand(t_cmd *cmd_node, t_env *env)
+int	node_expand(t_cmd *cmd_node, t_env *env)
 {
 	if (cmd_node)
 	{
-		cmd_node->list = list_expand(cmd_node->list, env);
-		cmd_node->redir = redir_expand(cmd_node->redir, env);
-		//cmd_node->sub_redir = subshrdir_expand(cmd_node->out);
+		if (cmd_node->list)
+		{
+			cmd_node->list = list_expand(cmd_node->list, env);
+			if (!cmd_node->list)
+				return (1);
+		}
+		if (cmd_node->redir)
+		{
+			cmd_node->redir = redir_expand(cmd_node->redir, env);
+			if (!cmd_node->redir)
+				return (1);
+		}
+		if (cmd_node->sub_redir)
+		{
+			cmd_node->sub_redir = redir_expand(cmd_node->sub_redir, env);
+			if (!cmd_node->sub_redir)
+				return (1);
+		}
+		return (0);
 	}
-	return ;
+	return (1);
 }
