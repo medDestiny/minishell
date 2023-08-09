@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 17:18:50 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/13 18:57:04 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 16:27:37 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,4 +53,5 @@ void	_echo(char **cmd, int fd)
 	}
 	if (nl)
 		ft_putstr_fd("\n", fd);
+	g_exit.status = 0;
 }

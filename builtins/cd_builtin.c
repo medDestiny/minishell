@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 18:28:51 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 01:49:18 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 16:23:01 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ int	cd_home(t_env *env, char **home)
 	if (!*home)
 	{
 		ft_putstr_fd("minishell: cd: HOME not set\n", STDERR_FILENO);
+		g_exit.status = 1;
 		return (1);
 	}
 	return (0);
@@ -29,6 +30,7 @@ int	cd_old_pwd(t_env *env, char **old_pwd)
 	if (!*old_pwd)
 	{
 		ft_putstr_fd("minishell: cd: OLDPWD not set\n", STDERR_FILENO);
+		g_exit.status = 1;
 		return (1);
 	}
 	return (0);
@@ -96,5 +98,8 @@ void	_cd(char **cmd, t_env *env, int fd)
 	if (change_dir(&env, dir, cmd, fd) == 0)
 		update_env_value(&env, ft_strdup("OLDPWD"), pwd, 0);
 	else
+	{
+		g_exit.status = 1;
 		free(pwd);
+	}
 }

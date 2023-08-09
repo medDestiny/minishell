@@ -6,66 +6,51 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 02:04:37 by mmisskin          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2023/08/08 03:47:41 by mmisskin         ###   ########.fr       */
-=======
-/*   Updated: 2023/08/08 11:54:54 by mmisskin         ###   ########.fr       */
->>>>>>> 68f4c5caf9acae20e83b68f6abbd61c99d4b6672
+/*   Updated: 2023/08/09 16:06:10 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	heredoc(t_token *hdoc, int pipe)
+t_token	*read_heredoc(char *delim)
 {
-	char	*line;
 	t_token	*doc;
+	char	*line;
+	char	*joined;
 
 	doc = NULL;
 	while (1)
 	{
 		line = readline("> ");
-		if (!line || !ft_strcmp(line, hdoc->lexeme))
-<<<<<<< HEAD
-			break ;
-=======
+		if (!line || !ft_strcmp(line, delim))
 		{
 			free(line);
 			break ;
 		}
->>>>>>> 68f4c5caf9acae20e83b68f6abbd61c99d4b6672
-		if (token_list_add(&doc, WORD, ft_strjoin(line, "\n"), ft_strlen(line) + 1) != 0)
-			return ;
+		joined = ft_strjoin(line, "\n");
+		if (token_list_add(&doc, WORD, joined, ft_strlen(line) + 1) != 0)
+			return (NULL);
+		free(joined);
 		free(line);
 	}
-	// expand if needed
-	// join
-	write(pipe, doc->lexeme, ft_strlen(doc->lexeme));
-	t_token	*next;
+	return (doc);
+}
 
-	next = doc;
-	while (next)
+void	heredoc(t_token *hdoc, int pipe)
+{
+	t_token	*doc;
+
+	doc = read_heredoc(hdoc->lexeme);
+	if (hdoc->type == HDOC_EXP)
 	{
-<<<<<<< HEAD
-		next = doc->next;
-		free(doc->lexeme);
-		free(doc);
-		doc = next;
+		// expand
 	}
-=======
-		printf("%s\n", next->lexeme);
-		next = next->next;
+	while (doc)
+	{
+		write(pipe, doc->lexeme, ft_strlen(doc->lexeme));
+		doc = doc->next;
 	}
-	//next = doc;
-	//while (next)
-	//{
-	//	next = doc->next;
-	//	free(doc->lexeme);
-	//	free(doc);
-	//	doc = next;
-	//}
-	clean_all(&g_gc);
->>>>>>> 68f4c5caf9acae20e83b68f6abbd61c99d4b6672
+	clean_all();
 }
 
 void	handle_heredoc(t_token *hdoc, int pipe)

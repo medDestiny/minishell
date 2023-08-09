@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 20:36:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 15:29:08 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 16:32:27 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void	_exit_(t_env **env, char **cmd)
 		else if (j != 1)
 		{
 			print_exit_error(env, NULL, "too many arguments");
+			g_exit.status = 2;
 			return ;
 		}
 		j++;
