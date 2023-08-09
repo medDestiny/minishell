@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:51:00 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/01 15:49:27 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 02:07:35 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,20 @@ int	get_idsize(char *lexeme, int i)
 
 int	get_subtkn(t_token **lst, t_token *tkn, int size, int i)
 {
-	char	*sub;
+	char		*sub;
+	t_node_type	type;
 
+
+	type = tkn->type;
 	sub = ft_substr(tkn->lexeme, i, size);
-	token_list_add(lst, tkn->type, sub, size);
+	if (i != 0 && (is_redir_in(type) || is_redir_out(type)))
+	{
+		if (type == RD_IN_DQ || type == RD_OUT_DQ || type == APPEND_DQ)
+			type = D_QUOTE;
+		else if (type == RD_IN_WD || type == RD_OUT_WD || type == APPEND_WD)
+			type = WORD;
+	}
+	token_list_add(lst, type, sub, size);
 	free (sub);
 	return (size - 1);
 }
