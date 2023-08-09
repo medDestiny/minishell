@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/09 02:30:14 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 15:35:00 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ int	expandable_dq(t_token *lst)
 		return (0);
 	while (lst && !is_redir_in(lst->type) && !is_redir_out(lst->type))
 		lst = lst->prev;
-	if (lst->type == HDOC || lst->type == HDOC_EXP)
+	if (lst && (lst->type == HDOC || lst->type == HDOC_EXP))
 		return (0);
 	return (1);
 }
@@ -394,7 +394,7 @@ void	expand_tilde(t_token *lst, t_env *env)
 			if (newlex)
 			{
 				lst->lexeme = newlex;
-				garbage_list_add(&g_gc, newlex);
+				garbage_list_add(&g_exit.gc, newlex);
 			}
 		}
 		lst = lst->next;

@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 16:20:47 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 15:25:30 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,16 @@
 # define UNEX_RPAR 8
 # define UNEX_TOK 9
 
-# include<stdlib.h>
-# include<unistd.h>
-# include<fcntl.h>
-# include<stddef.h>
-# include<readline/readline.h>
-# include<readline/history.h>
-# include<sys/errno.h>
-# include<sys/wait.h>
-# include<signal.h>
-# include<dirent.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <stddef.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+# include <sys/errno.h>
+# include <sys/wait.h>
+# include <signal.h>
+# include <dirent.h>
 
 typedef enum s_node_type
 {
@@ -114,7 +114,13 @@ typedef struct s_tree
 	t_cmd		cmd;
 }	t_tree;
 
-t_garb					*g_gc;
+typedef struct s_exit
+{
+	int		status;
+	t_garb	*gc;
+}	t_exit;
+
+t_exit					g_exit;
 
 typedef struct s_data
 {
@@ -132,7 +138,7 @@ typedef struct s_entry
 	struct s_entry	*next;
 }	t_entry;
 
-typedef struct	s_flags
+typedef struct s_flags
 {
 	t_token	*tkn;
 	int		**flagvec;
@@ -175,9 +181,11 @@ void		clean_intvec(int **intvec);
 void		clean_list(t_entry **list);
 
 //	Garbage Collector
-void		*ft_malloc(size_t size, t_garb **gc);
-void		clean_all(t_garb **gc);
+void		*ft_malloc(size_t size);
+void		clean_all(void);
 int			garbage_list_add(t_garb **gc, void *ptr);
+
+//	Shell Prompt
 char		*prompt(t_env *env);
 
 //	Tokenizer functions

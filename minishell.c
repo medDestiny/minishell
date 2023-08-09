@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 16:26:24 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 15:34:30 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,8 @@ void	print_tokens(t_tree *root, t_env *env)
 		//p = root->cmd.redir;
 		//if (root->cmd.redir)
 		//	p = tkn_split(root->cmd.redir);
-		p = redir_expand(root->cmd.redir, env);
+		//p = redir_expand(root->cmd.redir, env);
+		p = list_expand(root->cmd.list, env);
 		while (p)
 		{
 			print_type(p->type);
@@ -155,7 +156,7 @@ void	minishell_loop(t_env *envp)
 	//char		**v;
 
 	line = NULL;
-	g_gc = NULL;
+	g_exit.gc = NULL;
 	while (1)
 	{
 		shell = prompt(envp);
@@ -192,7 +193,7 @@ void	minishell_loop(t_env *envp)
 		//	exec_cmd(root, envp);
 		//clean_vec(v);
 		free(cmdline);
-		clean_all(&g_gc);
+		clean_all();
 	}
 }
 

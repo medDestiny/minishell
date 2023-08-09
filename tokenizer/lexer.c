@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 16:24:28 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 15:28:05 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ t_token	*new_token_node(t_node_type type, char *content, size_t size)
 {
 	t_token	*node;
 
-	node = (t_token *)ft_malloc(sizeof(t_token), &g_gc);
+	node = (t_token *)ft_malloc(sizeof(t_token));
 	if (!node)
 		return (NULL);
-	node->lexeme = (char *)ft_malloc((size + 1) * sizeof(char), &g_gc);
+	node->lexeme = (char *)ft_malloc((size + 1) * sizeof(char));
 	if (!node->lexeme)
 		return (NULL);
 	ft_strlcpy(node->lexeme, content, size + 1);

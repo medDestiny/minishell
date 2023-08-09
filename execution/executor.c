@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/14 13:08:47 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/09 15:29:29 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ char	**build_vec(t_token *list, t_env *envp)
 	i = 0;
 	vec = NULL;
 	words = count_words(list) + 1;
-	vec = (char**)ft_malloc(words * sizeof(char*), &g_gc);
+	vec = (char**)ft_malloc(words * sizeof(char*));
 	while (list && i < words)
 	{
 		if (list->type == WORD)
