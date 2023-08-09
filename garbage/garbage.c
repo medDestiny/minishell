@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/07 18:51:24 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 15:27:22 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 17:24:55 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void	*ft_malloc(size_t size)
 	{
 		clean_all();
 		ft_putstr_fd("unexpected malloc fail occured\n", STDERR_FILENO);
+		g_exit.status = ALLOCERR;
 	}
 	else if (new && garbage_list_add(&g_exit.gc, new) != 0)
 	{
