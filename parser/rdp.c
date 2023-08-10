@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 15:28:45 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/10 17:42:54 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,8 @@ void	init_cmd_node(t_tree *cmd)
 	cmd->cmd.list = NULL;
 	cmd->cmd.redir = NULL;
 	cmd->cmd.sub_redir = NULL;
+	cmd->node.rchild = NULL;
+	cmd->node.lchild = NULL;
 }
 
 int	parse_command(t_tree **root, t_token **tok)
@@ -126,6 +128,9 @@ t_tree	*new_tree_node(t_type type, t_tree *left, t_tree *right)
 	new->type = type;
 	new->node.lchild = left;
 	new->node.rchild = right;
+	new->cmd.list = NULL;
+	new->cmd.redir = NULL;
+	new->cmd.sub_redir = NULL;
 	return (new);
 }
 

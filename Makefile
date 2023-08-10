@@ -37,17 +37,19 @@ SRC= environment.c \
 	 execution/split_token.c \
 	 dir.c wildcard.c
 
-C_FLAGS= -Wall -Wextra -Werror -g -fsanitize=address
+C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h
+LIB= -L $(HOME)/.brew/Cellar/readline/8.2.1/lib
+INC= -I $(HOME)/.brew/Cellar/readline/8.2.1/include
 obj= $(SRC:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(obj)
-	gcc $(C_FLAGS) $^ -lreadline -o $@
+	gcc $(C_FLAGS) $^ -o $@ -lreadline $(LIB) $(INC)
 
 %.o: %.c $(header)
-	gcc $(C_FLAGS) -c $< -o $@
+	gcc $(C_FLAGS) $(INC) -c $< -o $@
 
 clean:
 	rm -f $(obj)

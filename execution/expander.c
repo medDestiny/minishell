@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/09 23:50:06 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/10 19:09:48 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,6 +298,11 @@ int	wildlex_match(t_token **lst, t_entry *matches, char *dir, \
 {
 	char	*wildlex;
 
+	if ((is_redir_in(type) || is_redir_out(type)) && matches->next)
+	{
+		g_exit.status = AMBGRDIR;
+		return (1);
+	}
 	while (matches)
 	{
 		if (dir)
@@ -491,6 +496,14 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	return (newtknlst);
 }
 
+void	ambiguous_redir(char *pattern)
+{
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
+	ft_putstr_fd(pattern, STDERR_FILENO);
+	ft_putstr_fd(": ambiguous redirect", STDERR_FILENO);
+	return ;
+}
+
 t_token	*redir_expand(t_token *redir, t_env *env)
 {
 	t_token	*newredir;
@@ -512,6 +525,8 @@ t_token	*redir_expand(t_token *redir, t_env *env)
 		flagvec = create_wildvec(flagtab, newredir);
 		free(flagtab);
 		newredir = wildlst_expand(newredir, flagvec);
+		if (!newredir && g_exit.status == AMBGRDIR)
+			ambiguous_redir(redir->lexeme);
 		clean_intvec(flagvec);
 	}
 	return (newredir);
@@ -525,19 +540,28 @@ int	node_expand(t_cmd *cmd_node, t_env *env)
 		{
 			cmd_node->list = list_expand(cmd_node->list, env);
 			if (!cmd_node->list)
+			{
+				ft_putstr_fd("HELLO FROM LSTEXPAND ;U GOOD\n", 2);
 				return (1);
+			}
 		}
 		if (cmd_node->redir)
 		{
 			cmd_node->redir = redir_expand(cmd_node->redir, env);
 			if (!cmd_node->redir)
+			{
+				ft_putstr_fd("HELLO FROM REDIREXPAND ;U GOOD\n", 2);
 				return (1);
+			}
 		}
 		if (cmd_node->sub_redir)
 		{
 			cmd_node->sub_redir = redir_expand(cmd_node->sub_redir, env);
 			if (!cmd_node->sub_redir)
+			{
+				ft_putstr_fd("HELLO FROM SUBSHELLREDIREXPAND ;U GOOD\n", 2);
 				return (1);
+			}
 		}
 		return (0);
 	}

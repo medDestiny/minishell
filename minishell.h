@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 19:17:06 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/10 16:51:02 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,9 @@
 # define UNEX_TOK 9
 
 # define ALLOCERR 1337
+# define AMBGRDIR 4242
 
+# include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
@@ -265,5 +267,6 @@ t_token		*tkn_split(t_token *tkn);
 t_token		*list_expand(t_token *tokens, t_env *env);
 t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);
+int			node_expand(t_cmd *cmd_node, t_env *env);
 
 #endif
