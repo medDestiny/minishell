@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/10 16:51:02 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/13 18:46:28 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,6 +264,7 @@ t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
 
 int			exec_cmd(t_tree *node, t_env *envp);
 t_token		*tkn_split(t_token *tkn);
+t_token		*redirlst_split(t_token *redir);
 t_token		*list_expand(t_token *tokens, t_env *env);
 t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);

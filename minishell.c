@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/10 19:11:04 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/13 18:47:01 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,36 +129,36 @@ void	print_tokens(t_tree *root, t_env *env)
 	if (root)
 	{
 		p = NULL;
-		//p = tkn_split(root->cmd.redir);
-		//while (p)
-		//{
-		//	print_type(p->type);
-		//	printf("|%s| ", p->lexeme);
-		//	p = p->next;
-		//}
-		p = root->cmd.list;
+		p = redirlst_split(root->cmd.redir);
 		while (p)
 		{
 			print_type(p->type);
 			printf("|%s| ", p->lexeme);
 			p = p->next;
 		}
-		printf("\n");
-		p = root->cmd.redir;
-		while (p)
-		{
-			print_type(p->type);
-			printf("|%s| ", p->lexeme);
-			p = p->next;
-		}
-		printf("\n");
-		p = root->cmd.sub_redir;
-		while (p)
-		{
-			print_type(p->type);
-			printf("|%s| ", p->lexeme);
-			p = p->next;
-		}
+//		p = root->cmd.list;
+//		while (p)
+//		{
+//			print_type(p->type);
+//			printf("|%s| ", p->lexeme);
+//			p = p->next;
+//		}
+//		printf("\n");
+//		p = root->cmd.redir;
+//		while (p)
+//		{
+//			print_type(p->type);
+//			printf("|%s| ", p->lexeme);
+//			p = p->next;
+//		}
+//		printf("\n");
+//		p = root->cmd.sub_redir;
+//		while (p)
+//		{
+//			print_type(p->type);
+//			printf("|%s| ", p->lexeme);
+//			p = p->next;
+//		}
 		printf("\n");
 	}
 	return ;
@@ -189,8 +189,8 @@ void	minishell_loop(t_env *envp)
 		root = parser(&tokens);
 		//if (root)
 		//	print_tree(root, 0);
-		if (root)
-			node_expand(&root->cmd, envp);
+		//if (root)
+		//	node_expand(&root->cmd, envp);
 		print_tokens(root, envp);
 		// if (root)
 		//		print_tree(root, 0);

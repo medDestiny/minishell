@@ -35,6 +35,8 @@ SRC= environment.c \
 	 execution/executor.c \
 	 execution/expander.c \
 	 execution/split_token.c \
+	 execution/split_redir.c \
+	 execution/redir_expander.c \
 	 dir.c wildcard.c
 
 C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
