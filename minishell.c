@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/13 18:47:01 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 00:32:31 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void	print_tokens(t_tree *root, t_env *env)
 	if (root)
 	{
 		p = NULL;
-		p = redirlst_split(root->cmd.redir);
+		p = redir_expand(root->cmd.redir, env);
 		while (p)
 		{
 			print_type(p->type);

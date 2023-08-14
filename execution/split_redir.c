@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/11 17:45:28 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/13 19:21:20 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 00:31:28 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ static t_token	*lst_last(t_token *lst)
 //the lleft and lright params should be consecutive nodes of the original list.
 void	sublist_insert(t_token *sublst, t_token **lleft, t_token **lright)
 {
-	t_token *last;
+	t_token	*last;
 
 	if (!sublst)
 		return ;
@@ -124,12 +124,13 @@ t_token	*redirtkn_split(t_token *redir)
 	int		i;
 	int		j;
 
-	i = 0;
+	i = -1;
 	j = 0;
 	subredir = NULL;
-	if (!redir->lexeme)
-		return (NULL);
-	while (redir->lexeme[i])
+	if (redir->lexeme && !redir->lexeme[0] \
+		&& token_list_add(&subredir, redir->type, redir->lexeme, 0) != 0)
+		return (g_exit.status = ALLOCERR, NULL);
+	while (redir->lexeme && redir->lexeme[++i])
 	{
 		if (redir->lexeme[i] == '$')
 			size = get_subredir(&subredir, redir, \
@@ -140,14 +141,13 @@ t_token	*redirtkn_split(t_token *redir)
 		if (size == -1)
 			return (NULL);
 		i += size;
-		i++;
 	}
 	return (subredir);
 }
 
 t_token	*redirlst_split(t_token *redir)
 {
-	t_token *splitted;
+	t_token	*splitted;
 	t_token	*right;
 	t_token	*left;
 	t_token	*tmp;
@@ -157,8 +157,14 @@ t_token	*redirlst_split(t_token *redir)
 	while (redir)
 	{
 		right = NULL;
+		tmp = NULL;
 		left = lst_last(splitted);
-		tmp = redirtkn_split(redir);
+		if (redir->type != S_QUOTE && redir->type != RD_IN_SQ \
+			&& redir->type != RD_OUT_DQ && redir->type != APPEND_SQ)
+			tmp = redirtkn_split(redir);
+		else if (token_list_add(&tmp, redir->type, redir->lexeme, \
+				ft_strlen(redir->lexeme)) != 0)
+			return (NULL);
 		if (tmp == NULL && g_exit.status == ALLOCERR)
 			return (NULL);
 		sublist_insert(tmp, &left, &right);
