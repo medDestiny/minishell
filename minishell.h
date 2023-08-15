@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/13 18:46:28 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 20:43:10 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ size_t		ft_strlcpy(char *dst, const char *src, size_t dstsize);
 void		ft_putstr_fd(char *s, int fd);
 int			ft_atoi(const char *str);
 char		*ft_itoa(int n);
-char		**ft_split(char const *s, char c);
+char		**ft_split(char const *s, char *set);
 char		*ft_substr(char const *s, unsigned int start, size_t len);
 int			ft_isalnum(int c);
 int			ft_isalpha(int c);
@@ -269,5 +269,6 @@ t_token		*list_expand(t_token *tokens, t_env *env);
 t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
+void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
 
 #endif

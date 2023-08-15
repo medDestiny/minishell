@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/13 14:27:36 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 21:37:38 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,37 @@ t_token	*tkn_join(t_token *lst)
 	return (joined);
 }
 
+t_token	*lst_last(t_token *tkn);
+
+int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
+{
+	t_token	*splitted;
+	t_token	*last;
+	char	**vars;
+	int		i;
+
+	i = 0;
+	splitted = NULL;
+	last = NULL;
+	vars = ft_split(get_env_value(env, tkn->lexeme + 1), BLANK);
+	while (vars && vars[i])
+	{
+		if (token_list_add(&splitted, tkn->type, vars[i], \
+			ft_strlen(vars[i])) != 0)
+			return (1);
+		if (token_list_add(&splitted, SPC, " ", 1) != 0)
+			return (1);
+		i++;
+	}
+	clean_vec(vars);
+	last = lst_last(*lst);
+	if (!last)
+		*lst = splitted;
+	else
+		last->next = splitted;
+	return (0);
+}
+
 // Update the token if it is of type WORD or D_QUOTE
 // into a new expanded token added to the 'newtknlst'.
 int	tkn_update(t_token **newlst, t_token *lst, t_env *env)
@@ -60,7 +91,11 @@ int	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 			&& !get_env_value(env, var + 1))
 			var = "";
 		else if (*var == '$' && *(var + 1))
-			var = get_env_value(env, (var + 1));
+		{
+			if (get_splitted_env_value(newlst, sub, env))
+				return (1);
+			var = NULL;
+		}
 		else if (*var == '$' && lst->next \
 		&& (lst->next->type == D_QUOTE || lst->next->type == S_QUOTE))
 			var = NULL;
