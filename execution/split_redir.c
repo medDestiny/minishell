@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/11 17:45:28 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/15 00:31:28 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 16:35:23 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,9 @@ static int	get_subredir(t_token **lst, t_token *redir, int size, int i)
 	}
 	if (i != 0 && (is_redir_in(type) || is_redir_out(type)))
 	{
-		if (type == RD_IN_DQ || type == RD_OUT_DQ || type == APPEND_DQ)
+		if (type == RD_IN_DQ || type == RD_OUT_DQ || type == APPEND_DQ || type == HDOC)
 			type = D_QUOTE;
-		else if (type == RD_IN_WD || type == RD_OUT_WD || type == APPEND_WD)
+		else if (type == RD_IN_WD || type == RD_OUT_WD || type == APPEND_WD || type == HDOC_EXP)
 			type = WORD;
 	}
 	if (token_list_add(lst, type, sub, size) != 0)
@@ -160,7 +160,7 @@ t_token	*redirlst_split(t_token *redir)
 		tmp = NULL;
 		left = lst_last(splitted);
 		if (redir->type != S_QUOTE && redir->type != RD_IN_SQ \
-			&& redir->type != RD_OUT_DQ && redir->type != APPEND_SQ)
+			&& redir->type != RD_OUT_SQ && redir->type != APPEND_SQ)
 			tmp = redirtkn_split(redir);
 		else if (token_list_add(&tmp, redir->type, redir->lexeme, \
 				ft_strlen(redir->lexeme)) != 0)

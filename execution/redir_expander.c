@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/12 17:31:10 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/15 10:09:16 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 17:28:08 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,16 +133,16 @@ t_token	*redir_join(t_token *redir)
 //	return (0);
 //}
 
-//int	expandable_dq(t_token *lst)
-//{
-//	if (!*lst->lexeme)
-//		return (0);
-//	while (lst && !is_redir_in(lst->type) && !is_redir_out(lst->type))
-//		lst = lst->prev;
-//	if (lst && (lst->type == HDOC || lst->type == HDOC_EXP))
-//		return (0);
-//	return (1);
-//}
+static int	expandable_tkn(t_token *lst)
+{
+	if (!*lst->lexeme)
+		return (0);
+	while (lst && !is_redir_in(lst->type) && !is_redir_out(lst->type))
+		lst = lst->prev;
+	if (lst && (lst->type == HDOC || lst->type == HDOC_EXP))
+		return (0);
+	return (1);
+}
 
 static void	fill_flagtab(int *tab, int *flags, int len, int *ind)
 {
@@ -460,6 +460,24 @@ char	*grep_value(t_token	*tkn, t_env *env)
 	return (var);
 }
 
+char	*hdoc_expand(t_token *tkn)
+{
+	char	*var;
+
+	var = tkn->lexeme;
+	if ((tkn->type == HDOC_EXP || tkn->type == WORD) && tkn->next \
+		&& (tkn->next->type == D_QUOTE || tkn->next->type == S_QUOTE))
+		if (var && *var == '$' && !*(var + 1))
+		{
+			if (tkn->type == HDOC_EXP)
+				tkn->next->type = HDOC;
+			else
+				tkn->next->type = hdoc_pick_type(tkn->next);
+			var = NULL;
+		}
+	return (var);
+}
+
 int	redir_update(t_token **redirlst, t_token *lst, t_env *env)
 {
 	char		*var;
@@ -468,9 +486,12 @@ int	redir_update(t_token **redirlst, t_token *lst, t_env *env)
 	{
 		var = lst->lexeme;
 		if (lst->type == RD_IN_WD || lst->type == RD_OUT_WD || lst->type == APPEND_WD \
-		|| lst->type == WORD || lst->type == RD_IN_DQ || lst->type == RD_OUT_DQ \
-		|| lst->type == APPEND_DQ || lst->type == D_QUOTE)
+		|| (lst->type == WORD && expandable_tkn(lst)) \
+		|| lst->type == RD_IN_DQ || lst->type == RD_OUT_DQ \
+		|| lst->type == APPEND_DQ || (lst->type == D_QUOTE && expandable_tkn(lst)))
 			var = grep_value(lst, env);
+		else if (lst->type == HDOC || lst->type == HDOC_EXP || !expandable_tkn(lst))
+			var = hdoc_expand(lst);
 		if (!var && g_exit.status == AMBGRDIR)
 			return (g_exit.status = 1, 1);
 		if (var && token_list_add(redirlst, lst->type, var, ft_strlen(var)) != 0)
