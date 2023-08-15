@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/12 17:31:10 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/15 00:45:18 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/15 10:09:16 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 static void	ambiguous_redir(char *str)
 {
+	g_exit.status = 1;
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	ft_putstr_fd(str, STDERR_FILENO);
 	ft_putstr_fd(": ambiguous redirect\n", STDERR_FILENO);
@@ -293,7 +294,11 @@ static t_token	*wildlst_expand(t_token *tknlst, int **flags)
 	while (tknlst)
 	{
 		if (wildtkn_expand(&wildtknlst, tknlst, flags, &pos) == 1)
+		{
+			if (g_exit.status == AMBGRDIR)
+				ambiguous_redir(tknlst->lexeme);
 			return (NULL);
+		}
 		tknlst = tknlst->next;
 	}
 	return (wildtknlst);
@@ -402,23 +407,24 @@ int	check_ambiguity(t_token *tkn, t_env *env)
 	char	*errtmp;
 
 	original = tkn;
-	error = NULL;
+	error = ft_strdup(tkn->lexeme);
 	tkn = tkn->next;
 	while (tkn)
 	{
-		errtmp = NULL;
 		if (tkn->type == WORD && tkn->lexeme && *tkn->lexeme == '$' \
 			&& *(tkn->lexeme + 1) && !get_env_value(env, tkn->lexeme + 1))
 		{
-			errtmp = ft_strjoin(error, tkn->lexeme);
-			error = errtmp;
+			errtmp = error;
+			error = ft_strjoin(errtmp, tkn->lexeme);
 			free(errtmp);
 			tkn = tkn->next;
 		}
-		else
+		else if (tkn->type != SPC && !is_redir_in(tkn->type) && !is_redir_out(tkn->type))
 			return (free(error), 0);
+		else
+			break ;
 	}
-	ambiguous_redir(original->lexeme);
+	ambiguous_redir(error);
 	return (free(error), 1);
 }
 
@@ -529,8 +535,6 @@ t_token	*redir_expand(t_token *redir, t_env *env)
 		flagvec = create_wildvec(flagtab, newredir);
 		free(flagtab);
 		newredir = wildlst_expand(newredir, flagvec);
-		if (!newredir && g_exit.status == AMBGRDIR)
-			ambiguous_redir(redir->lexeme);
 		clean_intvec(flagvec);
 	}
 	return (newredir);
