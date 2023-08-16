@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 18:28:51 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 16:23:01 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 12:53:30 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ cannot access parent directories: ", STDERR_FILENO);
 		_pwd(*env, NULL, fd);
 	if (cwd)
 		update_pwd(env, cwd);
-	return (0);
+	return (g_exit.status = 0, 0);
 }
 
 void	_cd(char **cmd, t_env *env, int fd)

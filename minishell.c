@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 11:47:52 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 13:12:18 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,7 @@ void	minishell_loop(t_env *envp)
 	g_exit.gc = NULL;
 	while (1)
 	{
+		printf("last cmd exit = %d\n", g_exit.status);
 		shell = prompt(envp);
 		line = readline(shell);
 		free(shell);

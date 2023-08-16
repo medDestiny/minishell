@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 20:36:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 16:32:27 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 12:54:43 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void	_exit_(t_env **env, char **cmd)
 	int	status;
 
 	j = 1;
-	status = 0;
+	status = g_exit.status;
 	ft_putstr_fd("exit\n", STDERR_FILENO);
 	while (cmd[j])
 	{

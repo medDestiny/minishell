@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/06 20:07:24 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/14 18:20:09 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 13:10:42 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,7 @@ void	print_syntax_error(int err, char *str)
 		print_error("minishell: syntax error near unexpected token: ", "(");
 	else if (err == UNEX_TOK)
 		print_error("minishell: syntax error near unexpected token: ", str);
+	g_exit.status = SYNTAXERR;
 }
 
 void	check_syntax(t_token **tokens)

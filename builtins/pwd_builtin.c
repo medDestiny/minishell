@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 17:02:35 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 16:35:14 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 12:55:47 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,4 +41,5 @@ void	_pwd(t_env *env, char **cmd, int fd)
 	cwd = get_env_node(env, "2PWD");
 	ft_putstr_fd(cwd->value, fd);
 	ft_putstr_fd("\n", fd);
+	g_exit.status = 0;
 }

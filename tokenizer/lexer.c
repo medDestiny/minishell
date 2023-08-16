@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 21:20:34 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/16 13:10:05 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ int	check_or(t_token **tokens, char *cmdline)
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token: ||\n",
 			STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	if (token_list_add(tokens, OR, cmdline, 2) != 0)
@@ -121,6 +122,7 @@ int	check_and(t_token **tokens, char *cmdline)
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token: &&\n",
 			STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	if (token_list_add(tokens, AND, cmdline, 2) != 0)
@@ -134,6 +136,7 @@ int	check_pipe(t_token **tokens, char *cmdline)
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token: |\n",
 			STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	if (token_list_add(tokens, PIPE, cmdline, 1) != 0)
@@ -165,6 +168,7 @@ int	redir_syntax_error(char *cmdline)
 		print_syntax_error(UNEX_TOK, "<<");
 	else if (cmdline[0] == '<')
 		print_syntax_error(UNEX_TOK, "<");
+	g_exit.status = SYNTAXERR;
 	return (1);
 }
 
@@ -301,6 +305,7 @@ int	check_single_quotes(t_token **tokens, char *cmdline)
 	if (!cmdline[i])
 	{
 		ft_putstr_fd("minishell: unclosed single quotes\n", STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	size = check_word(tokens, cmdline, "'");
@@ -326,6 +331,7 @@ int	check_double_quotes(t_token **tokens, char *cmdline)
 	if (!cmdline[i])
 	{
 		ft_putstr_fd("minishell: unclosed double quotes\n", STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	size = check_word(tokens, cmdline, "\"");

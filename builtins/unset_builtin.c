@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 15:48:36 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/09 16:39:05 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 12:57:04 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,4 +99,5 @@ void	_unset(t_env **env, char **cmd)
 			g_exit.status = 1;
 		i++;
 	}
+	g_exit.status = 0;
 }

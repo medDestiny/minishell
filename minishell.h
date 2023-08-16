@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 11:42:42 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 13:05:41 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 
 # define ALLOCERR 1337
 # define AMBGRDIR 4242
+# define SYNTAXERR 258
 
 # include <stdio.h>
 # include <stdlib.h>
