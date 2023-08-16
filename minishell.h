@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/15 20:43:10 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/16 11:42:42 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,6 +254,9 @@ void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
 void		_echo(char **cmd, int fd);
 void		_exit_(t_env **env, char **cmd);
+
+//	Signal handling
+void		signal_interrupter(void);
 
 /***************** Wildcards ********************/
 

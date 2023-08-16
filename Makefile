@@ -37,7 +37,8 @@ SRC= environment.c \
 	 execution/split_token.c \
 	 execution/split_redir.c \
 	 execution/redir_expander.c \
-	 dir.c wildcard.c
+	 dir.c wildcard.c \
+	 signals.c
 
 C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h

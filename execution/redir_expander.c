@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/12 17:31:10 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/15 18:26:54 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/16 11:36:50 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -372,13 +372,35 @@ int	check_ambiguity(t_token *tkn, t_env *env)
 			free(errtmp);
 			tkn = tkn->next;
 		}
-		else if (tkn->type != SPC && !is_redir_in(tkn->type) && !is_redir_out(tkn->type))
+		else if (tkn->type != SPC \
+			&& !is_redir_in(tkn->type) && !is_redir_out(tkn->type))
 			return (free(error), 0);
 		else
 			break ;
 	}
 	ambiguous_redir(error);
 	return (free(error), 1);
+}
+
+char	*get_splitted_env_value(t_env *env, char *var)
+{
+	char	**splitted;
+	char	*value;
+	int		len;
+
+	len = 0;
+	value = get_env_value(env, var + 1);
+	splitted = ft_split(value, BLANK);
+	while (splitted && splitted[len])
+		len++;
+	clean_vec(splitted);
+	if (len > 1)
+	{
+		ambiguous_redir(var);
+		g_exit.status = AMBGRDIR;
+		return (NULL);
+	}
+	return (value);
 }
 
 char	*grep_value(t_token	*tkn, t_env *env)
@@ -390,10 +412,12 @@ char	*grep_value(t_token	*tkn, t_env *env)
 	{
 		if (*(tkn->lexeme + 1))
 		{
-			var = get_env_value(env, tkn->lexeme + 1);
+			var = get_splitted_env_value(env, tkn->lexeme);
+			if (!var && g_exit.status == AMBGRDIR)
+				return (NULL);
 			if (!var && (tkn->type == RD_OUT_DQ || tkn->type == RD_IN_DQ \
 				|| tkn->type == APPEND_DQ || tkn->type == D_QUOTE))
-					var = "";
+				var = "";
 			else if (!var && (is_redir_in(tkn->type) || is_redir_out(tkn->type)))
 			{
 				if (check_ambiguity(tkn, env))
@@ -420,6 +444,7 @@ char	*hdoc_expand(t_token *tkn)
 	var = tkn->lexeme;
 	if ((tkn->type == HDOC_EXP || tkn->type == WORD) && tkn->next \
 		&& (tkn->next->type == D_QUOTE || tkn->next->type == S_QUOTE))
+	{
 		if (var && *var == '$' && !*(var + 1))
 		{
 			if (tkn->type == HDOC_EXP)
@@ -428,6 +453,7 @@ char	*hdoc_expand(t_token *tkn)
 				tkn->next->type = hdoc_pick_type(tkn->next);
 			var = NULL;
 		}
+	}
 	return (var);
 }
 

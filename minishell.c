@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/15 18:28:14 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/16 11:47:52 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void	print_tokens(t_tree *root, t_env *env)
 	if (root)
 	{
 		p = NULL;
-		p = list_expand(root->cmd.list, env);
+		p = redir_expand(root->cmd.redir, env);
 		while (p)
 		{
 			print_type(p->type);
@@ -181,7 +181,17 @@ void	minishell_loop(t_env *envp)
 		line = readline(shell);
 		free(shell);
 		if (!line)
-			break ;
+		{
+			clean_env_list(&envp);
+			clean_all();
+			free(line);
+			rl_on_new_line();
+			rl_redisplay();
+			printf("exit\n");
+			exit(g_exit.status);
+		}
+		if (!*line)
+			continue ;
 		cmdline = ft_strtrim(line, " \t");
 		add_history(line);
 		free(line);
@@ -228,6 +238,7 @@ int	main(int ac, char **av, char **env)
 	envp = env_dup(av[0], env);
 	if (!envp)
 		return (1);
+	signal_interrupter();
 	minishell_loop(envp);
 	clean_env_list(&envp);
 }

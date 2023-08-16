@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/15 21:37:38 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/16 10:49:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ t_token	*tkn_join(t_token *lst)
 
 t_token	*lst_last(t_token *tkn);
 
-int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
+static int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
 {
 	t_token	*splitted;
 	t_token	*last;
@@ -57,7 +57,7 @@ int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
 		if (token_list_add(&splitted, tkn->type, vars[i], \
 			ft_strlen(vars[i])) != 0)
 			return (1);
-		if (token_list_add(&splitted, SPC, " ", 1) != 0)
+		if (vars[i + 1] && token_list_add(&splitted, SPC, " ", 1) != 0)
 			return (1);
 		i++;
 	}
