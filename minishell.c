@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 04:08:08 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/17 17:21:13 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,6 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-	char		**v;
 
 	line = NULL;
 	g_exit.gc = NULL;
@@ -201,31 +200,10 @@ void	minishell_loop(t_env *envp)
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
+		executor(root, &envp);
 		//if (root)
 		//	print_tree(root, 0);
 		//print_tokens(root, envp);
-		//if (root)
-		//		print_tree(root, 0);
-			v = ft_split(cmdline, BLANK);
-			if (!v || !*v)
-				continue ;
-			if (!ft_strcmp(v[0], "export"))
-				_export(v, &envp, 1);
-			else if (!ft_strcmp(v[0], "pwd"))
-				_pwd(envp, v, 1);
-			else if (!ft_strcmp(v[0], "cd"))
-				_cd(v, envp, 1);
-			else if (!ft_strcmp(v[0], "env"))
-				_env(envp, v, 1);
-			else if (!ft_strcmp(v[0], "unset"))
-				_unset(&envp, v);
-			else if (!ft_strcmp(v[0], "echo"))
-				_echo(v, 1);
-			else if (!ft_strcmp(v[0], "exit"))
-				_exit_(&envp, v);
-		else
-			exec_cmd(root, &envp);
-		clean_vec(v);
 		free(cmdline);
 		clean_all();
 	}

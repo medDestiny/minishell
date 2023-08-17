@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 02:04:37 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 05:18:11 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/17 17:29:24 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	heredoc(t_token *hdoc, int *pipe)
 {
 	t_token	*doc;
 
-	default_signals();
+	heredoc_signals();
 	doc = read_heredoc(hdoc->lexeme);
 	if (hdoc->type == HDOC_EXP)
 	{
@@ -77,10 +77,9 @@ int	open_heredoc(t_token *hdoc)
 		heredoc(hdoc, end);
 	else
 	{
-		ignore_signals();
+		heredoc_signals();
 		waitpid(pid, 0, 0);
 		default_signals();
-		//signal_interrupter();
 		close(end[1]);
 	}
 	return (end[0]);

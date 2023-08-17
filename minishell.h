@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 00:52:27 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/17 17:22:32 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,12 +260,13 @@ void		_cd(char **cmd, t_env *env, int fd);
 void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
 void		_echo(char **cmd, int fd);
-void		_exit_(t_env **env, char **cmd);
+void		_exit_(t_env **env, char **cmd, int flag);
 
 //	Signal handling
 void		signal_interrupter(void);
 void		ignore_signals(void);
 void		default_signals(void);
+void		heredoc_signals(void);
 
 //	HEREDOC Function
 int			open_heredoc(t_token *hdoc);
@@ -285,5 +286,6 @@ int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
 int			exec_cmd(t_tree *node, t_env **env);
+void		executor(t_tree *root, t_env **env);
 
 #endif

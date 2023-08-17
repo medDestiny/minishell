@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 20:36:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 12:54:43 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 16:36:53 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,15 @@ int	is_number(char *s)
 	return (1);
 }
 
-void	_exit_(t_env **env, char **cmd)
+void	_exit_(t_env **env, char **cmd, int flag)
 {
 	int	j;
 	int	status;
 
 	j = 1;
 	status = g_exit.status;
-	ft_putstr_fd("exit\n", STDERR_FILENO);
+	if (flag == 0)
+		ft_putstr_fd("exit\n", STDERR_FILENO);
 	while (cmd[j])
 	{
 		if (j == 1 && is_number(cmd[j]) <= 0)
