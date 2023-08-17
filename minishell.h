@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 13:05:41 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 00:52:27 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,15 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <string.h>
 # include <fcntl.h>
 # include <stddef.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <sys/errno.h>
 # include <sys/wait.h>
+# include <sys/types.h>
+# include <sys/stat.h>
 # include <signal.h>
 # include <dirent.h>
 
@@ -172,6 +175,9 @@ int			ft_isalnum(int c);
 int			ft_isalpha(int c);
 int			ft_isdigit(int c);
 
+//	General purpose functions
+t_token		*lst_last(t_token *tkn);
+
 //	Environment
 t_env		*env_dup(char *prog_name, char **env);
 t_env		*get_env_node(t_env *env, char *name);
@@ -258,6 +264,11 @@ void		_exit_(t_env **env, char **cmd);
 
 //	Signal handling
 void		signal_interrupter(void);
+void		ignore_signals(void);
+void		default_signals(void);
+
+//	HEREDOC Function
+int			open_heredoc(t_token *hdoc);
 
 /***************** Wildcards ********************/
 
@@ -266,7 +277,6 @@ t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
 
 /***************** Execution ********************/
 
-int			exec_cmd(t_tree *node, t_env *envp);
 t_token		*tkn_split(t_token *tkn);
 t_token		*redirlst_split(t_token *redir);
 t_token		*list_expand(t_token *tokens, t_env *env);
@@ -274,5 +284,6 @@ t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
+int			exec_cmd(t_tree *node, t_env **env);
 
 #endif

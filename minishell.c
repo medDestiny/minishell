@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 13:12:18 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 04:08:08 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,36 +129,36 @@ void	print_tokens(t_tree *root, t_env *env)
 	if (root)
 	{
 		p = NULL;
-		p = redir_expand(root->cmd.redir, env);
+	//	p = redir_expand(root->cmd.redir, env);
+	//	while (p)
+	//	{
+	//		print_type(p->type);
+	//		printf("|%s| ", p->lexeme);
+	//		p = p->next;
+	//	}
+		p = root->cmd.list;
 		while (p)
 		{
 			print_type(p->type);
 			printf("|%s| ", p->lexeme);
 			p = p->next;
 		}
-//		p = root->cmd.list;
-//		while (p)
-//		{
-//			print_type(p->type);
-//			printf("|%s| ", p->lexeme);
-//			p = p->next;
-//		}
-//		printf("\n");
-//		p = root->cmd.redir;
-//		while (p)
-//		{
-//			print_type(p->type);
-//			printf("|%s| ", p->lexeme);
-//			p = p->next;
-//		}
-//		printf("\n");
-//		p = root->cmd.sub_redir;
-//		while (p)
-//		{
-//			print_type(p->type);
-//			printf("|%s| ", p->lexeme);
-//			p = p->next;
-//		}
+		printf("\n");
+		p = root->cmd.redir;
+		while (p)
+		{
+			print_type(p->type);
+			printf("|%s| ", p->lexeme);
+			p = p->next;
+		}
+		printf("\n");
+		p = root->cmd.sub_redir;
+		while (p)
+		{
+			print_type(p->type);
+			printf("|%s| ", p->lexeme);
+			p = p->next;
+		}
 		printf("\n");
 	}
 	return ;
@@ -171,13 +171,13 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-	//char		**v;
+	char		**v;
 
 	line = NULL;
 	g_exit.gc = NULL;
 	while (1)
 	{
-		printf("last cmd exit = %d\n", g_exit.status);
+		//printf("last cmd exit = %d\n", g_exit.status);
 		shell = prompt(envp);
 		line = readline(shell);
 		free(shell);
@@ -192,7 +192,10 @@ void	minishell_loop(t_env *envp)
 			exit(g_exit.status);
 		}
 		if (!*line)
+		{
+			free(line);
 			continue ;
+		}
 		cmdline = ft_strtrim(line, " \t");
 		add_history(line);
 		free(line);
@@ -200,31 +203,29 @@ void	minishell_loop(t_env *envp)
 		root = parser(&tokens);
 		//if (root)
 		//	print_tree(root, 0);
+		//print_tokens(root, envp);
 		//if (root)
-		//	node_expand(&root->cmd, envp);
-		print_tokens(root, envp);
-		// if (root)
 		//		print_tree(root, 0);
-		//	v = ft_split(cmdline, ' ');
-		//	if (!v || !*v)
-		//		continue ;
-		//	if (!ft_strcmp(v[0], "export"))
-		//		_export(v, &envp, 1);
-		//	else if (!ft_strcmp(v[0], "pwd"))
-		//		_pwd(v, 1);
-		//	else if (!ft_strcmp(v[0], "cd"))
-		//		_cd(v, envp, 1);
-		//	else if (!ft_strcmp(v[0], "env"))
-		//		_env(envp, v, 1);
-		//	else if (!ft_strcmp(v[0], "unset"))
-		//		_unset(&envp, v);
-		//	else if (!ft_strcmp(v[0], "echo"))
-		//		_echo(v, 1);
-		//	else if (!ft_strcmp(v[0], "exit"))
-		//		_exit_(&envp, v);
-		//else
-		//	exec_cmd(root, envp);
-		//clean_vec(v);
+			v = ft_split(cmdline, BLANK);
+			if (!v || !*v)
+				continue ;
+			if (!ft_strcmp(v[0], "export"))
+				_export(v, &envp, 1);
+			else if (!ft_strcmp(v[0], "pwd"))
+				_pwd(envp, v, 1);
+			else if (!ft_strcmp(v[0], "cd"))
+				_cd(v, envp, 1);
+			else if (!ft_strcmp(v[0], "env"))
+				_env(envp, v, 1);
+			else if (!ft_strcmp(v[0], "unset"))
+				_unset(&envp, v);
+			else if (!ft_strcmp(v[0], "echo"))
+				_echo(v, 1);
+			else if (!ft_strcmp(v[0], "exit"))
+				_exit_(&envp, v);
+		else
+			exec_cmd(root, &envp);
+		clean_vec(v);
 		free(cmdline);
 		clean_all();
 	}

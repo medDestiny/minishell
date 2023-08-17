@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/16 10:49:21 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 17:30:30 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,6 @@ t_token	*tkn_join(t_token *lst)
 	}
 	return (joined);
 }
-
-t_token	*lst_last(t_token *tkn);
 
 static int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
 {
@@ -458,36 +456,29 @@ void	ambiguous_redir(char *pattern)
 
 int	node_expand(t_cmd *cmd_node, t_env *env)
 {
-	if (cmd_node)
+	if (!cmd_node)
+		return (1);
+	if (cmd_node->list)
 	{
-		if (cmd_node->list)
-		{
-			cmd_node->list = list_expand(cmd_node->list, env);
-			if (!cmd_node->list)
-			{
-				ft_putstr_fd("HELLO FROM LSTEXPAND ;U GOOD\n", 2);
-				return (1);
-			}
-		}
-		if (cmd_node->redir)
-		{
-			cmd_node->redir = redir_expand(cmd_node->redir, env);
-			if (!cmd_node->redir)
-			{
-				ft_putstr_fd("HELLO FROM REDIREXPAND ;U GOOD\n", 2);
-				return (1);
-			}
-		}
-		if (cmd_node->sub_redir)
-		{
-			cmd_node->sub_redir = redir_expand(cmd_node->sub_redir, env);
-			if (!cmd_node->sub_redir)
-			{
-				ft_putstr_fd("HELLO FROM SUBSHELLREDIREXPAND ;U GOOD\n", 2);
-				return (1);
-			}
-		}
-		return (0);
+		cmd_node->list = list_expand(cmd_node->list, env);
+		if (!cmd_node->list && g_exit.status == ALLOCERR)
+			return (g_exit.status = 1, ALLOCERR);
 	}
-	return (1);
+	if (cmd_node->redir)
+	{
+		cmd_node->redir = redir_expand(cmd_node->redir, env);
+		if (!cmd_node->redir && g_exit.status == ALLOCERR)
+			return (g_exit.status = 1, ALLOCERR);
+		else if (!cmd_node->redir && g_exit.status == AMBGRDIR)
+			return (g_exit.status = 1, AMBGRDIR);
+	}
+	if (cmd_node->sub_redir)
+	{
+		cmd_node->sub_redir = redir_expand(cmd_node->sub_redir, env);
+		if (!cmd_node->sub_redir && g_exit.status == ALLOCERR)
+			return (g_exit.status = 1, ALLOCERR);
+		else if (!cmd_node->sub_redir && g_exit.status == AMBGRDIR)
+			return (g_exit.status = 1, AMBGRDIR);
+	}
+	return (0);
 }

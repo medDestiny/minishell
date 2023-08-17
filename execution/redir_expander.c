@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/12 17:31:10 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/16 11:36:50 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 14:33:08 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 static void	ambiguous_redir(char *str)
 {
-	g_exit.status = 1;
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	ft_putstr_fd(str, STDERR_FILENO);
 	ft_putstr_fd(": ambiguous redirect\n", STDERR_FILENO);
@@ -472,7 +471,7 @@ int	redir_update(t_token **redirlst, t_token *lst, t_env *env)
 		else if (lst->type == HDOC || lst->type == HDOC_EXP || !expandable_tkn(lst))
 			var = hdoc_expand(lst);
 		if (!var && g_exit.status == AMBGRDIR)
-			return (g_exit.status = 1, 1);
+			return (1);
 		if (var && token_list_add(redirlst, lst->type, var, ft_strlen(var)) != 0)
 			return (1);
 		lst = lst->next;

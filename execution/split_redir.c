@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/11 17:45:28 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/15 16:35:23 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/16 22:53:15 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,13 +78,6 @@ static int	get_subredir(t_token **lst, t_token *redir, int size, int i)
 	}
 	free(sub);
 	return (size - 1);
-}
-
-static t_token	*lst_last(t_token *lst)
-{
-	while (lst && lst->next)
-		lst = lst->next;
-	return (lst);
 }
 
 //Inserts a sublsit between lleft and lright of the original list;
