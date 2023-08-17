@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/10 17:42:54 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/17 22:05:33 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,6 +261,16 @@ void	skip_redirs(t_token **tok)
 	}
 }
 
+void	subshell_root_type(t_tree *subsh)
+{
+	if (subsh->type == T_PIPE)
+		subsh->type = S_PIPE;
+	else if (subsh->type == T_OR)
+		subsh->type = S_OR;
+	else if (subsh->type == T_AND)
+		subsh->type = S_AND;
+}
+
 int	parse_group(t_tree **root, t_token **tokens)
 {
 	t_tree	*group;
@@ -278,6 +288,7 @@ int	parse_group(t_tree **root, t_token **tokens)
 	skip_redirs(tokens);
 	if (peek(*tokens) == PIPE)
 		err = parse_pipeline(&group, tokens);
+	subshell_root_type(group);
 	if (!*root)
 		*root = group;
 	else

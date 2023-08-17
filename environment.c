@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 00:50:45 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 20:57:36 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,13 +134,19 @@ int	env_add(t_env **env, char *name, char *value, int hide)
 t_env	*build_env(char *program_name)
 {
 	t_env	*env;
+	char	*cwd;
 	int		err;
 
 	err = 0;
 	env = NULL;
+	cwd = getcwd(NULL, 0);
+	if (cwd)
+	{
+		err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0), 0);
+		err = env_add(&env, ft_strdup("2PWD"), ft_strdup(cwd), 1);
+	}
 	err = env_add(&env, ft_strdup("PATH"),
 			ft_strdup("/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."), 1);
-	err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0), 0);
 	err = env_add(&env, ft_strdup("OLDPWD"), NULL, 0);
 	err = env_add(&env, ft_strdup("SHLVL"), ft_strdup("1"), 0);
 	err = env_add(&env, ft_strdup("_"), ft_strdup(program_name), 0);

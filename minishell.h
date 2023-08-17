@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 17:22:32 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 21:58:32 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,8 +110,11 @@ typedef struct s_node
 
 typedef enum e_type
 {
+	S_AND,
 	T_AND,
+	S_OR,
 	T_OR,
+	S_PIPE,
 	T_PIPE,
 	T_CMD,
 }	t_type;
@@ -286,6 +289,6 @@ int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
 int			exec_cmd(t_tree *node, t_env **env);
-void		executor(t_tree *root, t_env **env);
+int			executor(t_tree *root, t_env **env);
 
 #endif

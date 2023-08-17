@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/17 17:18:12 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 22:19:21 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,15 @@ void	cmd_not_found(char *cmd)
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	ft_putstr_fd(cmd, STDERR_FILENO);
 	ft_putstr_fd(": command not found\n", STDERR_FILENO);
+}
+
+void	cmd_error(char *lexeme)
+{
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
+	ft_putstr_fd(lexeme, STDERR_FILENO);
+	ft_putstr_fd(": ", STDERR_FILENO);
+	ft_putstr_fd(strerror(errno), STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
 }
 
 int	is_a_directory(char *lexeme)
@@ -51,7 +60,7 @@ char	*cmd_prefix(char *lexeme, t_env *envp)
 		path = ft_strjoin(paths[i], "/");
 		cmd_abs = ft_strjoin(path, lexeme);
 		free(path);
-		if (access(cmd_abs, F_OK | X_OK) == -1)
+		if (access(cmd_abs, F_OK) == -1)
 		{
 			free(cmd_abs);
 			i++;
@@ -60,7 +69,15 @@ char	*cmd_prefix(char *lexeme, t_env *envp)
 			break ;
 	}
 	if (!paths || !paths[i])
-		return (clean_vec(paths), cmd_not_found(lexeme), NULL);
+	{
+		cmd_not_found(lexeme);
+		exit(127);
+	}
+	if (access(cmd_abs, X_OK) == -1)
+	{
+		cmd_error(lexeme);
+		exit(126);
+	}
 	return (clean_vec(paths), cmd_abs);
 }
 
@@ -69,17 +86,21 @@ char	*check_path(char *lexeme, t_env *envp)
 	if (lexeme && (!ft_strncmp(lexeme, "/", 1) || !ft_strncmp(lexeme, "./", 2) \
 		|| !ft_strncmp(lexeme, "../", 3)))
 	{
-		if (access(lexeme, F_OK | X_OK) == -1)
+		if (access(lexeme, F_OK) == 0)
 		{
-			ft_putstr_fd("minishell: ", STDERR_FILENO);
-			ft_putstr_fd(lexeme, STDERR_FILENO);
-			ft_putstr_fd(": ", STDERR_FILENO);
-			ft_putstr_fd(strerror(errno), STDERR_FILENO);
-			ft_putstr_fd("\n", STDERR_FILENO);
-			return (NULL);
+			if (access(lexeme, X_OK) == -1)
+			{
+				cmd_error(lexeme);
+				exit(126);
+			}
 		}
-		else if (is_a_directory(lexeme))
-			return (NULL);
+		else
+		{
+			cmd_error(lexeme);
+			exit(127);
+		}
+		if (is_a_directory(lexeme))
+			exit(126);
 		return (ft_strdup(lexeme));
 	}
 	return (cmd_prefix(lexeme, envp));
@@ -315,8 +336,6 @@ void	execute_child(t_tree *node, t_env *env)
 		exit(0);
 	cmd_vec = build_vec(node->cmd.list, env);
 	env_vec = build_env_vec(env);
-	if (!cmd_vec)
-		exit(127);
 	set_fildes(files);
 	execve(cmd_vec[0], cmd_vec, env_vec);
 	cmd_not_found(node->cmd.list->lexeme);
@@ -411,7 +430,7 @@ void	exec_builtins(t_tree *node, t_env **env, int flag)
 	free(files);
 	clean_vec(cmd_vec);
 	if (flag == 1)
-		exit(EXIT_SUCCESS);
+		exit(g_exit.status);
 }
 
 int	check_for_builtins(t_tree *node, t_env **env)
@@ -435,6 +454,10 @@ int	check_for_builtins(t_tree *node, t_env **env)
 			ignore_signals();
 			waitpid(pid, &g_exit.status, 0);
 			signal_interrupter();
+			if (WIFEXITED(g_exit.status))
+				g_exit.status = WEXITSTATUS(g_exit.status);
+			else if (WIFSIGNALED(g_exit.status))
+				g_exit.status = 128 + WTERMSIG(g_exit.status);
 		}
 	}
 	else
@@ -462,7 +485,10 @@ int	execute_command(t_tree *node, t_env **env)
 		waitpid(pid, &g_exit.status, 0);
 		signal_interrupter();
 	}
-	g_exit.status = WEXITSTATUS(g_exit.status);
+	if (WIFEXITED(g_exit.status))
+		g_exit.status = WEXITSTATUS(g_exit.status);
+	else if (WIFSIGNALED(g_exit.status))
+		g_exit.status = 128 + WTERMSIG(g_exit.status);
 	return (0);
 }
 
@@ -481,22 +507,98 @@ int	exec_cmd(t_tree *node, t_env **env)
 	return (0);
 }
 
-void	executor(t_tree *root, t_env **env)
+int	exec_or(t_tree *node, t_env **env)
 {
-	if (!root)
+	int	ret;
+
+	ret = executor(node->node.lchild, env);
+	if (ret != 0)
+		return (ret);
+	if (g_exit.status != 0)
+	{
+		ret = executor(node->node.rchild, env);
+		if (ret != 0)
+			return (ret);
+	}
+	return (0);
+}
+
+int	exec_and(t_tree *node, t_env **env)
+{
+	int	ret;
+
+	ret = executor(node->node.lchild, env);
+	if (ret != 0)
+		return (ret);
+	if (g_exit.status == 0)
+	{
+		ret = executor(node->node.rchild, env);
+		if (ret != 0)
+			return (ret);
+	}
+	return (0);
+}
+
+int	is_subshell(t_type type)
+{
+	if (type == S_PIPE \
+		|| type == S_OR \
+		|| type == S_AND)
+		return (1);
+	return (0);
+}
+
+void	exec_subshell(t_tree *subsh, t_env **env)
+{
+	executor(subsh->node.lchild, env);
+	executor(subsh->node.rchild, env);
+	exit(g_exit.status);
+}
+
+void	subshell(t_tree *subsh, t_env **env)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		_error("fork failure");
 		return ;
-	if (root->type == T_OR)
-	{
-		//exec_or
 	}
+	if (pid == 0)
+		exec_subshell(subsh, env);
+	else
+	{
+		ignore_signals();
+		waitpid(pid, &g_exit.status, 0);
+		signal_interrupter();
+	}
+	if (WIFEXITED(g_exit.status))
+		g_exit.status = WEXITSTATUS(g_exit.status);
+	else if (WIFSIGNALED(g_exit.status))
+		g_exit.status = 128 + WTERMSIG(g_exit.status);
+}
+
+int	executor(t_tree *root, t_env **env)
+{
+	int	err;
+
+	err = 0;
+	if (!root)
+		return (1);
+	if (is_subshell(root->type))
+		subshell(root, env);
+	else if (root->type == T_OR)
+		err = exec_or(root, env);
 	else if (root->type == T_AND)
-	{
-		//exec_and
-	}
+		err = exec_and(root, env);
 	else if (root->type == PIPE)
 	{
 		//exec_pipe
 	}
 	else
-		exec_cmd(root, env);
+		err = exec_cmd(root, env);
+	if (err == ALLOCERR)
+		return (err);
+	return (0);
 }
