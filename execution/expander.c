@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/16 17:30:30 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/18 05:44:45 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,54 @@ static int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
 	return (0);
 }
 
+void	set_lst_exit_status(t_token *sub)
+{
+	while (sub)
+	{
+		if (sub->type == WORD || sub->type == D_QUOTE)
+		{
+			if (sub->lexeme && !ft_strcmp(sub->lexeme, "$?"))
+			{
+				sub->lexeme = ft_itoa(g_exit.status);
+				if (sub->lexeme)
+					garbage_list_add(&g_exit.gc, sub->lexeme);
+			}
+		}
+		sub = sub->next;
+	}
+}
+
+int	subtkn_update(t_token **newlst, t_token *tkn, t_token *sub, t_env *env)
+{
+	char	*var;
+
+	while (sub && sub->lexeme)
+	{
+		var = sub->lexeme;
+		if (*var == '$' && *(var + 1) && tkn->type == D_QUOTE \
+			&& !get_env_value(env, var + 1))
+			var = "";
+		else if (*var == '$' && *(var + 1))
+		{
+			if (get_splitted_env_value(newlst, sub, env))
+				return (1);
+			var = NULL;
+		}
+		else if (*var == '$' && tkn->next \
+		&& (tkn->next->type == D_QUOTE || tkn->next->type == S_QUOTE))
+			var = NULL;
+		if (var)
+			if (token_list_add(newlst, sub->type, var, ft_strlen(var)) != 0)
+				return (1);
+		sub = sub->next;
+	}
+	return (0);
+}
+
 // Update the token if it is of type WORD or D_QUOTE
 // into a new expanded token added to the 'newtknlst'.
 int	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 {
-	char	*var;
 	t_token	*sub;
 
 	sub = tkn_split(lst);
@@ -82,26 +125,9 @@ int	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 			return (1);
 		return (0);
 	}
-	while (sub && sub->lexeme)
-	{
-		var = sub->lexeme;
-		if (*var == '$' && *(var + 1) && lst->type == D_QUOTE \
-			&& !get_env_value(env, var + 1))
-			var = "";
-		else if (*var == '$' && *(var + 1))
-		{
-			if (get_splitted_env_value(newlst, sub, env))
-				return (1);
-			var = NULL;
-		}
-		else if (*var == '$' && lst->next \
-		&& (lst->next->type == D_QUOTE || lst->next->type == S_QUOTE))
-			var = NULL;
-		if (var)
-			if (token_list_add(newlst, sub->type, var, ft_strlen(var)) != 0)
-				return (1);
-		sub = sub->next;
-	}
+	set_lst_exit_status(sub);
+	if (subtkn_update(newlst, lst, sub, env) != 0)
+		return (1);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 21:58:32 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 23:33:16 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ typedef enum e_type
 	T_OR,
 	S_PIPE,
 	T_PIPE,
+	S_CMD,
 	T_CMD,
 }	t_type;
 

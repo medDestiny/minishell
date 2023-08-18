@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/17 22:19:21 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 23:38:11 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -439,7 +439,7 @@ int	check_for_builtins(t_tree *node, t_env **env)
 
 	if (!is_builtin(node->cmd.list))
 		return (0);
-	if (node->cmd.subshell == 1)
+	if (node->type == S_CMD)
 	{
 		pid = fork();
 		if (pid == -1)
@@ -543,15 +543,24 @@ int	is_subshell(t_type type)
 {
 	if (type == S_PIPE \
 		|| type == S_OR \
-		|| type == S_AND)
+		|| type == S_AND \
+		|| type == S_CMD)
 		return (1);
 	return (0);
 }
 
 void	exec_subshell(t_tree *subsh, t_env **env)
 {
-	executor(subsh->node.lchild, env);
-	executor(subsh->node.rchild, env);
+	if (subsh->type == S_OR)
+		exec_or(subsh, env);
+	else if (subsh->type == S_AND)
+		exec_and(subsh, env);
+	else if (subsh->type == S_PIPE)
+	{
+		//exec_pipe
+	}
+	else
+		exec_cmd(subsh, env);
 	exit(g_exit.status);
 }
 

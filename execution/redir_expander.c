@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/12 17:31:10 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/16 14:33:08 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/18 05:10:03 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -479,11 +479,31 @@ int	redir_update(t_token **redirlst, t_token *lst, t_env *env)
 	return (0);
 }
 
+void	set_redir_exit_status(t_token *redir)
+{
+	while (redir)
+	{
+		if (redir->type == RD_IN_WD || redir->type == RD_IN_DQ \
+		|| redir->type == RD_OUT_WD || redir->type == RD_OUT_DQ \
+		|| redir->type == APPEND_WD || redir->type == APPEND_DQ \
+		|| (redir->type == WORD && expandable_tkn(redir)) \
+		|| (redir->type == D_QUOTE && expandable_tkn(redir)))
+			if (redir->lexeme && !ft_strcmp(redir->lexeme, "$?"))
+			{
+				redir->lexeme = ft_itoa(g_exit.status);
+				if (redir->lexeme)
+					garbage_list_add(&g_exit.gc, redir->lexeme);
+			}
+		redir = redir->next;
+	}
+}
+
 int	expand_redir_vars(t_token **newredir, t_token *lst, t_env *env)
 {
 	t_token	*splitted;
 
 	splitted = redirlst_split(lst);
+	set_redir_exit_status(splitted);
 	if (redir_update(newredir, splitted, env))
 		return (1);
 	return (0);

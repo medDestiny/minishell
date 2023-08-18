@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 22:05:33 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/17 23:36:45 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,6 +269,8 @@ void	subshell_root_type(t_tree *subsh)
 		subsh->type = S_OR;
 	else if (subsh->type == T_AND)
 		subsh->type = S_AND;
+	else if (subsh->type == T_CMD)
+		subsh->type = S_CMD;
 }
 
 int	parse_group(t_tree **root, t_token **tokens)
