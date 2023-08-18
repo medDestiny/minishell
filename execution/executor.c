@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/18 15:14:06 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/18 18:58:50 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,23 +321,24 @@ void	set_fildes(int *files)
 		dup2(files[1], STDOUT_FILENO);
 		close(files[1]);
 	}
-	free(files);
+	//free(files);
 }
 
-void	execute_child(t_tree *node, t_env *env, int *sub_redir)
+void	execute_child(t_tree *node, t_env *env, int *sub_rd, int *pipe)
 {
 	int		*files;
 	char	**cmd_vec;
 	char	**env_vec;
 
 	default_signals();
+	set_fildes(pipe);
 	files = open_files(node->cmd.redir);
+	if (!sub_rd)
+		set_fildes(files);
 	if (!node->cmd.list)
 		exit(0);
 	cmd_vec = build_vec(node->cmd.list, env);
 	env_vec = build_env_vec(env);
-	if (!sub_redir)
-		set_fildes(files);
 	execve(cmd_vec[0], cmd_vec, env_vec);
 	cmd_not_found(node->cmd.list->lexeme);
 	exit(EXIT_FAILURE);
@@ -466,7 +467,7 @@ int	check_for_builtins(t_tree *node, t_env **env)
 	return (1);
 }
 
-int	execute_command(t_tree *node, t_env **env, int *sub_redir)
+int	execute_command(t_tree *node, t_env **env, int *sub_rd, int *pipe)
 {
 	pid_t	pid;
 
@@ -479,7 +480,7 @@ int	execute_command(t_tree *node, t_env **env, int *sub_redir)
 		return (1);
 	}
 	if (pid == 0)
-		execute_child(node, *env, sub_redir);
+		execute_child(node, *env, sub_rd, pipe);
 	else
 	{
 		ignore_signals();
@@ -493,7 +494,7 @@ int	execute_command(t_tree *node, t_env **env, int *sub_redir)
 	return (0);
 }
 
-int	exec_cmd(t_tree *node, t_env **env, int *sub_redir)
+int	exec_cmd(t_tree *node, t_env **env, int *sub_rd, int *pipe)
 {
 	int	ret_exp;
 
@@ -503,37 +504,60 @@ int	exec_cmd(t_tree *node, t_env **env, int *sub_redir)
 	if (ret_exp == ALLOCERR)
 		return (ALLOCERR);
 	else if (ret_exp == 0)
-		if (execute_command(node, env, sub_redir) != 0)
+		if (execute_command(node, env, sub_rd, pipe) != 0)
 			return (1);
 	return (0);
 }
 
-int	exec_or(t_tree *node, t_env **env, int *sub_redir)
+//fd[0] read end, fd[1] write end
+int	exec_pipe(t_tree *node, t_env **env, int *ends)
+{
+	int	fds[2];
+	int	err;
+
+	if (pipe(fds) == -1)
+		return (_error("pipe failed"), 1);
+	ends[1] = fds[1];
+	err = executor(node->node.lchild, env, ends);
+	if (err != 0)
+		return (err);
+	close(fds[1]);
+	ends[0] = fds[0];
+	err = executor(node->node.rchild, env, ends);
+	if (err != 0)
+		return (err);
+	close(fds[0]);
+	ends[0] = STDIN_FILENO;
+	ends[1] = STDOUT_FILENO;
+	return (0);
+}
+
+int	exec_or(t_tree *node, t_env **env, int *pipe)
 {
 	int	ret;
 
-	ret = executor(node->node.lchild, env, sub_redir);
+	ret = executor(node->node.lchild, env, pipe);
 	if (ret != 0)
 		return (ret);
 	if (g_exit.status != 0)
 	{
-		ret = executor(node->node.rchild, env, sub_redir);
+		ret = executor(node->node.rchild, env, pipe);
 		if (ret != 0)
 			return (ret);
 	}
 	return (0);
 }
 
-int	exec_and(t_tree *node, t_env **env, int *sub_redir)
+int	exec_and(t_tree *node, t_env **env, int *pipe)
 {
 	int	ret;
 
-	ret = executor(node->node.lchild, env, sub_redir);
+	ret = executor(node->node.lchild, env, pipe);
 	if (ret != 0)
 		return (ret);
 	if (g_exit.status == 0)
 	{
-		ret = executor(node->node.rchild, env, sub_redir);
+		ret = executor(node->node.rchild, env, pipe);
 		if (ret != 0)
 			return (ret);
 	}
@@ -591,7 +615,7 @@ void	exec_subshell(t_tree *subsh, t_env **env, int **sub_redir)
 		//exec_pipe
 	}
 	else
-		exec_cmd(subsh, env, *sub_redir);
+		exec_cmd(subsh, env, *sub_redir, NULL);
 }
 
 void	subshell(t_tree *subsh, t_env **env)
@@ -624,7 +648,7 @@ void	subshell(t_tree *subsh, t_env **env)
 		g_exit.status = 128 + WTERMSIG(g_exit.status);
 }
 
-int	executor(t_tree *root, t_env **env, int *sub_redir)
+int	executor(t_tree *root, t_env **env, int *pipe)
 {
 	int	err;
 
@@ -634,22 +658,13 @@ int	executor(t_tree *root, t_env **env, int *sub_redir)
 	if (is_subshell(root->type))
 		subshell(root, env);
 	else if (root->type == T_OR)
-		err = exec_or(root, env, sub_redir);
+		err = exec_or(root, env, pipe);
 	else if (root->type == T_AND)
-		err = exec_and(root, env, sub_redir);
-	else if (root->type == PIPE)
-	{
-		//exec_pipe
-	}
+		err = exec_and(root, env, pipe);
+	else if (root->type == T_PIPE)
+		err = exec_pipe(root, env, pipe);
 	else
-	{
-		if (sub_redir == NULL && root->cmd.sub_redir)
-		{
-			sub_redir = open_files(root->cmd.sub_redir);
-			set_fildes(sub_redir);
-		}
-		err = exec_cmd(root, env, sub_redir);
-	}
+		err = exec_cmd(root, env, NULL, pipe);
 	if (err == ALLOCERR)
 		return (err);
 	return (0);
