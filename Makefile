@@ -41,7 +41,7 @@ SRC= environment.c \
 	 signals.c \
 	 heredoc.c
 
-C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
+C_FLAGS= -Wall -Wextra -Werror -g -fsanitize=address
 header= minishell.h
 LIB= -L $(HOME)/.brew/Cellar/readline/8.2.1/lib
 INC= -I $(HOME)/.brew/Cellar/readline/8.2.1/include

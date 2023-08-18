@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 23:36:45 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/18 12:21:44 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ int	build_list(t_token **ptr, t_token **tokens)
 void	init_cmd_node(t_tree *cmd)
 {
 	cmd->type = T_CMD;
-	cmd->cmd.subshell = 0;
 	cmd->cmd.list = NULL;
 	cmd->cmd.redir = NULL;
 	cmd->cmd.sub_redir = NULL;
@@ -209,11 +208,8 @@ int	parse_condition(t_tree **root, t_token **tokens)
 
 void	update_redirs(t_tree *root, t_token *sub_redir)
 {
-	if (root->type == T_CMD)
-	{
-		root->cmd.subshell = 1;
+	if (root->type == T_CMD || root->type == S_CMD)
 		root->cmd.sub_redir = sub_redir;
-	}
 	else
 	{
 		update_redirs(root->node.lchild, sub_redir);

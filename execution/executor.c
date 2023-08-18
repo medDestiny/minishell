@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/17 23:38:11 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/18 12:17:36 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -324,7 +324,7 @@ void	set_fildes(int *files)
 	free(files);
 }
 
-void	execute_child(t_tree *node, t_env *env)
+void	execute_child(t_tree *node, t_env *env, int *sub_redir)
 {
 	int		*files;
 	char	**cmd_vec;
@@ -336,7 +336,8 @@ void	execute_child(t_tree *node, t_env *env)
 		exit(0);
 	cmd_vec = build_vec(node->cmd.list, env);
 	env_vec = build_env_vec(env);
-	set_fildes(files);
+	if (!sub_redir)
+		set_fildes(files);
 	execve(cmd_vec[0], cmd_vec, env_vec);
 	cmd_not_found(node->cmd.list->lexeme);
 	exit(EXIT_FAILURE);
@@ -465,7 +466,7 @@ int	check_for_builtins(t_tree *node, t_env **env)
 	return (1);
 }
 
-int	execute_command(t_tree *node, t_env **env)
+int	execute_command(t_tree *node, t_env **env, int *sub_redir)
 {
 	pid_t	pid;
 
@@ -478,7 +479,7 @@ int	execute_command(t_tree *node, t_env **env)
 		return (1);
 	}
 	if (pid == 0)
-		execute_child(node, *env);
+		execute_child(node, *env, sub_redir);
 	else
 	{
 		ignore_signals();
@@ -492,7 +493,7 @@ int	execute_command(t_tree *node, t_env **env)
 	return (0);
 }
 
-int	exec_cmd(t_tree *node, t_env **env)
+int	exec_cmd(t_tree *node, t_env **env, int *sub_redir)
 {
 	int	ret_exp;
 
@@ -502,40 +503,56 @@ int	exec_cmd(t_tree *node, t_env **env)
 	if (ret_exp == ALLOCERR)
 		return (ALLOCERR);
 	else if (ret_exp == 0)
-		if (execute_command(node, env) != 0)
+		if (execute_command(node, env, sub_redir) != 0)
 			return (1);
 	return (0);
 }
 
-int	exec_or(t_tree *node, t_env **env)
+int	exec_or(t_tree *node, t_env **env, int *sub_redir)
 {
 	int	ret;
 
-	ret = executor(node->node.lchild, env);
+	ret = executor(node->node.lchild, env, sub_redir);
 	if (ret != 0)
 		return (ret);
 	if (g_exit.status != 0)
 	{
-		ret = executor(node->node.rchild, env);
+		ret = executor(node->node.rchild, env, sub_redir);
 		if (ret != 0)
 			return (ret);
 	}
 	return (0);
 }
 
-int	exec_and(t_tree *node, t_env **env)
+int	exec_and(t_tree *node, t_env **env, int *sub_redir)
 {
 	int	ret;
 
-	ret = executor(node->node.lchild, env);
+	ret = executor(node->node.lchild, env, sub_redir);
 	if (ret != 0)
 		return (ret);
 	if (g_exit.status == 0)
 	{
-		ret = executor(node->node.rchild, env);
+		ret = executor(node->node.rchild, env, sub_redir);
 		if (ret != 0)
 			return (ret);
 	}
+	return (0);
+}
+
+int	exec_subsh_or(t_tree *node, t_env **env, int **sub_redir)
+{
+	exec_subshell(node->node.lchild, env, sub_redir);
+	if (g_exit.status != 0)
+		exec_subshell(node->node.rchild, env, sub_redir);
+	return (0);
+}
+
+int	exec_subsh_and(t_tree *node, t_env **env, int **sub_redir)
+{
+	exec_subshell(node->node.lchild, env, sub_redir);
+	if (g_exit.status == 0)
+		exec_subshell(node->node.rchild, env, sub_redir);
 	return (0);
 }
 
@@ -549,25 +566,33 @@ int	is_subshell(t_type type)
 	return (0);
 }
 
-void	exec_subshell(t_tree *subsh, t_env **env)
+void	exec_subshell(t_tree *subsh, t_env **env, int **sub_redir)
 {
+	if ((!sub_redir || !*sub_redir) && subsh->cmd.sub_redir)
+	{	
+		*sub_redir = open_files(subsh->cmd.sub_redir);
+		set_fildes(*sub_redir);
+	}
 	if (subsh->type == S_OR)
-		exec_or(subsh, env);
+		exec_subsh_or(subsh, env, sub_redir);
 	else if (subsh->type == S_AND)
-		exec_and(subsh, env);
+		exec_subsh_and(subsh, env, sub_redir);
 	else if (subsh->type == S_PIPE)
 	{
 		//exec_pipe
 	}
 	else
-		exec_cmd(subsh, env);
-	exit(g_exit.status);
+	{
+		exec_cmd(subsh, env, *sub_redir);
+	}
 }
 
 void	subshell(t_tree *subsh, t_env **env)
 {
 	pid_t	pid;
+	int		*null;
 
+	null = NULL;
 	pid = fork();
 	if (pid == -1)
 	{
@@ -575,7 +600,10 @@ void	subshell(t_tree *subsh, t_env **env)
 		return ;
 	}
 	if (pid == 0)
-		exec_subshell(subsh, env);
+	{
+		exec_subshell(subsh, env, &null);
+		exit(g_exit.status);
+	}
 	else
 	{
 		ignore_signals();
@@ -588,7 +616,7 @@ void	subshell(t_tree *subsh, t_env **env)
 		g_exit.status = 128 + WTERMSIG(g_exit.status);
 }
 
-int	executor(t_tree *root, t_env **env)
+int	executor(t_tree *root, t_env **env, int *sub_redir)
 {
 	int	err;
 
@@ -598,15 +626,22 @@ int	executor(t_tree *root, t_env **env)
 	if (is_subshell(root->type))
 		subshell(root, env);
 	else if (root->type == T_OR)
-		err = exec_or(root, env);
+		err = exec_or(root, env, sub_redir);
 	else if (root->type == T_AND)
-		err = exec_and(root, env);
+		err = exec_and(root, env, sub_redir);
 	else if (root->type == PIPE)
 	{
 		//exec_pipe
 	}
 	else
-		err = exec_cmd(root, env);
+	{
+		if (sub_redir == NULL && root->cmd.sub_redir)
+		{
+			sub_redir = open_files(root->cmd.sub_redir);
+			set_fildes(sub_redir);
+		}
+		err = exec_cmd(root, env, sub_redir);
+	}
 	if (err == ALLOCERR)
 		return (err);
 	return (0);

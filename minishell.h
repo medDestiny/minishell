@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 23:33:16 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/18 12:21:11 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,6 @@ typedef struct s_garb
 
 typedef struct s_cmd
 {
-	int		subshell;
 	t_token	*list;
 	t_token	*redir;
 	t_token	*sub_redir;
@@ -289,7 +288,8 @@ t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
-int			exec_cmd(t_tree *node, t_env **env);
-int			executor(t_tree *root, t_env **env);
+int			exec_cmd(t_tree *node, t_env **env, int *sub_redir);
+void		exec_subshell(t_tree *subsh, t_env **env, int **sub_redir);
+int			executor(t_tree *root, t_env **env, int *sub_redir);
 
 #endif
