@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/18 12:17:36 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/18 15:14:06 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -571,20 +571,27 @@ void	exec_subshell(t_tree *subsh, t_env **env, int **sub_redir)
 	if ((!sub_redir || !*sub_redir) && subsh->cmd.sub_redir)
 	{	
 		*sub_redir = open_files(subsh->cmd.sub_redir);
-		set_fildes(*sub_redir);
+		if ((*sub_redir)[0] != STDIN_FILENO)
+		{
+			dup2((*sub_redir)[0], STDIN_FILENO);
+			close((*sub_redir)[0]);
+		}
+		if ((*sub_redir)[1] != STDOUT_FILENO)
+		{
+			dup2((*sub_redir)[1], STDOUT_FILENO);
+			close((*sub_redir)[1]);
+		}
 	}
-	if (subsh->type == S_OR)
+	if (subsh->type == S_OR || subsh->type == T_OR)
 		exec_subsh_or(subsh, env, sub_redir);
-	else if (subsh->type == S_AND)
+	else if (subsh->type == S_AND || subsh->type == T_AND)
 		exec_subsh_and(subsh, env, sub_redir);
-	else if (subsh->type == S_PIPE)
+	else if (subsh->type == S_PIPE || subsh->type == T_PIPE)
 	{
 		//exec_pipe
 	}
 	else
-	{
 		exec_cmd(subsh, env, *sub_redir);
-	}
 }
 
 void	subshell(t_tree *subsh, t_env **env)
@@ -602,6 +609,7 @@ void	subshell(t_tree *subsh, t_env **env)
 	if (pid == 0)
 	{
 		exec_subshell(subsh, env, &null);
+		free(null);
 		exit(g_exit.status);
 	}
 	else
