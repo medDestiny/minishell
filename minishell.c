@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 03:35:33 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/19 23:32:01 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,11 +171,9 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-	t_fds		*fds;
 
 	line = NULL;
 	g_exit.gc = NULL;
-	fds = NULL;
 	while (1)
 	{
 		//printf("last cmd exit = %d\n", g_exit.status);
@@ -202,7 +200,8 @@ void	minishell_loop(t_env *envp)
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
-		executor(root, &envp, &fds);
+		if (open_heredocs(root, envp) == 0)
+			executor(root, &envp);
 		//if (root)
 		//	print_tree(root, 0);
 		//print_tokens(root, envp);

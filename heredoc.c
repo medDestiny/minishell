@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 02:04:37 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 12:48:17 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/19 23:47:20 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,16 @@ int	open_heredoc(t_token *hdoc, t_env *env)
 		heredoc(hdoc, env, end);
 	else
 	{
-		heredoc_signals();
-		waitpid(pid, 0, 0);
-		default_signals();
+		ignore_signals();
+		waitpid(pid, &g_exit.status, 0);
+		signal_interrupter();
 		close(end[1]);
+		g_exit.status = WEXITSTATUS(g_exit.status);
+		if (g_exit.status == 1)
+		{
+			close(end[0]);
+			return (-1);
+		}
 	}
 	return (end[0]);
 }

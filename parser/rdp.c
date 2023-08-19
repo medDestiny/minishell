@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/18 12:21:44 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/19 23:12:28 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,8 @@ int	build_list(t_token **ptr, t_token **tokens)
 void	init_cmd_node(t_tree *cmd)
 {
 	cmd->type = T_CMD;
+	cmd->cmd.hdoc = -1;
+	cmd->cmd.sub_hdoc = -1;
 	cmd->cmd.list = NULL;
 	cmd->cmd.redir = NULL;
 	cmd->cmd.sub_redir = NULL;
