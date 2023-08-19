@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 03:31:50 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/19 12:48:27 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -302,5 +302,6 @@ int			executor(t_tree *root, t_env **env, t_fds **pipe);
 t_token		*heredoc_content_exp(t_token *doc, t_env *env);
 t_token		*tkn_join(t_token *lst);
 int			expand_env_vars(t_token **newlst, t_token *lst, t_env *env);
+void		close_pipes(t_fds *pipe);
 
 #endif
