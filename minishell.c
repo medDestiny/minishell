@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/18 17:41:06 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/19 03:35:33 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,14 +169,13 @@ void	minishell_loop(t_env *envp)
 	char		*line;
 	char		*cmdline;
 	char		*shell;
-	int			ends[2];
 	t_token		*tokens;
 	t_tree		*root;
+	t_fds		*fds;
 
 	line = NULL;
 	g_exit.gc = NULL;
-	ends[0] = STDIN_FILENO;
-	ends[1] = STDOUT_FILENO;
+	fds = NULL;
 	while (1)
 	{
 		//printf("last cmd exit = %d\n", g_exit.status);
@@ -203,7 +202,7 @@ void	minishell_loop(t_env *envp)
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
-		executor(root, &envp, ends);
+		executor(root, &envp, &fds);
 		//if (root)
 		//	print_tree(root, 0);
 		//print_tokens(root, envp);

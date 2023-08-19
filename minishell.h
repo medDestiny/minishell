@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/18 17:46:29 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/19 03:31:50 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,14 @@ typedef struct s_flags
 	int		arrs;
 }	t_flags;
 
+typedef struct s_fds
+{
+	int				in;
+	int				out;
+	int				ends[2];
+	struct s_fds	*next;
+}	t_fds;
+
 /***************** Parsing ********************/
 
 //	Libft
@@ -272,7 +280,7 @@ void		default_signals(void);
 void		heredoc_signals(void);
 
 //	HEREDOC Function
-int			open_heredoc(t_token *hdoc);
+int			open_heredoc(t_token *hdoc, t_env *env);
 
 /***************** Wildcards ********************/
 
@@ -288,8 +296,11 @@ t_token		*redir_expand(t_token *redir, t_env *env);
 int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
-int			exec_cmd(t_tree *node, t_env **env, int *sub_rd, int *pipe);
+int			exec_cmd(t_tree *node, t_env **env, int *sub_rd, t_fds **pipe);
 void		exec_subshell(t_tree *subsh, t_env **env, int **sub_redir);
-int			executor(t_tree *root, t_env **env, int *sub_redir);
+int			executor(t_tree *root, t_env **env, t_fds **pipe);
+t_token		*heredoc_content_exp(t_token *doc, t_env *env);
+t_token		*tkn_join(t_token *lst);
+int			expand_env_vars(t_token **newlst, t_token *lst, t_env *env);
 
 #endif

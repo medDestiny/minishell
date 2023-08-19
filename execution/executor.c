@@ -6,11 +6,59 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/18 18:58:50 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/19 04:08:16 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+t_fds	*fds_lst_last(t_fds *fds)
+{
+	while (fds && fds->next)
+		fds = fds->next;
+	return (fds);
+}
+
+void	clean_fds(t_fds **fds)
+{
+	t_fds	*next;
+
+	next = *fds;
+	while (*fds)
+	{
+		next = (*fds)->next;
+		free(*fds);
+		*fds = next;
+	}
+}
+
+int	fd_list_add(t_fds **fds, int in, int out)
+{
+	t_fds	*tmp;
+
+	tmp = NULL;
+	if (!*fds)
+	{
+		*fds = (t_fds *)malloc(sizeof(t_fds));
+		tmp = *fds;
+		if (!tmp)
+			return (clean_fds(fds), 1);
+	}
+	else
+	{
+		tmp = (t_fds *)malloc(sizeof(t_fds));
+		if (!tmp)
+			return (clean_fds(fds), 1);
+		tmp->next = *fds;
+		*fds = tmp;
+	}
+	tmp->in = STDIN_FILENO;
+	tmp->out = STDOUT_FILENO;
+	tmp->ends[0] = in;
+	tmp->ends[1] = out;
+	tmp->next = NULL;
+	return (0);
+}
 
 void	cmd_not_found(char *cmd)
 {
@@ -233,7 +281,7 @@ int	is_hdoc(t_node_type type)
 	return (0);
 }
 
-int	*open_files(t_token *redir_list)
+int	*open_files(t_token *redir_list, t_env *env)
 {
 	t_token	*redir;
 	t_token	*tmpredir;
@@ -253,7 +301,7 @@ int	*open_files(t_token *redir_list)
 		{
 			if (fildes[0] != STDIN_FILENO)
 				close(fildes[0]);
-			fildes[0] = open_heredoc(redir);
+			fildes[0] = open_heredoc(redir, env);
 		}
 		redir = redir->next;
 	}
@@ -321,22 +369,49 @@ void	set_fildes(int *files)
 		dup2(files[1], STDOUT_FILENO);
 		close(files[1]);
 	}
-	//free(files);
+	free(files);
 }
 
-void	execute_child(t_tree *node, t_env *env, int *sub_rd, int *pipe)
+void	set_pipe(int in, int out)
+{
+	if (in != STDIN_FILENO)
+	{
+		dup2(in, STDIN_FILENO);
+		close(in);
+	}
+	if (out != STDOUT_FILENO)
+	{
+		dup2(out, STDOUT_FILENO);
+		close(out);
+	}
+}
+
+void	close_pipes(t_fds *pipe)
+{
+	while (pipe)
+	{
+		close(pipe->ends[0]);
+		close(pipe->ends[1]);
+		pipe = pipe->next;
+	}
+}
+
+void	execute_child(t_tree *node, t_env *env, int *sub_rd, t_fds **pipe)
 {
 	int		*files;
 	char	**cmd_vec;
 	char	**env_vec;
 
 	default_signals();
-	set_fildes(pipe);
-	files = open_files(node->cmd.redir);
+	if (*pipe)
+		set_pipe((*pipe)->in, (*pipe)->out);
+	files = open_files(node->cmd.redir, env);
 	if (!sub_rd)
 		set_fildes(files);
 	if (!node->cmd.list)
 		exit(0);
+	close_pipes(*pipe);
+	clean_fds(pipe);
 	cmd_vec = build_vec(node->cmd.list, env);
 	env_vec = build_env_vec(env);
 	execve(cmd_vec[0], cmd_vec, env_vec);
@@ -419,7 +494,7 @@ void	exec_builtins(t_tree *node, t_env **env, int flag)
 
 	if (flag == 1)
 		default_signals();
-	files = open_files(node->cmd.redir);
+	files = open_files(node->cmd.redir, *env);
 	if (!files)
 		return ;
 	cmd_vec = build_builtin_vec(node->cmd.list);
@@ -433,6 +508,19 @@ void	exec_builtins(t_tree *node, t_env **env, int flag)
 	clean_vec(cmd_vec);
 	if (flag == 1)
 		exit(g_exit.status);
+}
+
+void	_wait(void)
+{
+	ignore_signals();
+	while (1)
+		if (waitpid(-1, &g_exit.status, 0) == -1)
+			break ;
+	signal_interrupter();
+	if (WIFEXITED(g_exit.status))
+		g_exit.status = WEXITSTATUS(g_exit.status);
+	else if (WIFSIGNALED(g_exit.status))
+		g_exit.status = 128 + WTERMSIG(g_exit.status);
 }
 
 int	check_for_builtins(t_tree *node, t_env **env)
@@ -452,22 +540,14 @@ int	check_for_builtins(t_tree *node, t_env **env)
 		if (pid == 0)
 			exec_builtins(node, env, 1);
 		else
-		{
-			ignore_signals();
-			waitpid(pid, &g_exit.status, 0);
-			signal_interrupter();
-			if (WIFEXITED(g_exit.status))
-				g_exit.status = WEXITSTATUS(g_exit.status);
-			else if (WIFSIGNALED(g_exit.status))
-				g_exit.status = 128 + WTERMSIG(g_exit.status);
-		}
+			_wait();
 	}
 	else
 		exec_builtins(node, env, 0);
 	return (1);
 }
 
-int	execute_command(t_tree *node, t_env **env, int *sub_rd, int *pipe)
+int	execute_command(t_tree *node, t_env **env, int *sub_rd, t_fds **pipe)
 {
 	pid_t	pid;
 
@@ -482,19 +562,12 @@ int	execute_command(t_tree *node, t_env **env, int *sub_rd, int *pipe)
 	if (pid == 0)
 		execute_child(node, *env, sub_rd, pipe);
 	else
-	{
-		ignore_signals();
-		waitpid(pid, &g_exit.status, 0);
-		signal_interrupter();
-	}
-	if (WIFEXITED(g_exit.status))
-		g_exit.status = WEXITSTATUS(g_exit.status);
-	else if (WIFSIGNALED(g_exit.status))
-		g_exit.status = 128 + WTERMSIG(g_exit.status);
+		if (!*pipe)
+			_wait();
 	return (0);
 }
 
-int	exec_cmd(t_tree *node, t_env **env, int *sub_rd, int *pipe)
+int	exec_cmd(t_tree *node, t_env **env, int *sub_rd, t_fds **pipe)
 {
 	int	ret_exp;
 
@@ -510,29 +583,38 @@ int	exec_cmd(t_tree *node, t_env **env, int *sub_rd, int *pipe)
 }
 
 //fd[0] read end, fd[1] write end
-int	exec_pipe(t_tree *node, t_env **env, int *ends)
+int	exec_pipe(t_tree *node, t_env **env, t_fds **fd)
 {
 	int	fds[2];
 	int	err;
 
 	if (pipe(fds) == -1)
 		return (_error("pipe failed"), 1);
-	ends[1] = fds[1];
-	err = executor(node->node.lchild, env, ends);
+	printf("%p\n", *fd);
+	if (fd_list_add(fd, fds[0], fds[1]) == 1)
+		return (ALLOCERR);
+	(*fd)->out = fds[1];
+	printf("%d\n", (*fd)->in);
+	printf("%d\n", (*fd)->out);
+	err = executor(node->node.lchild, env, fd);
 	if (err != 0)
 		return (err);
 	close(fds[1]);
-	ends[0] = fds[0];
-	err = executor(node->node.rchild, env, ends);
+	printf("%p\n", *fd);
+	(*fd)->in = fds[0];
+	if ((*fd)->next)
+		(*fd)->out = (*fd)->next->out;
+	err = executor(node->node.rchild, env, fd);
 	if (err != 0)
 		return (err);
 	close(fds[0]);
-	ends[0] = STDIN_FILENO;
-	ends[1] = STDOUT_FILENO;
+	_wait();
+	if (!(*fd)->next)
+		clean_fds(fd);
 	return (0);
 }
 
-int	exec_or(t_tree *node, t_env **env, int *pipe)
+int	exec_or(t_tree *node, t_env **env, t_fds **pipe)
 {
 	int	ret;
 
@@ -548,7 +630,7 @@ int	exec_or(t_tree *node, t_env **env, int *pipe)
 	return (0);
 }
 
-int	exec_and(t_tree *node, t_env **env, int *pipe)
+int	exec_and(t_tree *node, t_env **env, t_fds **pipe)
 {
 	int	ret;
 
@@ -594,7 +676,7 @@ void	exec_subshell(t_tree *subsh, t_env **env, int **sub_redir)
 {
 	if ((!sub_redir || !*sub_redir) && subsh->cmd.sub_redir)
 	{	
-		*sub_redir = open_files(subsh->cmd.sub_redir);
+		*sub_redir = open_files(subsh->cmd.sub_redir, *env);
 		if ((*sub_redir)[0] != STDIN_FILENO)
 		{
 			dup2((*sub_redir)[0], STDIN_FILENO);
@@ -648,7 +730,7 @@ void	subshell(t_tree *subsh, t_env **env)
 		g_exit.status = 128 + WTERMSIG(g_exit.status);
 }
 
-int	executor(t_tree *root, t_env **env, int *pipe)
+int	executor(t_tree *root, t_env **env, t_fds **pipe)
 {
 	int	err;
 
