@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 16:25:02 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/20 21:40:23 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,6 +190,7 @@ int			env_add(t_env **env, char *name, char *value, int hide);
 char		*get_env_value(t_env *env, char *name);
 void		update_env_value(t_env **env, char *name, char *new_val,
 				int append);
+int			env_node_insert(t_env **env, char *name, char *val, int hide);
 
 //	Memory management
 void		clean_env_list(t_env **envp);
@@ -281,6 +282,7 @@ int			open_heredocs(t_tree *root, t_env *env);
 
 int			wildcard_match(char *str, char *pattern, int *flags);
 t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
+int			entry_node_insert(t_entry **list, char *name);
 
 /***************** Execution ********************/
 

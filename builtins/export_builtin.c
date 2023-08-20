@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 13:54:02 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 15:29:19 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 21:42:53 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,8 @@ static int	check_arguments(char **cmd)
 			ft_putstr_fd("minishell: export: ", STDERR_FILENO);
 			write(STDERR_FILENO, cmd[i], 2);
 			ft_putstr_fd(": invalid option\n", STDERR_FILENO);
-			ft_putstr_fd("export: usage: export [name[=value] ...]\n", STDERR_FILENO);
+			ft_putstr_fd("export: usage: export [name[=value] ...]\n", \
+			STDERR_FILENO);
 			g_exit.status = 2;
 			return (1);
 		}

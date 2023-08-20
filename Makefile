@@ -40,7 +40,8 @@ SRC= environment.c \
 	 dir.c wildcard.c \
 	 signals.c \
 	 heredoc.c \
-	 open_heredocs.c
+	 open_heredocs.c \
+	 insert_sort.c
 
 C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h
