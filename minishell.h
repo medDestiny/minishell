@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 23:33:18 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 03:02:12 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,13 +292,18 @@ t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
 
 /***************** Execution ********************/
 
+void		fill_flagtab(int *tab, int *flags, int len, int *ind);
+void		create_flagtabs(int **vec, int *flags, t_token *lst);
+int			**create_wildvec(int *flags, t_token *lst);
+int			*create_wildflags(t_token *tknlst);
+void		extract_dir_pattern(char **dir, char **pattern, t_token *tkn);
+char		*get_home(t_env *env);
 t_token		*tkn_split(t_token *tkn);
 t_token		*redirlst_split(t_token *redir);
 t_token		*list_expand(t_token *tokens, t_env *env);
 t_token		*redir_expand(t_token *redir, t_env *env);
 t_token		*redir_join(t_token *redir);
 char		*hdoc_expand(t_token *tkn);
-int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
 int			exec_cmd(t_tree *node, t_env **env, int *sub_rd);

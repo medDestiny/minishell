@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/18 05:44:45 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/20 03:04:02 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ t_token	*tkn_join(t_token *lst)
 	return (joined);
 }
 
-static int	get_splitted_env_value(t_token **lst, t_token *tkn, t_env *env)
+int	get_splitted_lst_var(t_token **lst, t_token *tkn, t_env *env)
 {
 	t_token	*splitted;
 	t_token	*last;
@@ -97,7 +97,7 @@ int	subtkn_update(t_token **newlst, t_token *tkn, t_token *sub, t_env *env)
 			var = "";
 		else if (*var == '$' && *(var + 1))
 		{
-			if (get_splitted_env_value(newlst, sub, env))
+			if (get_splitted_lst_var(newlst, sub, env))
 				return (1);
 			var = NULL;
 		}
@@ -131,29 +131,6 @@ int	tkn_update(t_token **newlst, t_token *lst, t_env *env)
 	return (0);
 }
 
-int	expandable_dq(t_token *lst)
-{
-	if (!*lst->lexeme)
-		return (0);
-	while (lst && !is_redir_in(lst->type) && !is_redir_out(lst->type))
-		lst = lst->prev;
-	if (lst && (lst->type == HDOC || lst->type == HDOC_EXP))
-		return (0);
-	return (1);
-}
-
-int	do_not_wildexpand(t_token *tknlst)
-{
-	if (tknlst->type == D_QUOTE || tknlst->type == S_QUOTE \
-	|| tknlst->type == RD_IN_DQ || tknlst->type == RD_IN_SQ \
-	|| tknlst->type == RD_OUT_DQ || tknlst->type == RD_OUT_SQ \
-	|| tknlst->type == APPEND_DQ || tknlst->type == APPEND_SQ \
-	|| tknlst->type == HDOC_EXP || tknlst->type == HDOC \
-	|| (tknlst->type == WORD && !expandable_dq(tknlst)))
-		return (1);
-	return (0);
-}
-
 void	fill_wildtab(int *flags, t_token *tknlst)
 {
 	int	i;
@@ -167,7 +144,7 @@ void	fill_wildtab(int *flags, t_token *tknlst)
 		{
 			if (in_set(tknlst->lexeme[i], "*?"))
 			{
-				if (do_not_wildexpand(tknlst))
+				if (tknlst->type == D_QUOTE || tknlst->type == S_QUOTE)
 					flags[j++] = 0;
 				else
 					flags[j++] = 1;
@@ -242,7 +219,8 @@ int	**create_wildvec(int *flags, t_token *lst)
 			return (NULL);
 		create_flagtabs(vars.flagvec, flags, lst);
 	}
-	return (vars.flagvec[vars.arrs] = NULL, vars.flagvec);
+	vars.flagvec[vars.arrs] = NULL;
+	return (vars.flagvec);
 }
 
 int	*create_wildflags(t_token *tknlst)
@@ -290,16 +268,11 @@ void	extract_dir_pattern(char **dir, char **pattern, t_token *tkn)
 	return ;
 }
 
-int	wildlex_match(t_token **lst, t_entry *matches, char *dir, \
-		t_node_type type)
+int	wild_lexeme_match(t_token **lst, t_entry *matches, char *dir, \
+												t_node_type type)
 {
 	char	*wildlex;
 
-	if ((is_redir_in(type) || is_redir_out(type)) && matches->next)
-	{
-		g_exit.status = AMBGRDIR;
-		return (1);
-	}
 	while (matches)
 	{
 		if (dir)
@@ -316,7 +289,7 @@ int	wildlex_match(t_token **lst, t_entry *matches, char *dir, \
 	return (0);
 }
 
-int	wildtkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
+int	wild_tkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
 {
 	t_entry	*matches;
 	char	*pattern;
@@ -332,7 +305,7 @@ int	wildtkn_expand(t_token **newlst, t_token *tkn, int **flags, int *pos)
 	}
 	if (matches)
 	{
-		if (wildlex_match(newlst, matches, dir, tkn->type) == 1)
+		if (wild_lexeme_match(newlst, matches, dir, tkn->type) == 1)
 			return (free(dir), free(pattern), clean_list(&matches), 1);
 	}
 	else
@@ -356,7 +329,7 @@ t_token	*wildlst_expand(t_token *tknlst, int **flags)
 		return (NULL);
 	while (tknlst)
 	{
-		if (wildtkn_expand(&wildtknlst, tknlst, flags, &pos) == 1)
+		if (wild_tkn_expand(&wildtknlst, tknlst, flags, &pos) == 1)
 			return (NULL);
 		tknlst = tknlst->next;
 	}
@@ -375,21 +348,16 @@ char	*get_home(t_env *env)
 	return (NULL);
 }
 
-int	expandable_tilde(t_token *lst)
+int	expandable_lst_tilde(t_token *lst)
 {
 	if (!lst)
 		return (0);
-	if ((lst->type == WORD || lst->type == RD_IN_WD || lst->type == RD_OUT_WD \
-		|| lst->type == APPEND_WD) \
-		&& *lst->lexeme == '~' \
-		&& (!*(lst->lexeme + 1)) \
+	if ((lst->type == WORD && *lst->lexeme == '~' \
+		&& (!*(lst->lexeme + 1))) \
 		&& (!lst->next || (lst->next && lst->next->type == SPC)) \
 		&& (!lst->prev || (lst->prev && lst->prev->type == SPC)))
 		return (1);
-	else if ((lst->type == WORD || lst->type == RD_IN_WD \
-			|| lst->type == RD_OUT_WD \
-			|| lst->type == APPEND_WD) \
-			&& *lst->lexeme == '~' \
+	else if (lst->type == WORD && *lst->lexeme == '~' \
 			&& *(lst->lexeme + 1) && *(lst->lexeme + 1) == '/' \
 			&& (!lst->prev || (lst->prev && lst->prev->type == SPC)))
 		return (1);
@@ -397,7 +365,7 @@ int	expandable_tilde(t_token *lst)
 		return (0);
 }
 
-void	expand_tilde(t_token *lst, t_env *env)
+void	expand_lst_tilde(t_token *lst, t_env *env)
 {
 	char	*home;
 	char	*newlex;
@@ -408,7 +376,7 @@ void	expand_tilde(t_token *lst, t_env *env)
 	while (lst)
 	{
 		newlex = NULL;
-		if (expandable_tilde(lst))
+		if (expandable_lst_tilde(lst))
 		{
 			if (!*(lst->lexeme + 1))
 				newlex = ft_strdup(home);
@@ -429,10 +397,7 @@ int	expand_env_vars(t_token **newlst, t_token *lst, t_env *env)
 {
 	while (lst)
 	{
-		if (lst->type == WORD || (lst->type == D_QUOTE && *lst->lexeme) \
-		|| lst->type == RD_IN_DQ || lst->type == RD_IN_WD \
-		|| lst->type == RD_OUT_DQ || lst->type == RD_OUT_WD \
-		|| lst->type == APPEND_DQ || lst->type == APPEND_WD)
+		if (lst->lexeme && (lst->type == WORD || lst->type == D_QUOTE))
 		{
 			if (tkn_update(newlst, lst, env) == 1)
 				return (1);
@@ -458,7 +423,7 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 	{
 		if (expand_env_vars(&newtknlst, tokens, env) == 1)
 			return (NULL);
-		expand_tilde(newtknlst, env);
+		expand_lst_tilde(newtknlst, env);
 	}
 	flagtab = create_wildflags(newtknlst);
 	newtknlst = tkn_join(newtknlst);
@@ -470,14 +435,6 @@ t_token	*list_expand(t_token *tokens, t_env *env)
 		clean_intvec(flagvec);
 	}
 	return (newtknlst);
-}
-
-void	ambiguous_redir(char *pattern)
-{
-	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putstr_fd(pattern, STDERR_FILENO);
-	ft_putstr_fd(": ambiguous redirect", STDERR_FILENO);
-	return ;
 }
 
 int	node_expand(t_cmd *cmd_node, t_env *env)
