@@ -6,13 +6,13 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/10 18:01:35 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/11 17:48:16 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/15 20:33:48 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static	size_t	wc(char const *s, char c)
+static	size_t	wc(char const *s, char *set)
 {
 	size_t	i;
 	size_t	count;
@@ -21,11 +21,11 @@ static	size_t	wc(char const *s, char c)
 	count = 0;
 	while (s[i])
 	{
-		while (s[i] == c)
+		while (in_set(s[i], set))
 			i++;
 		if (s[i])
 			count++;
-		while (s[i] && s[i] != c)
+		while (s[i] && !in_set(s[i], set))
 			i++;
 	}
 	return (count);
@@ -41,7 +41,7 @@ static	void	clean(char **d)
 	free(d);
 }
 
-static	char	**build(char **dest, char const *s, char c, size_t size)
+static	char	**build(char **dest, char const *s, char *set, size_t size)
 {
 	size_t	i;
 	size_t	start;
@@ -51,10 +51,10 @@ static	char	**build(char **dest, char const *s, char c, size_t size)
 	start = 0;
 	while (i < size)
 	{
-		while (s[start] && s[start] == c)
+		while (s[start] && in_set(s[start], set))
 			start++;
 		end = start;
-		while (s[end] && s[end] != c)
+		while (s[end] && !in_set(s[end], set))
 			end++;
 		dest[i] = ft_substr(s, start, (end - start));
 		if (!dest[i])
@@ -69,16 +69,16 @@ static	char	**build(char **dest, char const *s, char c, size_t size)
 	return (dest);
 }
 
-char	**ft_split(char const *s, char c)
+char	**ft_split(char const *s, char *set)
 {
 	size_t	total;
 	char	**dest;
 
 	if (!s)
 		return (0);
-	total = wc(s, c);
+	total = wc(s, set);
 	dest = (char **)malloc((total + 1) * sizeof(char *));
 	if (!dest)
 		return (0);
-	return (build(dest, s, c, total));
+	return (build(dest, s, set, total));
 }

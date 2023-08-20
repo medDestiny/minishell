@@ -6,45 +6,54 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 17:06:13 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/05 16:31:53 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 03:52:44 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	leak()
-{
-	system("leaks msh");
-}
-
 void	print_type(t_node_type type)
 {
 	if (type == WORD)
-		printf("WORD\t");
+		printf("WORD  ");
 	else if (type == PIPE)
-		printf("PIPE\t");
-	else if (type == RD_IN)
-		printf("REDIR_IN\t");
-	else if (type == RD_OUT)
-		printf("REDIR_OUT\t");
+		printf("PIPE  ");
+	else if (type == RD_IN_SQ)
+		printf("REDIR_IN_SQ  ");
+	else if (type == RD_IN_DQ)
+		printf("REDIR_IN_DQ  ");
+	else if (type == RD_IN_WD)
+		printf("REDIR_IN_WD  ");
+	else if (type == RD_OUT_SQ)
+		printf("REDIR_OUT_SQ  ");
+	else if (type == RD_OUT_DQ)
+		printf("REDIR_OUT_DQ  ");
+	else if (type == RD_OUT_WD)
+		printf("REDIR_OUT_WD  ");
 	else if (type == OR)
-		printf("OR\t");
+		printf("OR  ");
 	else if (type == AND)
-		printf("AND\t");
+		printf("AND  ");
 	else if (type == HDOC)
-		printf("HEREDOC\t");
-	else if (type == APPEND)
-		printf("APPEND\t");
+		printf("HEREDOC  ");
+	else if (type == HDOC_EXP)
+		printf("HEREDOC_EXP  ");
+	else if (type == APPEND_SQ)
+		printf("APPEND_SQ  ");
+	else if (type == APPEND_DQ)
+		printf("APPEND_EXP_DQ  ");
+	else if (type == APPEND_WD)
+		printf("APPEND_EXP_WD  ");
 	else if (type == R_PAREN)
-		printf("R_PAREN\t");
+		printf("R_PAREN  ");
 	else if (type == L_PAREN)
-		printf("L_PAREN\t");
+		printf("L_PAREN  ");
 	else if (type == SPC)
-		printf("SPC\t");
+		printf("SPC  ");
 	else if (type == D_QUOTE)
-		printf("D_QUOTE\t");
+		printf("D_QUOTE  ");
 	else if (type == S_QUOTE)
-		printf("S_QUOTE\t");
+		printf("S_QUOTE  ");
 }
 
 void	print_vec(char **vec)
@@ -112,6 +121,49 @@ void	print_tree(t_tree *root, int lvl)
 	}
 }
 
+void	print_tokens(t_tree *root, t_env *env)
+{
+	t_token	*p;
+
+	(void)env;
+	if (root)
+	{
+		p = NULL;
+	//	p = redir_expand(root->cmd.redir, env);
+	//	while (p)
+	//	{
+	//		print_type(p->type);
+	//		printf("|%s| ", p->lexeme);
+	//		p = p->next;
+	//	}
+		p = root->cmd.list;
+		while (p)
+		{
+			print_type(p->type);
+			printf("|%s| ", p->lexeme);
+			p = p->next;
+		}
+		printf("\n");
+		p = root->cmd.redir;
+		while (p)
+		{
+			print_type(p->type);
+			printf("|%s| ", p->lexeme);
+			p = p->next;
+		}
+		printf("\n");
+		p = root->cmd.sub_redir;
+		while (p)
+		{
+			print_type(p->type);
+			printf("|%s| ", p->lexeme);
+			p = p->next;
+		}
+		printf("\n");
+	}
+	return ;
+}
+
 void	minishell_loop(t_env *envp)
 {
 	char		*line;
@@ -119,45 +171,42 @@ void	minishell_loop(t_env *envp)
 	char		*shell;
 	t_token		*tokens;
 	t_tree		*root;
-//	char		*v[] = {"cd", "..", NULL};
-	char		**v;
 
 	line = NULL;
-	g_gc = NULL;
+	g_exit.gc = NULL;
 	while (1)
 	{
+		//printf("last cmd exit = %d\n", g_exit.status);
 		shell = prompt(envp);
 		line = readline(shell);
 		free(shell);
 		if (!line)
-			break ;
+		{
+			clean_env_list(&envp);
+			clean_all();
+			free(line);
+			rl_on_new_line();
+			rl_redisplay();
+			printf("exit\n");
+			exit(g_exit.status);
+		}
+		if (!*line)
+		{
+			free(line);
+			continue ;
+		}
 		cmdline = ft_strtrim(line, " \t");
 		add_history(line);
 		free(line);
 		tokens = lexer(cmdline);
 		root = parser(&tokens);
-		if (root)
-			print_tree(root, 0);
-		v = ft_split(cmdline, ' ');
-		if (!v || !*v)
-			continue ;
-		if (!ft_strcmp(v[0], "export"))
-			_export(v, &envp, 1);
-		else if (!ft_strcmp(v[0], "pwd"))
-			_pwd(v, 1);
-		else if (!ft_strcmp(v[0], "cd"))
-			_cd(v, envp, 1);
-		else if (!ft_strcmp(v[0], "env"))
-			_env(envp, v, 1);
-		else if (!ft_strcmp(v[0], "unset"))
-			_unset(&envp, v);
-		else if (!ft_strcmp(v[0], "echo"))
-			_echo(v, 1);
-		else if (!ft_strcmp(v[0], "exit"))
-			_exit_(&envp, v);
-		clean_vec(v);
+		if (open_heredocs(root, envp) == 0)
+			executor(root, &envp);
+		//if (root)
+		//	print_tree(root, 0);
+		//print_tokens(root, envp);
 		free(cmdline);
-		clean_all(&g_gc);
+		clean_all();
 	}
 }
 
@@ -170,7 +219,7 @@ int	main(int ac, char **av, char **env)
 	envp = env_dup(av[0], env);
 	if (!envp)
 		return (1);
-	atexit(leak);
+	signal_interrupter();
 	minishell_loop(envp);
 	clean_env_list(&envp);
 }

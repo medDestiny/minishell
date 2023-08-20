@@ -6,24 +6,24 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/07 18:51:24 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/09 18:43:20 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/09 17:24:55 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	clean_all(t_garb **gc)
+void	clean_all(void)
 {
 	t_garb	*next;
 
-	while (*gc)
+	while (g_exit.gc)
 	{
-		next = (*gc)->next;
-		free((*gc)->ptr);
-		free(*gc);
-		*gc = next;
+		next = (g_exit.gc)->next;
+		free((g_exit.gc)->ptr);
+		free(g_exit.gc);
+		g_exit.gc = next;
 	}
-	*gc = NULL;
+	g_exit.gc = NULL;
 }
 
 int	garbage_list_add(t_garb **gc, void *ptr)
@@ -44,31 +44,28 @@ int	garbage_list_add(t_garb **gc, void *ptr)
 		tmp = tmp->next;
 	}
 	if (!tmp)
-	{
-		clean_all(gc);
 		return (1);
-	}
 	tmp->ptr = ptr;
 	tmp->next = NULL;
 	return (0);
 }
 
-void	*ft_malloc(size_t size, t_garb **gc)
+void	*ft_malloc(size_t size)
 {
 	void	*new;
 
 	new = malloc(size);
 	if (!new)
 	{
-		clean_all(gc);
+		clean_all();
 		ft_putstr_fd("unexpected malloc fail occured\n", STDERR_FILENO);
-		return (NULL);
+		g_exit.status = ALLOCERR;
 	}
-	if (garbage_list_add(gc, new) != 0)
+	else if (new && garbage_list_add(&g_exit.gc, new) != 0)
 	{
-		clean_all(gc);
+		clean_all();
 		ft_putstr_fd("unexpected malloc fail occured\n", STDERR_FILENO);
-		return (NULL);
+		exit(EXIT_FAILURE);
 	}
 	return (new);
 }

@@ -1,4 +1,4 @@
-NAME= msh
+NAME= minishell
 SRC= environment.c \
 	 libft/ft_strlen.c \
 	 libft/ft_strdup.c \
@@ -32,18 +32,29 @@ SRC= environment.c \
 	 free.c \
 	 minishell.c \
 	 prompt.c \
+	 execution/executor.c \
+	 execution/expander.c \
+	 execution/split_token.c \
+	 execution/split_redir.c \
+	 execution/redir_expander.c \
+	 dir.c wildcard.c \
+	 signals.c \
+	 heredoc.c \
+	 open_heredocs.c
 
 C_FLAGS= -Wall -Wextra -Werror -g #-fsanitize=address
 header= minishell.h
+LIB= -L $(HOME)/.brew/Cellar/readline/8.2.1/lib
+INC= -I $(HOME)/.brew/Cellar/readline/8.2.1/include
 obj= $(SRC:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(obj)
-	gcc $(C_FLAGS) $^ -lreadline -o $@
+	gcc $(C_FLAGS) $^ -o $@ -lreadline $(LIB) $(INC)
 
 %.o: %.c $(header)
-	gcc $(C_FLAGS) -c $< -o $@
+	gcc $(C_FLAGS) $(INC) -c $< -o $@
 
 clean:
 	rm -f $(obj)

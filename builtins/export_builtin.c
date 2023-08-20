@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 13:54:02 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/07 17:52:29 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 04:31:51 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ static char	*check_identifier(char *arg, int *append)
 	if (size < 0)
 	{
 		print_invalid_id(arg);
+		g_exit.status = 1;
 		return (NULL);
 	}
 	name = (char *)malloc((size + 1) * sizeof(char));
@@ -110,6 +111,7 @@ void	_export(char **cmd, t_env **env, int fd)
 	char	*value;
 
 	i = 1;
+	g_exit.status = 0;
 	if (!cmd[1])
 		print_env(*env, fd);
 	else

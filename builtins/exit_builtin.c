@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 20:36:31 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/15 13:22:12 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 04:04:30 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	print_exit_error(t_env **env, char *s1, char *s2)
 		ft_putstr_fd(s2, STDERR_FILENO);
 		ft_putstr_fd("\n", STDERR_FILENO);
 		clean_env_list(env);
-		clean_all(&g_gc);
+		clean_all();
 		return ;
 	}
 	ft_putstr_fd(s2, STDERR_FILENO);
@@ -60,8 +60,7 @@ void	_exit_(t_env **env, char **cmd)
 	int	status;
 
 	j = 1;
-	status = 0;
-	ft_putstr_fd("exit\n", STDERR_FILENO);
+	status = g_exit.status;
 	while (cmd[j])
 	{
 		if (j == 1 && is_number(cmd[j]) <= 0)
@@ -74,6 +73,7 @@ void	_exit_(t_env **env, char **cmd)
 		else if (j != 1)
 		{
 			print_exit_error(env, NULL, "too many arguments");
+			g_exit.status = 2;
 			return ;
 		}
 		j++;

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 15:48:36 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 00:18:13 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 12:57:04 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ int	check_argument(char *cmd)
 		ft_putstr_fd("minishell: unset: ", STDERR_FILENO);
 		ft_putstr_fd(cmd, STDERR_FILENO);
 		ft_putstr_fd(": invalid option\n", STDERR_FILENO);
+		g_exit.status = 2;
 		return (1);
 	}
 	return (0);
@@ -94,6 +95,9 @@ void	_unset(t_env **env, char **cmd)
 			if (node)
 				delete_env_node(env, node);
 		}
+		else
+			g_exit.status = 1;
 		i++;
 	}
+	g_exit.status = 0;
 }

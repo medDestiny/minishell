@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/08 13:45:11 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/19 23:12:28 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,16 @@
 
 int	is_redir_in(t_node_type type)
 {
-	if (type == RD_IN || type == RD_IN_EXP || type == HDOC || type == HDOC_EXP)
+	if (type == RD_IN_WD || type == RD_IN_DQ || type == RD_IN_SQ
+		|| type == HDOC || type == HDOC_EXP)
 		return (1);
 	return (0);
 }
 
 int	is_redir_out(t_node_type type)
 {
-	if (type == RD_OUT || type == RD_OUT_EXP || type == APPEND
-		|| type == APPEND_EXP)
+	if (type == RD_OUT_WD || type == RD_OUT_SQ || type == RD_OUT_DQ
+		|| type == APPEND_WD || type == APPEND_SQ || type == APPEND_DQ)
 		return (1);
 	return (0);
 }
@@ -60,10 +61,13 @@ int	build_list(t_token **ptr, t_token **tokens)
 void	init_cmd_node(t_tree *cmd)
 {
 	cmd->type = T_CMD;
-	cmd->cmd.subshell = 0;
+	cmd->cmd.hdoc = -1;
+	cmd->cmd.sub_hdoc = -1;
 	cmd->cmd.list = NULL;
 	cmd->cmd.redir = NULL;
 	cmd->cmd.sub_redir = NULL;
+	cmd->node.rchild = NULL;
+	cmd->node.lchild = NULL;
 }
 
 int	parse_command(t_tree **root, t_token **tok)
@@ -71,7 +75,7 @@ int	parse_command(t_tree **root, t_token **tok)
 	t_tree	*cmd;
 	int		err;
 
-	cmd = (t_tree *)ft_malloc(sizeof(t_tree), &g_gc);
+	cmd = (t_tree *)ft_malloc(sizeof(t_tree));
 	if (!cmd)
 		return (-1);
 	init_cmd_node(cmd);
@@ -119,12 +123,15 @@ t_tree	*new_tree_node(t_type type, t_tree *left, t_tree *right)
 {
 	t_tree	*new;
 
-	new = (t_tree *)ft_malloc(sizeof(t_tree), &g_gc);
+	new = (t_tree *)ft_malloc(sizeof(t_tree));
 	if (!new)
 		return (NULL);
 	new->type = type;
 	new->node.lchild = left;
 	new->node.rchild = right;
+	new->cmd.list = NULL;
+	new->cmd.redir = NULL;
+	new->cmd.sub_redir = NULL;
 	return (new);
 }
 
@@ -203,11 +210,8 @@ int	parse_condition(t_tree **root, t_token **tokens)
 
 void	update_redirs(t_tree *root, t_token *sub_redir)
 {
-	if (root->type == T_CMD)
-	{
-		root->cmd.subshell = 1;
+	if (root->type == T_CMD || root->type == S_CMD)
 		root->cmd.sub_redir = sub_redir;
-	}
 	else
 	{
 		update_redirs(root->node.lchild, sub_redir);
@@ -255,6 +259,18 @@ void	skip_redirs(t_token **tok)
 	}
 }
 
+void	subshell_root_type(t_tree *subsh)
+{
+	if (subsh->type == T_PIPE)
+		subsh->type = S_PIPE;
+	else if (subsh->type == T_OR)
+		subsh->type = S_OR;
+	else if (subsh->type == T_AND)
+		subsh->type = S_AND;
+	else if (subsh->type == T_CMD)
+		subsh->type = S_CMD;
+}
+
 int	parse_group(t_tree **root, t_token **tokens)
 {
 	t_tree	*group;
@@ -272,6 +288,7 @@ int	parse_group(t_tree **root, t_token **tokens)
 	skip_redirs(tokens);
 	if (peek(*tokens) == PIPE)
 		err = parse_pipeline(&group, tokens);
+	subshell_root_type(group);
 	if (!*root)
 		*root = group;
 	else

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/14 17:08:28 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/16 13:10:05 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@ t_token	*new_token_node(t_node_type type, char *content, size_t size)
 {
 	t_token	*node;
 
-	node = (t_token *)ft_malloc(sizeof(t_token), &g_gc);
+	node = (t_token *)ft_malloc(sizeof(t_token));
 	if (!node)
 		return (NULL);
-	node->lexeme = (char *)ft_malloc((size + 1) * sizeof(char), &g_gc);
+	node->lexeme = (char *)ft_malloc((size + 1) * sizeof(char));
 	if (!node->lexeme)
 		return (NULL);
 	ft_strlcpy(node->lexeme, content, size + 1);
@@ -97,6 +97,7 @@ int	check_or(t_token **tokens, char *cmdline)
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token: ||\n",
 			STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	if (token_list_add(tokens, OR, cmdline, 2) != 0)
@@ -121,6 +122,7 @@ int	check_and(t_token **tokens, char *cmdline)
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token: &&\n",
 			STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	if (token_list_add(tokens, AND, cmdline, 2) != 0)
@@ -134,6 +136,7 @@ int	check_pipe(t_token **tokens, char *cmdline)
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token: |\n",
 			STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	if (token_list_add(tokens, PIPE, cmdline, 1) != 0)
@@ -165,6 +168,7 @@ int	redir_syntax_error(char *cmdline)
 		print_syntax_error(UNEX_TOK, "<<");
 	else if (cmdline[0] == '<')
 		print_syntax_error(UNEX_TOK, "<");
+	g_exit.status = SYNTAXERR;
 	return (1);
 }
 
@@ -213,9 +217,11 @@ int	check_append(t_token **tokens, char *cmdline)
 		return (-1);
 	last = lst_last(*tokens);
 	if (last->type == S_QUOTE)
-		last->type = APPEND;
+		last->type = APPEND_SQ;
+	else if (last->type == D_QUOTE)
+		last->type = APPEND_DQ;
 	else
-		last->type = APPEND_EXP;
+		last->type = APPEND_WD;
 	return (start + size);
 }
 
@@ -239,9 +245,11 @@ int	check_infile(t_token **tokens, char *cmdline)
 		return (-1);
 	last = lst_last(*tokens);
 	if (last->type == S_QUOTE)
-		last->type = RD_IN;
+		last->type = RD_IN_SQ;
+	else if (last->type == D_QUOTE)
+		last->type = RD_IN_DQ;
 	else
-		last->type = RD_IN_EXP;
+		last->type = RD_IN_WD;
 	return (start + size);
 }
 
@@ -265,9 +273,11 @@ int	check_outfile(t_token **tokens, char *cmdline)
 		return (-1);
 	last = lst_last(*tokens);
 	if (last->type == S_QUOTE)
-		last->type = RD_OUT;
+		last->type = RD_OUT_SQ;
+	else if (last->type == D_QUOTE)
+		last->type = RD_OUT_DQ;
 	else
-		last->type = RD_OUT_EXP;
+		last->type  = RD_OUT_WD;
 	return (start + size);
 }
 
@@ -295,12 +305,13 @@ int	check_single_quotes(t_token **tokens, char *cmdline)
 	if (!cmdline[i])
 	{
 		ft_putstr_fd("minishell: unclosed single quotes\n", STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	size = check_word(tokens, cmdline, "'");
 	if (size < 0)
 		return (-1);
-	if (size)
+	else
 	{
 		last = lst_last(*tokens);
 		last->type = S_QUOTE;
@@ -320,12 +331,13 @@ int	check_double_quotes(t_token **tokens, char *cmdline)
 	if (!cmdline[i])
 	{
 		ft_putstr_fd("minishell: unclosed double quotes\n", STDERR_FILENO);
+		g_exit.status = SYNTAXERR;
 		return (-1);
 	}
 	size = check_word(tokens, cmdline, "\"");
 	if (size < 0)
 		return (-1);
-	if (size)
+	else
 	{
 		last = lst_last(*tokens);
 		last->type = D_QUOTE;

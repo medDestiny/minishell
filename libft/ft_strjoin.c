@@ -3,39 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/06 09:57:58 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/22 12:06:32 by mmisskin         ###   ########.fr       */
+/*   Created: 2023/07/30 17:34:45 by hlaadiou          #+#    #+#             */
+/*   Updated: 2023/07/30 17:34:52 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include"../minishell.h"
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
-	int		index;
-	int		len1;
-	char	*dest;
+	size_t	len;
+	size_t	i;
+	size_t	j;
+	char	*join;
 
-	if (!s1 || !s2)
-		return (0);
-	index = 0;
-	len1 = ft_strlen(s1);
-	dest = (char *)malloc((len1 + ft_strlen(s2) + 1) * sizeof(char));
-	if (!dest)
+	i = 0;
+	j = 0;
+	if (!s1 && !s2)
 		return (NULL);
-	while (s1[index])
+	if (!s1)
+		return (ft_strdup(s2));
+	else if (!s2)
+		return (ft_strdup(s1));
+	len = ft_strlen(s1) + ft_strlen(s2);
+	join = (char *)malloc(sizeof(char) * (len + 1));
+	if (!join)
+		return (NULL);
+	while (s1[i] && i < ft_strlen(s1))
 	{
-		dest[index] = s1[index];
-		index++;
+		join[i] = s1[i];
+		i++;
 	}
-	index = 0;
-	while (s2[index])
-	{
-		dest[len1 + index] = s2[index];
-		index++;
-	}
-	dest[len1 + index] = '\0';
-	return (dest);
+	ft_strlcpy((join + i), s2, ft_strlen(s2) + 1);
+	return (join);
 }
