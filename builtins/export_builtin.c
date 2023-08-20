@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 13:54:02 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 12:55:20 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 04:31:51 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ void	_export(char **cmd, t_env **env, int fd)
 	char	*value;
 
 	i = 1;
+	g_exit.status = 0;
 	if (!cmd[1])
 		print_env(*env, fd);
 	else
@@ -129,5 +130,4 @@ void	_export(char **cmd, t_env **env, int fd)
 			i++;
 		}
 	}
-	g_exit.status = 0;
 }

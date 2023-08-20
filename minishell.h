@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 23:33:18 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 04:05:41 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,7 +273,7 @@ void		_cd(char **cmd, t_env *env, int fd);
 void		_export(char **cmd, t_env **env, int fd);
 void		_unset(t_env **env, char **cmd);
 void		_echo(char **cmd, int fd);
-void		_exit_(t_env **env, char **cmd, int flag);
+void		_exit_(t_env **env, char **cmd);
 
 //	Signal handling
 void		signal_interrupter(void);
@@ -301,8 +301,8 @@ char		*hdoc_expand(t_token *tkn);
 int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
-int			exec_cmd(t_tree *node, t_env **env, int *sub_rd);
-void		exec_subshell(t_tree *subsh, t_env **env, int **sub_redir);
+int			exec_cmd(t_tree *node, t_env **env);
+void		exec_subshell(t_tree *subsh, t_env **env);
 int			executor(t_tree *root, t_env **env);
 t_token		*heredoc_content_exp(t_token *doc, t_env *env);
 t_token		*tkn_join(t_token *lst);
