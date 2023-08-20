@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/20 14:54:03 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 19:14:45 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,21 @@ int	is_a_directory(char *lexeme)
 	return (0);
 }
 
+void	throw_error(char **paths, char *abs, char *lex, int i)
+{
+	if (!paths || !paths[i])
+	{
+		cmd_not_found(lex);
+		exit(127);
+	}
+	if (access(abs, X_OK) == -1)
+	{
+		cmd_error(lex);
+		exit(126);
+	}
+	return ;
+}
+
 char	*cmd_prefix(char *lexeme, t_env *envp)
 {
 	char	**paths;
@@ -68,16 +83,7 @@ char	*cmd_prefix(char *lexeme, t_env *envp)
 		else
 			break ;
 	}
-	if (!paths || !paths[i])
-	{
-		cmd_not_found(lexeme);
-		exit(127);
-	}
-	if (access(cmd_abs, X_OK) == -1)
-	{
-		cmd_error(lexeme);
-		exit(126);
-	}
+	throw_error(paths, cmd_abs, lexeme, i);
 	return (clean_vec(paths), cmd_abs);
 }
 
@@ -233,53 +239,59 @@ int	is_hdoc(t_node_type type)
 	return (0);
 }
 
-int	*open_files(t_cmd cmd)
+int	open_append_files(t_token *redir, int **fildes)
+{
+	int	tmpfd;
+
+	if (is_append(redir->type))
+	{
+		tmpfd = open(redir->lexeme, O_CREAT | O_WRONLY | O_APPEND, 0644);
+		if (tmpfd == -1)
+			return (_error(redir->lexeme), 1);
+		if ((*fildes)[1] != STDOUT_FILENO)
+			close((*fildes)[1]);
+		(*fildes)[1] = tmpfd;
+	}
+	return (0);
+}
+
+int	open_out_files(t_token *redir, int **fildes)
+{
+	int	tmpfd;
+
+	if (is_rd_out(redir->type))
+	{
+		tmpfd = open(redir->lexeme, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+		if (tmpfd == -1)
+			return (_error(redir->lexeme), 1);
+		if ((*fildes)[1] != STDOUT_FILENO)
+			close((*fildes)[1]);
+		(*fildes)[1] = tmpfd;
+	}
+	return (0);
+}
+
+int	open_in_files(t_token *redir, t_token **tmpredir)
+{
+	int	tmpfd;
+
+	if (is_rd_in(redir->type))
+	{
+		tmpfd = open(redir->lexeme, O_RDONLY);
+		if (tmpfd == -1)
+			return (_error(redir->lexeme), 1);
+		close(tmpfd);
+		*tmpredir = redir;
+	}
+	return (0);
+}
+
+int	hdoc_or_rd_in(t_token *rdirlst, t_token *tmpredir, int **fildes)
 {
 	t_token	*redir;
-	t_token	*tmpredir;
-	int		*fildes;
 	int		tmpfd;
 
-	fildes = (int *)malloc(2 * sizeof(int));
-	if (!fildes)
-		return (NULL);
-	redir = cmd.redir;
-	tmpredir = NULL;
-	fildes[0] = STDIN_FILENO;
-	fildes[1] = STDOUT_FILENO;
-	if (cmd.hdoc != -1)
-		fildes[0] = cmd.hdoc;
-	while (redir)
-	{
-		if (is_append(redir->type))
-		{
-			tmpfd = open(redir->lexeme, O_CREAT | O_WRONLY | O_APPEND, 0644);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			if (fildes[1] != STDOUT_FILENO)
-				close(fildes[1]);
-			fildes[1] = tmpfd;
-		}
-		else if (is_rd_out(redir->type))
-		{
-			tmpfd = open(redir->lexeme, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			if (fildes[1] != STDOUT_FILENO)
-				close(fildes[1]);
-			fildes[1] = tmpfd;
-		}
-		else if (is_rd_in(redir->type))
-		{
-			tmpfd = open(redir->lexeme, O_RDONLY);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			close(tmpfd);
-			tmpredir = redir;
-		}
-		redir = redir->next;
-	}
-	redir = lst_last(cmd.redir);
+	redir = lst_last(rdirlst);
 	while (redir)
 	{
 		if (is_hdoc(redir->type))
@@ -288,13 +300,48 @@ int	*open_files(t_cmd cmd)
 		{
 			tmpfd = open(redir->lexeme, O_RDONLY);
 			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			if (fildes[0] != STDIN_FILENO)
-				close(fildes[0]);
-			fildes[0] = tmpfd;
+				return (_error(redir->lexeme), 1);
+			if ((*fildes)[0] != STDIN_FILENO)
+				close((*fildes)[0]);
+			(*fildes)[0] = tmpfd;
 		}
 		redir = redir->prev;
 	}
+	return (0);
+}
+
+void	default_fds(int **fildes)
+{
+	(*fildes)[0] = STDIN_FILENO;
+	(*fildes)[1] = STDOUT_FILENO;
+}
+
+int	*open_files(t_cmd cmd)
+{
+	t_token	*redir;
+	t_token	*tmpredir;
+	int		*fildes;
+
+	fildes = (int *)malloc(2 * sizeof(int));
+	if (!fildes)
+		return (NULL);
+	redir = cmd.redir;
+	tmpredir = NULL;
+	default_fds(&fildes);
+	if (cmd.hdoc != -1)
+		fildes[0] = cmd.hdoc;
+	while (redir)
+	{
+		if (open_append_files(redir, &fildes))
+			return (NULL);
+		else if (open_out_files(redir, &fildes))
+			return (NULL);
+		else if (open_in_files(redir, &tmpredir))
+			return (NULL);
+		redir = redir->next;
+	}
+	if (hdoc_or_rd_in(cmd.redir, tmpredir, &fildes))
+		return (NULL);
 	return (fildes);
 }
 
@@ -303,63 +350,27 @@ int	*open_subsh_files(t_cmd subsh)
 	t_token	*redir;
 	t_token	*tmpredir;
 	int		*fildes;
-	int		tmpfd;
 
 	fildes = (int *)malloc(2 * sizeof(int));
 	if (!fildes)
 		return (NULL);
 	redir = subsh.sub_redir;
 	tmpredir = NULL;
-	fildes[0] = STDIN_FILENO;
-	fildes[1] = STDOUT_FILENO;
+	default_fds(&fildes);
 	if (subsh.sub_hdoc != -1)
 		fildes[0] = subsh.sub_hdoc;
 	while (redir)
 	{
-		if (is_append(redir->type))
-		{
-			tmpfd = open(redir->lexeme, O_CREAT | O_WRONLY | O_APPEND, 0644);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			if (fildes[1] != STDOUT_FILENO)
-				close(fildes[1]);
-			fildes[1] = tmpfd;
-		}
-		else if (is_rd_out(redir->type))
-		{
-			tmpfd = open(redir->lexeme, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			if (fildes[1] != STDOUT_FILENO)
-				close(fildes[1]);
-			fildes[1] = tmpfd;
-		}
-		else if (is_rd_in(redir->type))
-		{
-			tmpfd = open(redir->lexeme, O_RDONLY);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			close(tmpfd);
-			tmpredir = redir;
-		}
+		if (open_append_files(redir, &fildes))
+			return (NULL);
+		else if (open_out_files(redir, &fildes))
+			return (NULL);
+		else if (open_in_files(redir, &tmpredir))
+			return (NULL);
 		redir = redir->next;
 	}
-	redir = lst_last(subsh.sub_redir);
-	while (redir)
-	{
-		if (is_hdoc(redir->type))
-			break ;
-		else if (redir == tmpredir)
-		{
-			tmpfd = open(redir->lexeme, O_RDONLY);
-			if (tmpfd == -1)
-				return (_error(redir->lexeme), NULL);
-			if (fildes[0] != STDIN_FILENO)
-				close(fildes[0]);
-			fildes[0] = tmpfd;
-		}
-		redir = redir->prev;
-	}
+	if (hdoc_or_rd_in(subsh.redir, tmpredir, &fildes))
+		return (NULL);
 	return (fildes);
 }
 
@@ -591,6 +602,44 @@ void	close_heredocs(t_tree *root)
 	close_heredocs(root->node.rchild);
 }
 
+int	exec_left_pipe(t_tree *node, t_env **env, int *fds)
+{
+	pid_t	pid;
+
+	pid = _fork();
+	if (pid == -1)
+		return (1);
+	if (pid == 0)
+	{
+		default_signals();
+		close(fds[0]);
+		dup2(fds[1], STDOUT_FILENO);
+		close(fds[1]);
+		executor(node->node.lchild, env);
+		exit(g_exit.status);
+	}
+	return (0);
+}
+
+int	exec_right_pipe(t_tree *node, t_env **env, int *fds)
+{
+	pid_t	pid;
+
+	pid = _fork();
+	if (pid == -1)
+		return (1);
+	if (pid == 0)
+	{
+		default_signals();
+		close(fds[1]);
+		dup2(fds[0], STDIN_FILENO);
+		close(fds[0]);
+		executor(node->node.rchild, env);
+		exit(g_exit.status);
+	}
+	return (0);
+}
+
 //fd[0] read end, fd[1] write end
 int	exec_pipe(t_tree *node, t_env **env)
 {
@@ -600,30 +649,10 @@ int	exec_pipe(t_tree *node, t_env **env)
 
 	if (pipe(fds) == -1)
 		return (_error("pipe failed"), 1);
-	pid[0] = _fork();
-	if (pid[0] == -1)
+	if (exec_left_pipe(node, env, fds))
 		return (1);
-	if (pid[0] == 0)
-	{
-		default_signals();
-		close(fds[0]);
-		dup2(fds[1], STDOUT_FILENO);
-		close(fds[1]);
-		executor(node->node.lchild, env);
-		exit(g_exit.status);
-	}
-	pid[1] = _fork();
-	if (pid[1] == -1)
+	if (exec_right_pipe(node, env, fds))
 		return (1);
-	if (pid[1] == 0)
-	{
-		default_signals();
-		close(fds[1]);
-		dup2(fds[0], STDIN_FILENO);
-		close(fds[0]);
-		executor(node->node.rchild, env);
-		exit(g_exit.status);
-	}
 	close(fds[0]);
 	close(fds[1]);
 	ignore_signals();

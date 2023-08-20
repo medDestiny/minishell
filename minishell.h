@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 13:16:09 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 16:25:02 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,6 +284,8 @@ t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
 
 /***************** Execution ********************/
 
+int			get_wordsize(char *lexeme, int i);
+int			get_idsize(char *lexeme, int i);
 void		fill_flagtab(int *tab, int *flags, int len, int *ind);
 void		create_flagtabs(int **vec, int *flags, t_token *lst);
 int			**create_wildvec(int *flags, t_token *lst);
