@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/20 19:14:45 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/20 22:24:32 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,8 @@ char	*cmd_prefix(char *lexeme, t_env *envp)
 
 	i = 0;
 	cmd_abs = NULL;
+	if (is_a_directory(lexeme))
+		exit(126);
 	paths = ft_split(get_env_value(envp, "PATH"), ":");
 	while (paths && paths[i])
 	{

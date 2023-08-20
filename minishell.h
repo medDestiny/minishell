@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 21:40:23 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 21:49:36 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,5 +310,6 @@ t_token		*tkn_join(t_token *lst);
 int			expand_env_vars(t_token **newlst, t_token *lst, t_env *env);
 
 int			is_subshell(t_type type);
+pid_t		_fork(void);
 
 #endif

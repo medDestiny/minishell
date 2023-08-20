@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/15 08:13:22 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/20 03:04:02 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/20 22:19:53 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -397,7 +397,8 @@ int	expand_env_vars(t_token **newlst, t_token *lst, t_env *env)
 {
 	while (lst)
 	{
-		if (lst->lexeme && (lst->type == WORD || lst->type == D_QUOTE))
+		if (lst->lexeme \
+		&& (lst->type == WORD || (lst->type == D_QUOTE && *lst->lexeme)))
 		{
 			if (tkn_update(newlst, lst, env) == 1)
 				return (1);

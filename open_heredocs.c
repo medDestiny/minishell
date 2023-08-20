@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/19 21:08:25 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 14:13:13 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 21:54:28 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,10 +103,21 @@ void	update_subshell_hdoc(t_tree *root, int subsh_hdoc)
 		root->cmd.sub_hdoc = subsh_hdoc;
 }
 
-int	open_heredocs(t_tree *root, t_env *env)
+int	open_subsh_hdoc(t_tree *root, t_env *env)
 {
 	int	sub_hdoc;
 
+	if (update_hdoc_fd(root, env) == 1)
+		return (1);
+	sub_hdoc = get_hdoc_fd(root, env);
+	if (sub_hdoc == -2)
+		return (1);
+	update_subshell_hdoc(root, sub_hdoc);
+	return (0);
+}
+
+int	open_heredocs(t_tree *root, t_env *env)
+{
 	if (!root)
 		return (1);
 	if (root->type == T_CMD)
@@ -116,12 +127,8 @@ int	open_heredocs(t_tree *root, t_env *env)
 	}
 	else if (is_subshell(root->type))
 	{
-		if (update_hdoc_fd(root, env) == 1)
+		if (open_subsh_hdoc(root, env) == 1)
 			return (1);
-		sub_hdoc = get_hdoc_fd(root, env);
-		if (sub_hdoc == -2)
-			return (1);
-		update_subshell_hdoc(root, sub_hdoc);
 	}
 	else
 	{

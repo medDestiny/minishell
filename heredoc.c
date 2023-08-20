@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 02:04:37 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 23:47:20 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 21:50:43 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,12 +82,9 @@ int	open_heredoc(t_token *hdoc, t_env *env)
 		ft_putstr_fd("Heredoc pipe failed\n", STDERR_FILENO);
 		return (-1);
 	}
-	pid = fork();
+	pid = _fork();
 	if (pid == -1)
-	{
-		ft_putstr_fd("fork failed\n", STDERR_FILENO);
 		return (-1);
-	}
 	if (pid == 0)
 		heredoc(hdoc, env, end);
 	else
@@ -98,10 +95,7 @@ int	open_heredoc(t_token *hdoc, t_env *env)
 		close(end[1]);
 		g_exit.status = WEXITSTATUS(g_exit.status);
 		if (g_exit.status == 1)
-		{
-			close(end[0]);
-			return (-1);
-		}
+			return (close(end[0]), -1);
 	}
 	return (end[0]);
 }
