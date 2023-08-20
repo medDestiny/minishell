@@ -6,11 +6,11 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/05 19:58:18 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/12 15:48:22 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:30:01 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"../minishell.h"
+#include "../minishell.h"
 
 int	ft_isalnum(int c)
 {

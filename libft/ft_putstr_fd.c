@@ -6,11 +6,11 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 10:38:14 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/06/06 10:33:16 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:30:14 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"../minishell.h"
+#include "../minishell.h"
 
 void	ft_putchar_fd(char c, int fd)
 {

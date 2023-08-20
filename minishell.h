@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:48:38 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 04:05:41 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 17:22:56 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,14 +159,6 @@ typedef struct s_flags
 	int		arrs;
 }	t_flags;
 
-typedef struct s_fds
-{
-	int				in;
-	int				out;
-	int				ends[2];
-	struct s_fds	*next;
-}	t_fds;
-
 /***************** Parsing ********************/
 
 //	Libft
@@ -198,6 +190,7 @@ int			env_add(t_env **env, char *name, char *value, int hide);
 char		*get_env_value(t_env *env, char *name);
 void		update_env_value(t_env **env, char *name, char *new_val,
 				int append);
+int			env_node_insert(t_env **env, char *name, char *val, int hide);
 
 //	Memory management
 void		clean_env_list(t_env **envp);
@@ -289,16 +282,22 @@ int			open_heredocs(t_tree *root, t_env *env);
 
 int			wildcard_match(char *str, char *pattern, int *flags);
 t_entry		*dir_pattern_check(char *dir, char *pattern, int *flags);
+int			entry_node_insert(t_entry **list, char *name);
 
 /***************** Execution ********************/
 
+void		fill_flagtab(int *tab, int *flags, int len, int *ind);
+void		create_flagtabs(int **vec, int *flags, t_token *lst);
+int			**create_wildvec(int *flags, t_token *lst);
+int			*create_wildflags(t_token *tknlst);
+void		extract_dir_pattern(char **dir, char **pattern, t_token *tkn);
+char		*get_home(t_env *env);
 t_token		*tkn_split(t_token *tkn);
 t_token		*redirlst_split(t_token *redir);
 t_token		*list_expand(t_token *tokens, t_env *env);
 t_token		*redir_expand(t_token *redir, t_env *env);
 t_token		*redir_join(t_token *redir);
 char		*hdoc_expand(t_token *tkn);
-int			*create_wildflags(t_token *tknlst);
 int			node_expand(t_cmd *cmd_node, t_env *env);
 void		sublist_insert(t_token *sublst, t_token **lleft, t_token **lright);
 int			exec_cmd(t_tree *node, t_env **env);
@@ -307,7 +306,6 @@ int			executor(t_tree *root, t_env **env);
 t_token		*heredoc_content_exp(t_token *doc, t_env *env);
 t_token		*tkn_join(t_token *lst);
 int			expand_env_vars(t_token **newlst, t_token *lst, t_env *env);
-void		close_pipes(t_fds *pipe);
 
 int			is_subshell(t_type type);
 

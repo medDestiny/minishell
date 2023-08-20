@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/12 13:54:02 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 04:31:51 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 15:29:19 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,6 +103,28 @@ static char	*check_identifier(char *arg, int *append)
 	return (name);
 }
 
+static int	check_arguments(char **cmd)
+{
+	int	i;
+
+	i = 1;
+	g_exit.status = 0;
+	while (cmd && cmd[i])
+	{
+		if (cmd[i][0] == '-')
+		{
+			ft_putstr_fd("minishell: export: ", STDERR_FILENO);
+			write(STDERR_FILENO, cmd[i], 2);
+			ft_putstr_fd(": invalid option\n", STDERR_FILENO);
+			ft_putstr_fd("export: usage: export [name[=value] ...]\n", STDERR_FILENO);
+			g_exit.status = 2;
+			return (1);
+		}
+		i++;
+	}
+	return (0);
+}
+
 void	_export(char **cmd, t_env **env, int fd)
 {
 	int		i;
@@ -110,13 +132,14 @@ void	_export(char **cmd, t_env **env, int fd)
 	char	*name;
 	char	*value;
 
-	i = 1;
-	g_exit.status = 0;
+	i = 0;
+	if (check_arguments(cmd) != 0)
+		return ;
 	if (!cmd[1])
 		print_env(*env, fd);
 	else
 	{
-		while (cmd[i])
+		while (cmd[++i])
 		{
 			app = 0;
 			name = check_identifier(cmd[i], &app);
@@ -127,7 +150,6 @@ void	_export(char **cmd, t_env **env, int fd)
 				update_env_value(env, ft_strdup(name), value, app);
 			free(value);
 			free(name);
-			i++;
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/22 18:31:45 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 13:10:05 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:28:39 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,7 +277,7 @@ int	check_outfile(t_token **tokens, char *cmdline)
 	else if (last->type == D_QUOTE)
 		last->type = RD_OUT_DQ;
 	else
-		last->type  = RD_OUT_WD;
+		last->type = RD_OUT_WD;
 	return (start + size);
 }
 

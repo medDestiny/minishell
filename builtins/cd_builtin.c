@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/10 18:28:51 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/16 12:53:30 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 17:07:01 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	cd_old_pwd(t_env *env, char **old_pwd)
 void	update_pwd(t_env **env, char *new_pwd)
 {
 	if (!get_env_value(*env, "PWD"))
-		env_add(env, ft_strdup("PWD"), new_pwd, 1);
+		env_node_insert(env, ft_strdup("PWD"), new_pwd, 1);
 	else
 		update_env_value(env, ft_strdup("PWD"), new_pwd, 0);
 	update_env_value(env, ft_strdup("2PWD"), ft_strdup(new_pwd), 0);

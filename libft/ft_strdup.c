@@ -6,11 +6,11 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/06 12:50:54 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/05/22 12:06:27 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:30:28 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include"../minishell.h"
+#include "../minishell.h"
 
 char	*ft_strdup(const char *s1)
 {

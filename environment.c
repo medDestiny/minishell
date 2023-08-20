@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 20:57:36 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 17:06:16 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void	update_env_value(t_env **env, char *name, char *new_val, int append)
 
 	node = get_env_node(*env, name);
 	if (!node)
-		env_add(env, name, new_val, 0);
+		env_node_insert(env, name, new_val, 0);
 	else
 	{
 		if (append == 0)
@@ -88,48 +88,48 @@ int	env_init(char *var, char **name, char **value)
 	return (0);
 }
 
-t_env	*env_new_node(char *var)
-{
-	t_env	*env;
+//t_env	*env_new_node(char *var)
+//{
+//	t_env	*env;
+//
+//	env = (t_env *)malloc(sizeof(t_env));
+//	if (!env)
+//		return (NULL);
+//	if (env_init(var, &env->name, &env->value) != 0)
+//		return (NULL);
+//	env->hide = 0;
+//	env->next = NULL;
+//	return (env);
+//}
 
-	env = (t_env *)malloc(sizeof(t_env));
-	if (!env)
-		return (NULL);
-	if (env_init(var, &env->name, &env->value) != 0)
-		return (NULL);
-	env->hide = 0;
-	env->next = NULL;
-	return (env);
-}
-
-int	env_add(t_env **env, char *name, char *value, int hide)
-{
-	t_env	*tmp;
-
-	tmp = *env;
-	if (!tmp)
-	{
-		*env = (t_env *)malloc(sizeof(t_env));
-		tmp = *env;
-	}
-	else
-	{
-		while (tmp && tmp->next)
-			tmp = tmp->next;
-		tmp->next = (t_env *)malloc(sizeof(t_env));
-		tmp = tmp->next;
-	}
-	if (!tmp)
-	{
-		clean_env_list(env);
-		return (1);
-	}
-	tmp->name = name;
-	tmp->value = value;
-	tmp->hide = hide;
-	tmp->next = NULL;
-	return (0);
-}
+//int	env_add(t_env **env, char *name, char *value, int hide)
+//{
+//	t_env	*tmp;
+//
+//	tmp = *env;
+//	if (!tmp)
+//	{
+//		*env = (t_env *)malloc(sizeof(t_env));
+//		tmp = *env;
+//	}
+//	else
+//	{
+//		while (tmp && tmp->next)
+//			tmp = tmp->next;
+//		tmp->next = (t_env *)malloc(sizeof(t_env));
+//		tmp = tmp->next;
+//	}
+//	if (!tmp)
+//	{
+//		clean_env_list(env);
+//		return (1);
+//	}
+//	tmp->name = name;
+//	tmp->value = value;
+//	tmp->hide = hide;
+//	tmp->next = NULL;
+//	return (0);
+//}
 
 t_env	*build_env(char *program_name)
 {
@@ -142,14 +142,14 @@ t_env	*build_env(char *program_name)
 	cwd = getcwd(NULL, 0);
 	if (cwd)
 	{
-		err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0), 0);
-		err = env_add(&env, ft_strdup("2PWD"), ft_strdup(cwd), 1);
+		err = env_node_insert(&env, ft_strdup("PWD"), cwd, 0);
+		err = env_node_insert(&env, ft_strdup("2PWD"), ft_strdup(cwd), 1);
 	}
-	err = env_add(&env, ft_strdup("PATH"),
+	err = env_node_insert(&env, ft_strdup("PATH"),
 			ft_strdup("/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."), 1);
-	err = env_add(&env, ft_strdup("OLDPWD"), NULL, 0);
-	err = env_add(&env, ft_strdup("SHLVL"), ft_strdup("1"), 0);
-	err = env_add(&env, ft_strdup("_"), ft_strdup(program_name), 0);
+	err = env_node_insert(&env, ft_strdup("OLDPWD"), NULL, 0);
+	err = env_node_insert(&env, ft_strdup("SHLVL"), ft_strdup("1"), 0);
+	err = env_node_insert(&env, ft_strdup("_"), ft_strdup(program_name), 1);
 	if (err != 0)
 	{
 		clean_env_list(&env);
@@ -160,27 +160,18 @@ t_env	*build_env(char *program_name)
 
 t_env	*build_env_list(char **env)
 {
-	t_env	*envp;
 	t_env	*head;
 	int		i;
+	char	*name;
+	char	*value;
 
 	i = -1;
 	head = NULL;
-	envp = NULL;
 	while (env[++i])
 	{
-		if (!envp)
-		{
-			envp = env_new_node(env[i]);
-			head = envp;
-		}
-		else
-		{
-			envp->next = env_new_node(env[i]);
-			envp = envp->next;
-		}
-		if (!envp)
-			return (clean_env_list(&envp), NULL);
+		if (env_init(env[i], &name, &value) \
+			|| env_node_insert(&head, name, value, 0) != 0)
+			return (clean_env_list(&head), NULL);
 	}
 	return (head);
 }
@@ -197,7 +188,7 @@ t_env	*env_dup(char *prog_name, char **env)
 	if (cwd)
 	{
 		update_env_value(&envp, ft_strdup("PWD"), cwd, 0);
-		env_add(&envp, ft_strdup("2PWD"), ft_strdup(cwd), 1);
+		env_node_insert(&envp, ft_strdup("2PWD"), ft_strdup(cwd), 1);
 	}
 	update_env_value(&envp, ft_strdup("SHLVL"), update_shell_lvl(), 0);
 	update_env_value(&envp, ft_strdup("OLDPWD"), NULL, 0);
