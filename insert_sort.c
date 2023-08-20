@@ -1,20 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_isalnum.c                                       :+:      :+:    :+:   */
+/*   insert_sort.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/05 19:58:18 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 12:30:01 by mmisskin         ###   ########.fr       */
+/*   Created: 2023/08/20 15:27:52 by mmisskin          #+#    #+#             */
+/*   Updated: 2023/08/20 15:28:11 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "minishell.h"
 
-int	ft_isalnum(int c)
-{
-	if (ft_isalpha(c) || ft_isdigit(c))
-		return (1);
-	return (0);
-}
+

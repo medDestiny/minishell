@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/19 21:08:25 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/20 02:50:54 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 14:13:13 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ int	update_hdoc_fd(t_tree *cmd, t_env *env)
 	t_token	*delim;
 
 	delim = NULL;
+	if (cmd->type != T_CMD && cmd->type != S_CMD)
+		return (0);
 	redir = cmd->cmd.redir;
 	while (redir)
 	{
@@ -107,22 +109,26 @@ int	open_heredocs(t_tree *root, t_env *env)
 
 	if (!root)
 		return (1);
-	if (is_subshell(root->type))
+	if (root->type == T_CMD)
 	{
+		if (update_hdoc_fd(root, env) == 1)
+			return (1);
+	}
+	else if (is_subshell(root->type))
+	{
+		if (update_hdoc_fd(root, env) == 1)
+			return (1);
 		sub_hdoc = get_hdoc_fd(root, env);
 		if (sub_hdoc == -2)
 			return (1);
 		update_subshell_hdoc(root, sub_hdoc);
 	}
-	if (root->type != T_CMD && !is_subshell(root->type))
+	else
 	{
 		if (open_heredocs(root->node.lchild, env) == 1)
 			return (1);
 		if (open_heredocs(root->node.rchild, env) == 1)
 			return (1);
 	}
-	else
-		if (update_hdoc_fd(root, env) == 1)
-			return (1);
 	return (0);
 }

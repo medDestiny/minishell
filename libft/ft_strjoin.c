@@ -6,12 +6,11 @@
 /*   By: hlaadiou <hlaadiou@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/30 17:34:45 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/07/30 17:34:52 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:30:46 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#include"../minishell.h"
+#include "../minishell.h"
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {

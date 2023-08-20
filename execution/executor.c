@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 10:04:39 by hlaadiou          #+#    #+#             */
-/*   Updated: 2023/08/20 11:56:10 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 14:54:03 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -394,16 +394,6 @@ void	set_pipe(int in, int out)
 	}
 }
 
-void	close_pipes(t_fds *pipe)
-{
-	while (pipe)
-	{
-		close(pipe->ends[0]);
-		close(pipe->ends[1]);
-		pipe = pipe->next;
-	}
-}
-
 void	execute_child(t_tree *node, t_env *env)
 {
 	int		*files;
@@ -577,13 +567,28 @@ pid_t	_fork(void)
 	return (pid);
 }
 
-int	extract_status()
+int	extract_status(void)
 {
 	if (WIFEXITED(g_exit.status))
 		return (WEXITSTATUS(g_exit.status));
 	else if (WIFSIGNALED(g_exit.status))
 		return (128 + WTERMSIG(g_exit.status));
 	return (0);
+}
+
+void	close_heredocs(t_tree *root)
+{
+	if (!root)
+		return ;
+	if (root->type == T_CMD || root->type == S_CMD)
+	{
+		if (root->cmd.hdoc != -1)
+			close(root->cmd.hdoc);
+		if (root->cmd.sub_hdoc != -1)
+			close(root->cmd.sub_hdoc);
+	}
+	close_heredocs(root->node.lchild);
+	close_heredocs(root->node.rchild);
 }
 
 //fd[0] read end, fd[1] write end
@@ -626,6 +631,7 @@ int	exec_pipe(t_tree *node, t_env **env)
 		g_exit.status = stat;
 	if (wait(&stat) == pid[1])
 		g_exit.status = stat;
+	close_heredocs(node);
 	g_exit.status = extract_status();
 	signal_interrupter();
 	return (0);
@@ -644,6 +650,8 @@ int	exec_or(t_tree *node, t_env **env)
 		if (ret != 0)
 			return (ret);
 	}
+	else
+		close_heredocs(node);
 	return (0);
 }
 
@@ -660,6 +668,8 @@ int	exec_and(t_tree *node, t_env **env)
 		if (ret != 0)
 			return (ret);
 	}
+	else
+		close_heredocs(node);
 	return (0);
 }
 
@@ -681,14 +691,6 @@ void	set_subshell_files(t_tree *subsh)
 		subsh = subsh->node.lchild;
 	files = open_subsh_files(subsh->cmd);
 	set_fildes(files);
-}
-
-void	close_subsh_hdoc(t_tree *subsh)
-{
-	while (subsh && subsh->type != T_CMD && subsh->type != S_CMD)
-		subsh = subsh->node.lchild;
-	if (subsh->cmd.sub_hdoc != -1)
-		close(subsh->cmd.sub_hdoc);
 }
 
 void	subshell(t_tree *subsh, t_env **env)
@@ -715,7 +717,7 @@ void	subshell(t_tree *subsh, t_env **env)
 	}
 	else
 	{
-		close_subsh_hdoc(subsh);
+		close_heredocs(subsh);
 		_wait(pid);
 	}
 }

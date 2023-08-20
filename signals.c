@@ -6,7 +6,7 @@
 /*   By: mmisskin <mmisskin@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/10 11:04:12 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 21:51:09 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:33:16 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	hdoc_handler(int signum)
 
 void	heredoc_signals(void)
 {
-	struct sigaction sig;
+	struct sigaction	sig;
 
 	sig.sa_handler = hdoc_handler; 
 	sig.sa_flags = 0;
@@ -46,7 +46,7 @@ void	heredoc_signals(void)
 
 void	default_signals(void)
 {
-	struct sigaction sig;
+	struct sigaction	sig;
 
 	sig.sa_handler = SIG_DFL;
 	sig.sa_flags = 0;
@@ -59,7 +59,7 @@ void	default_signals(void)
 
 void	ignore_signals(void)
 {
-	struct sigaction sig;
+	struct sigaction	sig;
 
 	sig.sa_handler = SIG_IGN;
 	sig.sa_flags = 0;
@@ -72,7 +72,7 @@ void	ignore_signals(void)
 
 void	signal_interrupter(void)
 {
-	struct sigaction sig;
+	struct sigaction	sig;
 
 	sig.sa_handler = sig_handler;
 	sig.sa_flags = 0;

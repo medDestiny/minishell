@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/29 16:08:00 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/19 23:12:28 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 14:53:27 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,6 +226,8 @@ int	add_group_redir(t_token *paren, t_tree *group)
 
 	err = 0;
 	sub_redir = NULL;
+	if (!paren)
+		return (err);
 	skip(&paren, SPC);
 	while (paren && paren->type != R_PAREN && paren->type != L_PAREN
 		&& !is_connector(paren))
@@ -305,8 +307,6 @@ t_tree	*parser(t_token **tokens)
 	root = NULL;
 	while (*tokens)
 	{
-		if (peek(*tokens) == L_PAREN)
-			skip_redirs(tokens);
 		if (*tokens && (*tokens)->type == R_PAREN)
 			break ;
 		else if (*tokens && (*tokens)->type == L_PAREN)
