@@ -6,7 +6,7 @@
 /*   By: mmisskin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/18 08:47:46 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/17 20:57:36 by mmisskin         ###   ########.fr       */
+/*   Updated: 2023/08/20 12:16:59 by mmisskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,9 @@ t_env	*build_env(char *program_name)
 	cwd = getcwd(NULL, 0);
 	if (cwd)
 	{
-		err = env_add(&env, ft_strdup("PWD"), getcwd(NULL, 0), 0);
+		err = env_add(&env, ft_strdup("PWD"), ft_strdup(cwd), 0);
 		err = env_add(&env, ft_strdup("2PWD"), ft_strdup(cwd), 1);
+		free(cwd);
 	}
 	err = env_add(&env, ft_strdup("PATH"),
 			ft_strdup("/usr/gnu/bin:/usr/local/bin:/bin:/usr/bin:."), 1);
