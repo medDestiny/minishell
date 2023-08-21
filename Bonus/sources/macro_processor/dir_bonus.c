@@ -6,7 +6,7 @@
 /*   By: hlaadiou <hlaadiou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 13:17:44 by mmisskin          #+#    #+#             */
-/*   Updated: 2023/08/21 14:46:58 by hlaadiou         ###   ########.fr       */
+/*   Updated: 2023/08/21 17:53:36 by hlaadiou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ t_entry	*dir_pattern_check(char *dir, char *pattern, int *flags)
 			break ;
 		if (wildcard_match(info->d_name, pattern, flags))
 			if (entry_node_insert(&entries, info->d_name) != 0)
-				return (clean_list(&entries), NULL);
+				return (closedir(dirp), clean_list(&entries), NULL);
 	}
 	closedir(dirp);
 	return (entries);
